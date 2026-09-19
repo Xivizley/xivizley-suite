@@ -25,7 +25,8 @@ export type { TooltipProps, TooltipPosition } from "./components/Tooltip/index.j
 // ─── Molekül Bileşenleri ────────────────────────────────────
 export { MetricGauge } from "./components/MetricGauge/index.js";
 export type { MetricGaugeProps, MetricGaugeSize, MetricThresholds } from "./components/MetricGauge/index.js";
-// export { ConsoleViewer } from "./components/ConsoleViewer/index.js";
+export { ConsoleViewer } from "./components/ConsoleViewer/index.js";
+export type { ConsoleViewerProps } from "./components/ConsoleViewer/index.js";
 // export { Modal } from "./components/Modal/index.js";
 // export { Dropdown } from "./components/Dropdown/index.js";
 
