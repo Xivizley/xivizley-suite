@@ -1,0 +1,118 @@
+/* ================================================================
+ * @xivizley/aurora-ui — Aurora Night Tema Değişkenleri
+ * ================================================================
+ * Tüm renkler, gölgeler ve geçişler burada tanımlanır.
+ * Tailwind bu değişkenleri token olarak okur (tailwind.config.ts).
+ * Üçüncü parti widget'lar (xterm, Vaultwarden vb.) de doğrudan
+ * var(--aurora-xxx) ile bu değerlere erişebilir.
+ * ================================================================ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ─── Arka Planlar (Koyudan Açığa) ──────────────────────── */
+    --aurora-bg-dark: #050709;
+    --aurora-bg-deeper: #07090e;
+    --aurora-bg-surface: #0e131f;
+    --aurora-bg-card: rgba(18, 24, 38, 0.72);
+    --aurora-bg-elevated: rgba(26, 34, 56, 0.65);
+
+    /* ─── Neon Aksan Renkleri ───────────────────────────────── */
+    --aurora-cyan: #00f2fe;
+    --aurora-purple: #8a2be2;
+    --aurora-green: #10b981;
+    --aurora-amber: #f59e0b;
+    --aurora-rose: #f43f5e;
+
+    /* ─── Neon Glow Opaklıkları (box-shadow için) ──────────── */
+    --aurora-cyan-glow: rgba(0, 242, 254, 0.35);
+    --aurora-purple-glow: rgba(138, 43, 226, 0.30);
+    --aurora-green-glow: rgba(16, 185, 129, 0.35);
+    --aurora-amber-glow: rgba(245, 158, 11, 0.35);
+    --aurora-rose-glow: rgba(244, 63, 94, 0.35);
+
+    /* ─── Metin ─────────────────────────────────────────────── */
+    --aurora-text-primary: #f1f5f9;
+    --aurora-text-secondary: #94a3b8;
+    --aurora-text-muted: #475569;
+
+    /* ─── Kenarlar ──────────────────────────────────────────── */
+    --aurora-border: rgba(255, 255, 255, 0.08);
+    --aurora-border-glow: rgba(0, 242, 254, 0.25);
+
+    /* ─── Glassmorphism Katmanı ─────────────────────────────── */
+    --aurora-glass-bg: rgba(14, 19, 31, 0.55);
+    --aurora-glass-blur: 12px;
+    --aurora-glass-border: rgba(255, 255, 255, 0.06);
+
+    /* ─── Geçiş Süreleri ────────────────────────────────────── */
+    --aurora-transition-fast: 150ms;
+    --aurora-transition-base: 200ms;
+    --aurora-transition-slow: 350ms;
+
+    /* ─── Gölge Katmanları ──────────────────────────────────── */
+    --aurora-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+    --aurora-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+    --aurora-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.7);
+
+    /* ─── Font Boyutları ────────────────────────────────────── */
+    --aurora-text-xs: 0.75rem;
+    --aurora-text-sm: 0.875rem;
+    --aurora-text-base: 1rem;
+    --aurora-text-lg: 1.125rem;
+    --aurora-text-xl: 1.25rem;
+    --aurora-text-2xl: 1.5rem;
+  }
+}
+
+/* ─── Global Temel Stiller ────────────────────────────────── */
+@layer base {
+  body {
+    @apply bg-aurora-dark text-aurora-text-primary font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Scrollbar — Aurora temasına uygun ince scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--aurora-bg-deeper);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--aurora-border);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* ─── Ortak Utility Sınıfları ─────────────────────────────── */
+@layer utilities {
+  /* Glassmorphism kart efekti */
+  .aurora-glass {
+    background: var(--aurora-glass-bg);
+    backdrop-filter: blur(var(--aurora-glass-blur));
+    -webkit-backdrop-filter: blur(var(--aurora-glass-blur));
+    border: 1px solid var(--aurora-glass-border);
+  }
+
+  /* Neon focus halkası */
+  .aurora-focus-ring {
+    @apply outline-none ring-2 ring-aurora-cyan/40 ring-offset-2 ring-offset-aurora-dark;
+  }
+
+  /* Neon parlama efekti (hover / active) */
+  .aurora-neon-glow {
+    box-shadow: 0 0 12px var(--aurora-cyan-glow), 0 0 4px var(--aurora-purple-glow);
+  }
+}
