@@ -1,0 +1,29 @@
+{
+  "name": "@xivizley/resource-gov",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@xivizley/types": "workspace:*",
+    "dockerode": "^4.0.2"
+  },
+  "devDependencies": {
+    "@xivizley/tsconfig": "workspace:*",
+    "@types/dockerode": "^3.3.34",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.3"
+  }
+}
