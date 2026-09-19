@@ -22,8 +22,9 @@ export type { SpinnerProps, SpinnerSize, SpinnerColor } from "./components/Spinn
 export { Tooltip } from "./components/Tooltip/index.js";
 export type { TooltipProps, TooltipPosition } from "./components/Tooltip/index.js";
 
-// ─── Molekül Bileşenleri (Adım 2 devamında eklenecek) ──────
-// export { MetricGauge } from "./components/MetricGauge/index.js";
+// ─── Molekül Bileşenleri ────────────────────────────────────
+export { MetricGauge } from "./components/MetricGauge/index.js";
+export type { MetricGaugeProps, MetricGaugeSize, MetricThresholds } from "./components/MetricGauge/index.js";
 // export { ConsoleViewer } from "./components/ConsoleViewer/index.js";
 // export { Modal } from "./components/Modal/index.js";
 // export { Dropdown } from "./components/Dropdown/index.js";

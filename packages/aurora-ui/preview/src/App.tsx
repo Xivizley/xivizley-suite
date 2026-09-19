@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Input, Badge, StatusBadge, Card, Spinner, Tooltip } from "@xivizley/aurora-ui";
+import { Button, Input, Badge, StatusBadge, Card, Spinner, Tooltip, MetricGauge } from "@xivizley/aurora-ui";
 import type { ServerStatus } from "@xivizley/aurora-ui";
 
 // ─── Section Wrapper ────────────────────────────────────────
@@ -282,6 +282,53 @@ export function App() {
             </Button>
           </Tooltip>
         </Row>
+      </Section>
+
+      {/* ═══════════════ METRIC GAUGE ═══════════════ */}
+      <Section title="MetricGauge">
+        <div className="space-y-6 max-w-2xl">
+          <Card header={<span className="text-sm font-medium text-aurora-cyan">Sistem Donanım İzleyici (Resource Governor Uyumlu)</span>}>
+            <div className="space-y-5">
+              {/* Normal Durum (< %80) */}
+              <MetricGauge
+                label="CPU Kullanımı"
+                value={42.5}
+                unit="%"
+                size="md"
+                helperText="4 Çekirdek ortalaması stabil"
+              />
+
+              {/* Uyarı Eşiği (%80 - Brain Suspend) */}
+              <MetricGauge
+                label="RAM Kullanımı (Host Eşiği)"
+                value={6554}
+                max={8192}
+                unit="MB"
+                size="md"
+                helperText="⚠️ %80 eşiği aşıldı: Brain (LLM) askıya alınma bölgesinde"
+              />
+
+              {/* Kritik Eşik (%90 - Vault Halt) */}
+              <MetricGauge
+                label="Depolama / Disk I/O Yükü"
+                value={93}
+                unit="%"
+                size="lg"
+                helperText="🚨 %90 eşiği aşıldı: Vault AI arka plan görevleri durduruldu!"
+              />
+
+              {/* Küçük Boyut (Kompakt Kartlar İçin) */}
+              <MetricGauge
+                label="FiveM Tahsis Edilen RAM"
+                value={3200}
+                max={4096}
+                unit="MB"
+                size="sm"
+                helperText="Konteyner limiti: 4096 MB"
+              />
+            </div>
+          </Card>
+        </div>
       </Section>
 
       {/* ═══════════════ RENK PALETİ ═══════════════ */}
