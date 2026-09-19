@@ -47,6 +47,9 @@ services:
       DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
       PORT: "3000"
       NODE_ENV: production
+      COOKIE_SECRET: ${COOKIE_SECRET:-xivizley_cookie_secret_key_32_chars_min}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
     depends_on:
       postgres:
         condition: service_healthy
@@ -63,6 +66,13 @@ services:
       DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
       PORT: "3001"
       NODE_ENV: production
+      FIVEM_CONTAINER_NAME: ${FIVEM_CONTAINER_NAME:-fivem-server}
+      COOKIE_SECRET: ${COOKIE_SECRET:-xivizley_cookie_secret_key_32_chars_min}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      TOTAL_RAM_MB: ${TOTAL_RAM_MB:-8192}
+      TOTAL_CPU_CORES: ${TOTAL_CPU_CORES:-4}
+      BRAIN_SUSPEND_THRESHOLD: ${BRAIN_SUSPEND_THRESHOLD:-0.80}
+      VAULT_HALT_THRESHOLD: ${VAULT_HALT_THRESHOLD:-0.90}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # Docker Engine erişimi
     depends_on:
