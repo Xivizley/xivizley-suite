@@ -38,7 +38,7 @@ async function bootstrap() {
   await fastify.register(driveRoutes);
 
   // Next.js Catch-all
-  fastify.all("/*", async (req, reply) => {
+  fastify.setNotFoundHandler(async (req, reply) => {
     if (nextReady) {
       reply.hijack();
       await handle(req.raw, reply.raw);

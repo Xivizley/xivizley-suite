@@ -45,7 +45,7 @@ async function bootstrap() {
   await fastify.register(gamePanelRoutes, { governor });
 
   // Next.js Catch-all
-  fastify.all("/*", async (req, reply) => {
+  fastify.setNotFoundHandler(async (req, reply) => {
     if (nextReady) {
       reply.hijack();
       await handle(req.raw, reply.raw);

@@ -48,7 +48,7 @@ async function bootstrap() {
   await fastify.register(authRoutes);
 
   // 2. Next.js SSR ve App Router sayfaları için catch-all yönlendirme
-  fastify.all("/*", async (req, reply) => {
+  fastify.setNotFoundHandler(async (req, reply) => {
     if (nextReady) {
       reply.hijack();
       await handle(req.raw, reply.raw);
