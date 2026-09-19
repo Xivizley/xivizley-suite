@@ -1,0 +1,69 @@
+{
+	# Global Caddy ayarları
+	email admin@xivizley.com.tr
+}
+
+# ─── SSO / Hub ──────────────────────────────────────────────
+suite.xivizley.com.tr {
+	reverse_proxy sso:3000
+}
+
+# ─── Game Panel ─────────────────────────────────────────────
+game.xivizley.com.tr {
+	reverse_proxy game-panel:3001
+}
+
+# ─── Drive ──────────────────────────────────────────────────
+drive.xivizley.com.tr {
+	reverse_proxy drive:3002
+}
+
+# ─── Cinema ─────────────────────────────────────────────────
+cinema.xivizley.com.tr {
+	reverse_proxy cinema:3003
+}
+
+# ─── Vault ──────────────────────────────────────────────────
+vault.xivizley.com.tr {
+	reverse_proxy vault:3004
+}
+
+# ─── Sound ──────────────────────────────────────────────────
+sound.xivizley.com.tr {
+	reverse_proxy sound:3005
+}
+
+# ─── Docs ───────────────────────────────────────────────────
+docs.xivizley.com.tr {
+	reverse_proxy docs:3006
+}
+
+# ─── Pulse ──────────────────────────────────────────────────
+pulse.xivizley.com.tr {
+	reverse_proxy pulse:3007
+}
+
+# ─── Shield Agent ───────────────────────────────────────────
+shield.xivizley.com.tr {
+	reverse_proxy shield-agent:3008
+}
+
+# ─── Pass (Vaultwarden sarmalayıcı) ─────────────────────────
+pass.xivizley.com.tr {
+	reverse_proxy pass:3009
+}
+
+# ─── Fortress ───────────────────────────────────────────────
+fortress.xivizley.com.tr {
+	reverse_proxy fortress:3010
+}
+
+# ─── Brain (Yerel LLM) ──────────────────────────────────────
+brain.xivizley.com.tr {
+	reverse_proxy brain:3011
+}
+
+# ─── Flow (n8n embed) ───────────────────────────────────────
+flow.xivizley.com.tr {
+	reverse_proxy flow:3012
+}

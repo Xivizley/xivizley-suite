@@ -1,0 +1,126 @@
+services:
+  # ─── Veritabanı ────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: xivizley-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: xivizley
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-xivizley_dev}
+      POSTGRES_DB: xivizley_suite
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-schemas.sql:/docker-entrypoint-initdb.d/init-schemas.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xivizley -d xivizley_suite"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Reverse Proxy & TLS ───────────────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: xivizley-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - sso
+      - game-panel
+
+  # ─── SSO (XIVIZLEY ID) ──────────────────────────────────────
+  sso:
+    build:
+      context: ../
+      dockerfile: apps/sso/Dockerfile
+    container_name: xivizley-sso
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
+      PORT: "3000"
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # ports: - "3000:3000"  # caddy üzerinden erişilir, dışa açmak zorunlu değil
+
+  # ─── Game Panel ─────────────────────────────────────────────
+  game-panel:
+    build:
+      context: ../
+      dockerfile: apps/game-panel/Dockerfile
+    container_name: xivizley-game-panel
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
+      PORT: "3001"
+      NODE_ENV: production
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker Engine erişimi
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # OOM Killer koruması — Game Panel daima korunur
+    oom_score_adj: -500
+
+  # ─── Drive ──────────────────────────────────────────────────
+  drive:
+    build:
+      context: ../
+      dockerfile: apps/drive/Dockerfile
+    container_name: xivizley-drive
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
+      PORT: "3002"
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ─── Cinema ─────────────────────────────────────────────────
+  cinema:
+    build:
+      context: ../
+      dockerfile: apps/cinema/Dockerfile
+    container_name: xivizley-cinema
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
+      PORT: "3003"
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ─── Pulse ──────────────────────────────────────────────────
+  pulse:
+    build:
+      context: ../
+      dockerfile: apps/pulse/Dockerfile
+    container_name: xivizley-pulse
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
+      PORT: "3007"
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  default:
+    name: xivizley-network

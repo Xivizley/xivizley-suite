@@ -1,0 +1,26 @@
+# ─── Dependencies ─────────────────────────────────────────
+node_modules/
+.pnpm-store/
+
+# ─── Build Outputs ────────────────────────────────────────
+dist/
+.next/
+out/
+build/
+
+# ─── Environment Variables ────────────────────────────────
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ─── Turbo ────────────────────────────────────────────────
+.turbo/
+
+# ─── Drizzle ──────────────────────────────────────────────
+drizzle/migrations/
+
+# ─── OS & IDE ─────────────────────────────────────────────
+.DS_Store
+.vscode/settings.json
+*.log
