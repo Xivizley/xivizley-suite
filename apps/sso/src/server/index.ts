@@ -9,10 +9,16 @@ const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
 
 async function bootstrap() {
+  let nextReady = false;
   const nextApp = next({ dev, dir: process.cwd() });
   const handle = nextApp.getRequestHandler();
 
-  await nextApp.prepare();
+  try {
+    await nextApp.prepare();
+    nextReady = true;
+  } catch (err) {
+    console.warn("⚠️ Next.js frontend hazır değil, API modunda çalışılıyor:", err);
+  }
 
   const fastify = Fastify({
     logger: dev
@@ -43,8 +49,16 @@ async function bootstrap() {
 
   // 2. Next.js SSR ve App Router sayfaları için catch-all yönlendirme
   fastify.all("/*", async (req, reply) => {
-    reply.hijack();
-    await handle(req.raw, reply.raw);
+    if (nextReady) {
+      reply.hijack();
+      await handle(req.raw, reply.raw);
+    } else {
+      reply.status(200).send({
+        ok: true,
+        service: "XIVIZLEY SSO & ID",
+        status: "API operational",
+      });
+    }
   });
 
   // Sunucuyu başlat

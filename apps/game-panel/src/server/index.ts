@@ -15,9 +15,16 @@ async function bootstrap() {
   governor.start();
 
   // 2. Next.js hazırlığı
+  let nextReady = false;
   const nextApp = next({ dev, dir: process.cwd() });
   const handle = nextApp.getRequestHandler();
-  await nextApp.prepare();
+
+  try {
+    await nextApp.prepare();
+    nextReady = true;
+  } catch (err) {
+    console.warn("⚠️ Next.js frontend hazır değil, API modunda çalışılıyor:", err);
+  }
 
   // 3. Fastify başlat
   const fastify = Fastify({
@@ -39,8 +46,16 @@ async function bootstrap() {
 
   // Next.js Catch-all
   fastify.all("/*", async (req, reply) => {
-    reply.hijack();
-    await handle(req.raw, reply.raw);
+    if (nextReady) {
+      reply.hijack();
+      await handle(req.raw, reply.raw);
+    } else {
+      reply.status(200).send({
+        ok: true,
+        service: "XIVIZLEY Game Panel",
+        status: "API operational",
+      });
+    }
   });
 
   try {

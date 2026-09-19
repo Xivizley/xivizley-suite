@@ -92,6 +92,8 @@ services:
       DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
       PORT: "3002"
       NODE_ENV: production
+      COOKIE_SECRET: ${COOKIE_SECRET:-xivizley_cookie_secret_key_32_chars_min}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
     depends_on:
       postgres:
         condition: service_healthy

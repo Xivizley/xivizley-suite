@@ -9,9 +9,16 @@ const port = Number(process.env.PORT || 3002);
 const host = process.env.HOST || "0.0.0.0";
 
 async function bootstrap() {
+  let nextReady = false;
   const nextApp = next({ dev, dir: process.cwd() });
   const handle = nextApp.getRequestHandler();
-  await nextApp.prepare();
+
+  try {
+    await nextApp.prepare();
+    nextReady = true;
+  } catch (err) {
+    console.warn("⚠️ Next.js frontend hazır değil, API modunda çalışılıyor:", err);
+  }
 
   const fastify = Fastify({
     logger: dev
@@ -32,8 +39,16 @@ async function bootstrap() {
 
   // Next.js Catch-all
   fastify.all("/*", async (req, reply) => {
-    reply.hijack();
-    await handle(req.raw, reply.raw);
+    if (nextReady) {
+      reply.hijack();
+      await handle(req.raw, reply.raw);
+    } else {
+      reply.status(200).send({
+        ok: true,
+        service: "XIVIZLEY Drive",
+        status: "API operational",
+      });
+    }
   });
 
   try {
