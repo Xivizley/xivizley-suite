@@ -96,35 +96,19 @@ services:
       postgres:
         condition: service_healthy
 
-  # ─── Cinema ─────────────────────────────────────────────────
-  cinema:
-    build:
-      context: ../
-      dockerfile: apps/cinema/Dockerfile
-    container_name: xivizley-cinema
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
-      PORT: "3003"
-      NODE_ENV: production
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  # ─── Pulse ──────────────────────────────────────────────────
-  pulse:
-    build:
-      context: ../
-      dockerfile: apps/pulse/Dockerfile
-    container_name: xivizley-pulse
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
-      PORT: "3007"
-      NODE_ENV: production
-    depends_on:
-      postgres:
-        condition: service_healthy
+  # ─── Faz 2 Uygulamaları (Cinema, Pulse) — Kodlandıkça aktif edilir ───
+  # cinema:
+  #   build:
+  #     context: ../
+  #     dockerfile: apps/cinema/Dockerfile
+  #   container_name: xivizley-cinema
+  #   ...
+  # pulse:
+  #   build:
+  #     context: ../
+  #     dockerfile: apps/pulse/Dockerfile
+  #   container_name: xivizley-pulse
+  #   ...
 
 volumes:
   postgres_data:
