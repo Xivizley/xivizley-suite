@@ -20,6 +20,10 @@ build/
 # ─── Drizzle ──────────────────────────────────────────────
 drizzle/migrations/
 
+# ─── Keys & Secrets ───────────────────────────────────────
+.keys/
+*.pem
+
 # ─── OS & IDE ─────────────────────────────────────────────
 .DS_Store
 .vscode/settings.json
