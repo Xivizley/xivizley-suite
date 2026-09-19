@@ -1,10 +1,10 @@
 {
-  "name": "@xivizley/drive",
+  "name": "@xivizley/talk",
   "version": "0.1.0",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "dev": "next dev -p 3002",
+    "dev": "next dev -p 3013",
     "dev:server": "tsx watch src/server/index.ts",
     "build": "next build",
     "start": "node dist/server/index.js",
@@ -13,13 +13,11 @@
   },
   "dependencies": {
     "@fastify/cors": "^10.0.2",
-    "@fastify/cookie": "^11.0.2",
-    "@fastify/multipart": "^9.0.3",
+    "@fastify/websocket": "^11.0.2",
     "@xivizley/aurora-ui": "workspace:*",
     "@xivizley/db": "workspace:*",
     "@xivizley/types": "workspace:*",
     "@xivizley/xivizley-id": "workspace:*",
-    "drizzle-orm": "^0.39.0",
     "fastify": "^5.2.1",
     "next": "^15.3.0",
     "react": "^19.0.0",

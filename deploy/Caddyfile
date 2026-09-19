@@ -67,3 +67,8 @@ brain.xivizley.com.tr {
 flow.xivizley.com.tr {
 	reverse_proxy flow:3012
 }
+
+# ─── Talk (Mesajlaşma & Sesli Sohbet) ───────────────────────
+talk.xivizley.com.tr {
+	reverse_proxy talk:3013
+}
