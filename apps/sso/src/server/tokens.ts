@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { importPKCS8, SignJWT } from "jose";
-import type { User } from "@xivizley/db/src/schemas/sso.js";
+import type { User } from "@xivizley/db";
 
 let cachedPrivateKey: CryptoKey | null = null;
 

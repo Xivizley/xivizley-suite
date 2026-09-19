@@ -3,7 +3,7 @@ import argon2 from "argon2";
 import { eq, and, isNull } from "drizzle-orm";
 import crypto from "node:crypto";
 import { getDb } from "@xivizley/db";
-import { users, refreshTokens, oauthClients } from "@xivizley/db/src/schemas/sso.js";
+import { users, refreshTokens, oauthClients } from "@xivizley/db";
 import { generateAccessToken, generateRefreshToken, hashToken } from "./tokens.js";
 
 interface LoginBody {

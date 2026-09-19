@@ -6,8 +6,7 @@ import crypto from "node:crypto";
 import { pipeline } from "node:stream/promises";
 import { eq, and, isNull } from "drizzle-orm";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
-import { getDb } from "@xivizley/db";
-import { files, folders, shares } from "@xivizley/db/src/schemas/drive.js";
+import { getDb, files, folders, shares } from "@xivizley/db";
 
 const UPLOAD_DIR = process.env["DRIVE_STORAGE_PATH"] || path.resolve(process.cwd(), ".storage/drive");
 

@@ -4,14 +4,12 @@
   "private": true,
   "license": "UNLICENSED",
   "sideEffects": ["**/*.css"],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./styles": "./src/styles/aurora-theme.css"
+    ".": "./src/index.ts",
+    "./styles": "./src/styles/aurora-theme.css",
+    "./*": "./src/*"
   },
   "scripts": {
     "build": "tsc --project tsconfig.json",
