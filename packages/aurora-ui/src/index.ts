@@ -27,8 +27,10 @@ export { MetricGauge } from "./components/MetricGauge/index.js";
 export type { MetricGaugeProps, MetricGaugeSize, MetricThresholds } from "./components/MetricGauge/index.js";
 export { ConsoleViewer } from "./components/ConsoleViewer/index.js";
 export type { ConsoleViewerProps } from "./components/ConsoleViewer/index.js";
-// export { Modal } from "./components/Modal/index.js";
-// export { Dropdown } from "./components/Dropdown/index.js";
+export { Modal } from "./components/Modal/index.js";
+export type { ModalProps, ModalSize } from "./components/Modal/index.js";
+export { Dropdown } from "./components/Dropdown/index.js";
+export type { DropdownProps, DropdownOption, DropdownSize } from "./components/Dropdown/index.js";
 
 // ─── Organizma Bileşenleri (Adım 3 sonrası eklenecek) ──────
 // export { SuiteNavbar } from "./components/SuiteNavbar/index.js";

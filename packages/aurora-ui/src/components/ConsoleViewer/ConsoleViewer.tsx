@@ -2,6 +2,7 @@ import {
   type HTMLAttributes,
   forwardRef,
   useState,
+  useEffect,
   type ReactNode,
   type RefObject,
 } from "react";
@@ -57,6 +58,20 @@ export const ConsoleViewer = forwardRef<HTMLDivElement, ConsoleViewerProps>(
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [internalAutoScroll, setInternalAutoScroll] = useState(true);
     const [copied, setCopied] = useState(false);
+
+    // Tam ekranda Escape tuşunu dinle
+    useEffect(() => {
+      if (!isFullscreen) return;
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          setIsFullscreen(false);
+        }
+      };
+
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isFullscreen]);
 
     const isAutoScrollActive =
       externalAutoScroll !== undefined ? externalAutoScroll : internalAutoScroll;
