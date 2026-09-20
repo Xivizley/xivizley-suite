@@ -24,18 +24,25 @@ const authPlugin: FastifyPluginAsync<WithXivizleyAuthOptions> = async (fastify, 
   fastify.decorateRequest("user", undefined);
 
   fastify.addHook("preHandler", async (request: FastifyRequest, reply: FastifyReply) => {
+    let token: string | undefined;
     const authHeader = request.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.substring(7).trim();
+    } else if ((request as any).cookies?.xivizley_access_token) {
+      token = (request as any).cookies.xivizley_access_token;
+    } else if ((request.query as any)?.token) {
+      token = (request.query as any).token;
+    }
+
+    if (!token) {
       if (opts.optional) return;
       return reply.status(401).send({
         ok: false,
         code: "UNAUTHORIZED",
-        message: "Authorization başlığı eksik veya 'Bearer <token>' formatında değil.",
+        message: "Authorization başlığı veya oturum çerezi eksik.",
       });
     }
-
-    const token = authHeader.substring(7).trim();
 
     try {
       const user = await verifyAccessToken(token);

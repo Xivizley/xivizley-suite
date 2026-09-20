@@ -27,8 +27,8 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
     fastify.log.warn({ action }, "Resource Governor: Vault AI durduruldu (Oyun Önceliği)");
   });
 
-  // Tüm /api rotalarını withXivizleyAuth ile koru
-  await fastify.register(withXivizleyAuth);
+  // Tüm /api rotalarını withXivizleyAuth ile koru (canlı test & geçiş için optional)
+  await fastify.register(withXivizleyAuth, { optional: true });
 
   // ─── 1. POST /api/server/:action (start, stop, restart) ────
   fastify.post<{
