@@ -110,10 +110,11 @@ services:
              echo '[FXServer] Starting resource ox_inventory...' &&
              echo '[FXServer] Server listening on 0.0.0.0:30120' &&
              tail -f /dev/null"
+    volumes:
+      - xivizley-fivem-data:/config
     ports:
       - "30120:30120"
       - "30120:30120/udp"
-
 
   # ─── Faz 2 Uygulamaları (Cinema, Pulse) — Kodlandıkça aktif edilir ───
   # cinema:
@@ -133,6 +134,15 @@ volumes:
   postgres_data:
   caddy_data:
   caddy_config:
+  xivizley-fivem-data:
+  xivizley-minecraft-data:
+  xivizley-cs2-data:
+  xivizley-rust-data:
+  xivizley-palworld-data:
+  xivizley-unturned-data:
+  xivizley-ark-data:
+  xivizley-terraria-data:
+  xivizley-valheim-data:
 
 networks:
   default:
