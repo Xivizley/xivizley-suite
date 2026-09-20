@@ -22,6 +22,97 @@ function getContainerName(gameId?: string): string {
   return `xivizley-${gameId}-server`;
 }
 
+/** Oyun konteynerine aktarılacak ortam değişkenleri */
+function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
+  const env: string[] = [];
+  const port = config.port || GAME_CATALOG[gameId].defaultPort;
+  const memMb = (config as any).memLimitMb || GAME_CATALOG[gameId].minRamMb || 2048;
+
+  switch (gameId) {
+    case "minecraft": {
+      env.push("EULA=TRUE");
+      const type =
+        config.engineId === "purpur"
+          ? "PURPUR"
+          : config.engineId === "fabric"
+          ? "FABRIC"
+          : config.engineId === "forge"
+          ? "FORGE"
+          : "PAPER";
+      env.push(`TYPE=${type}`);
+      env.push(`VERSION=${config.version || "LATEST"}`);
+      env.push(`MEMORY=${memMb}M`);
+      env.push(`SERVER_PORT=${port}`);
+      break;
+    }
+    case "fivem": {
+      env.push(`PORT=${port}`);
+      break;
+    }
+    case "cs2": {
+      env.push(`SRCDS_PORT=${port}`);
+      env.push(`SRCDS_MAXPLAYERS=${config.maxPlayers || 10}`);
+      break;
+    }
+    case "rust": {
+      env.push(`RUST_SERVER_PORT=${port}`);
+      env.push("RUST_RCON_PORT=28016");
+      env.push(`RUST_RCON_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      break;
+    }
+    case "palworld": {
+      env.push(`PORT=${port}`);
+      env.push("RCON_ENABLED=true");
+      env.push("RCON_PORT=25575");
+      env.push(`ADMIN_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      break;
+    }
+    default:
+      break;
+  }
+  return env;
+}
+
+/** Konteyner yoksa otomatik oluşturucu (Lazy Container Creation) */
+async function ensureContainerExists(gameId: GameId, config: ActiveServerConfig, docker: Docker): Promise<void> {
+  const containerName = getContainerName(gameId);
+  try {
+    await docker.getContainer(containerName).inspect();
+    // Varsa dokunma
+  } catch (err: any) {
+    if (err.statusCode !== 404) throw err;
+
+    const gameDef = GAME_CATALOG[gameId];
+    const memMb = (config as any).memLimitMb || gameDef.minRamMb || 2048;
+    const port = config.port || gameDef.defaultPort;
+
+    const portBindings: Record<string, Array<{ HostPort: string }>> = {
+      [`${port}/tcp`]: [{ HostPort: String(port) }],
+      [`${port}/udp`]: [{ HostPort: String(port) }],
+    };
+
+    if (gameId === "rust") {
+      portBindings["28016/tcp"] = [{ HostPort: "28016" }];
+    } else if (gameId === "palworld") {
+      portBindings["25575/tcp"] = [{ HostPort: "25575" }];
+    }
+
+    // Yoksa oluştur
+    await docker.createContainer({
+      name: containerName,
+      Image: gameDef.dockerImage,
+      Env: getGameEnvVars(gameId, config),
+      HostConfig: {
+        Memory: memMb * 1024 * 1024,
+        PortBindings: portBindings,
+        Binds: [`${gameDef.volumeName}:${gameDef.volumeMountPath}`],
+        OomScoreAdj: gameId === "fivem" ? -500 : 0,
+        RestartPolicy: { Name: "unless-stopped" },
+      },
+    });
+  }
+}
+
 export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async (
   fastify,
   opts,
@@ -54,6 +145,21 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
 
     try {
       if (action === "start") {
+        // Kural 4: start sadece başlatır, konteyner oluşturmaz
+        // Konteyner yoksa apply çağrılmadan start çalışmaz
+        try {
+          await container.inspect();
+        } catch (inspectErr: any) {
+          if (inspectErr?.statusCode === 404) {
+            return reply.status(400).send({
+              ok: false,
+              code: "CONTAINER_NOT_FOUND",
+              message: "Önce yapılandırmayı kaydedin",
+            });
+          }
+          throw inspectErr;
+        }
+
         // Claude Tavsiyesi: Tek Aktif Sunucu Kuralı
         // Başka bir oyun sunucusu çalışıyorsa yeni sunucunun başlatılması engellenir
         try {
@@ -150,7 +256,7 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
     }
   });
 
-  // ─── 3. POST /api/server/apply (İdempotent Apply - Claude Tavsiyesi) ──
+  // ─── 3. POST /api/server/apply (Kural 3: İdempotent + ensureContainerExists) ──
   fastify.post<{
     Body: { gameId: GameId; config: ActiveServerConfig };
   }>("/api/server/apply", async (request, reply) => {
@@ -160,7 +266,7 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       return reply.status(400).send({ ok: false, message: "gameId ve config zorunludur." });
     }
 
-    // Config Hash hesapla (SHA-256)
+    // 1. Config hash hesapla ve kontrol et (idempotent)
     const configString = JSON.stringify({
       engineId: config.engineId,
       version: config.version,
@@ -173,7 +279,7 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
 
     const previousHash = appliedConfigHashes.get(gameId);
 
-    // Değişiklik yoksa (İdempotent) — Gereksiz restart engellenir
+    // Değişiklik yoksa (İdempotent) — Gereksiz işlem atlanır
     if (previousHash === configHash) {
       return reply.send({
         ok: true,
@@ -183,6 +289,19 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       });
     }
 
+    // 2. Hash değiştiyse ensureContainerExists çağır
+    try {
+      await ensureContainerExists(gameId, config, docker);
+    } catch (createErr: any) {
+      fastify.log.error({ createErr }, "ensureContainerExists başarısız oldu");
+      return reply.status(500).send({
+        ok: false,
+        code: "CONTAINER_CREATION_FAILED",
+        message: `Konteyner oluşturulamadı: ${createErr.message || String(createErr)}`,
+      });
+    }
+
+    // 3. Config'i kaydet
     appliedConfigHashes.set(gameId, configHash);
 
     // Palworld RCON kontrolü (Claude Tavsiyesi: Palworld RCON default kapalı gelir, açılmalı)
@@ -190,11 +309,12 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       fastify.log.info("Palworld için RCONEnabled=True ve Port=25575 ayarlandı.");
     }
 
+    // 4. ok: true dön
     return reply.send({
       ok: true,
       noop: false,
       hash: configHash,
-      message: `${GAME_CATALOG[gameId]?.name || gameId} yapılandırması başarıyla kaydedildi.`,
+      message: `${GAME_CATALOG[gameId]?.name || gameId} yapılandırması kaydedildi ve konteyner hazırlandı.`,
     });
   });
 

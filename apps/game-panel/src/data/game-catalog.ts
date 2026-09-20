@@ -5,10 +5,15 @@
 
 import type { GameId, GameMetadata, ActiveServerConfig } from "@xivizley/types";
 
-export const GAME_CATALOG: Record<GameId, GameMetadata> = {
+export interface GameDefinition extends GameMetadata {
+  dockerImage: string;
+}
+
+export const GAME_CATALOG: Record<GameId, GameDefinition> = {
   fivem: {
     id: "fivem",
     name: "FiveM",
+    dockerImage: "spritsail/fivem",
     tagline: "GTA V Özel Rol Yapma ve Topluluk Sunucuları",
     icon: "🚗",
     badge: "POPÜLER",
@@ -137,6 +142,7 @@ export const GAME_CATALOG: Record<GameId, GameMetadata> = {
   minecraft: {
     id: "minecraft",
     name: "Minecraft",
+    dockerImage: "itzg/minecraft-server",
     tagline: "Paper, Purpur, Fabric & Forge Java / Bedrock Sunucuları",
     icon: "⛏️",
     badge: "CROSSPLAY",
@@ -285,6 +291,7 @@ export const GAME_CATALOG: Record<GameId, GameMetadata> = {
   cs2: {
     id: "cs2",
     name: "Counter-Strike 2",
+    dockerImage: "cm2network/cs2",
     tagline: "5v5 Rekabetçi, Turnuva, Retake & Surf Sunucuları",
     icon: "🔫",
     badge: "ESPOR",
@@ -392,6 +399,7 @@ export const GAME_CATALOG: Record<GameId, GameMetadata> = {
   rust: {
     id: "rust",
     name: "Rust",
+    dockerImage: "didstopia/rust-server",
     tagline: "Hayatta Kalma, PvP, Hızlı Loot & Klan Sunucuları",
     icon: "🪓",
     badge: "SURVIVAL",
@@ -505,6 +513,7 @@ export const GAME_CATALOG: Record<GameId, GameMetadata> = {
   palworld: {
     id: "palworld",
     name: "Palworld",
+    dockerImage: "thijsvanloef/palworld-server-docker",
     tagline: "Yaratık Yakalama, Üs Kurma & Co-Op Dedicated Sunucu",
     icon: "🐾",
     badge: "CO-OP",
@@ -583,6 +592,7 @@ export const GAME_CATALOG: Record<GameId, GameMetadata> = {
   unturned: {
     id: "unturned",
     name: "Unturned",
+    dockerImage: "imperialplugins/unturned",
     tagline: "Zombi Kıyameti, Askeri Loot & Rol Sunucuları",
     icon: "🧟",
     badge: "ZOMBIE",
@@ -668,6 +678,7 @@ export const GAME_CATALOG: Record<GameId, GameMetadata> = {
   ark: {
     id: "ark",
     name: "ARK: Survival",
+    dockerImage: "thch/ark-dedicated-server",
     tagline: "Dinozor Terbiyesi, Kabile Savaşları & Boss Arenaları",
     icon: "🦖",
     badge: "DINO",
@@ -753,6 +764,7 @@ export const GAME_CATALOG: Record<GameId, GameMetadata> = {
   terraria: {
     id: "terraria",
     name: "Terraria",
+    dockerImage: "ryshe/terraria",
     tagline: "2D Piksel Macera, TShock Yönetim & Calamity Modları",
     icon: "🗡️",
     badge: "SANDBOX",
@@ -839,6 +851,7 @@ export const GAME_CATALOG: Record<GameId, GameMetadata> = {
   valheim: {
     id: "valheim",
     name: "Valheim",
+    dockerImage: "lloesche/valheim-server",
     tagline: "Viking Mitolojisi, BepInEx Eklentileri & Keşif Dünyası",
     icon: "🛡️",
     badge: "VIKING",
