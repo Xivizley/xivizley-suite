@@ -108,7 +108,8 @@
 
   /* Neon focus halkası */
   .aurora-focus-ring {
-    @apply outline-none ring-2 ring-aurora-cyan/40 ring-offset-2 ring-offset-aurora-dark;
+    outline: none;
+    box-shadow: 0 0 0 2px var(--aurora-bg-dark), 0 0 0 4px var(--aurora-cyan-glow);
   }
 
   /* Neon parlama efekti (hover / active) */
