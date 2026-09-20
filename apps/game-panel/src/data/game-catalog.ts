@@ -396,7 +396,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         description: "/spawn, /sethome, /tpa, /warp, /kit, /back gibi 100+ temel sunucu komutu paketi.",
         category: "Yönetim",
         defaultEnabled: true,
-        modrinthSlug: "essentialsx",
+        modrinthSlug: "essentialsx:nY6VN1XH",
       },
       {
         id: "vault",

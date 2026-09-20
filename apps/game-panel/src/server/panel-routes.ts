@@ -76,6 +76,12 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
       env.push("RCON_PORT=25575");
       env.push("CREATE_CONSOLE_IN_PIPE=true");
 
+      // Modrinth indirme uyumluluğu (Beta/Pre-release ve Paper loader desteği)
+      env.push("MODRINTH_ALLOWED_VERSION_TYPE=beta");
+      if (type === "PURPUR" || type === "PAPER") {
+        env.push("MODRINTH_LOADER=paper");
+      }
+
       if (config.maxPlayers) {
         env.push(`MAX_PLAYERS=${config.maxPlayers}`);
       }
@@ -95,7 +101,17 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
       for (const pId of config.enabledPluginIds || []) {
         const p = GAME_CATALOG.minecraft?.plugins.find((item) => item.id === pId);
         if (p?.modrinthSlug) {
-          modrinthProjects.push(p.modrinthSlug);
+          let slug = p.modrinthSlug;
+          // Opsiyonel bayrağı (?) ekleyerek sürüm uyuşmazlığında boot-loop olmasını engelle
+          if (!slug.includes("?")) {
+            if (slug.includes(":")) {
+              const [id, ver] = slug.split(":");
+              slug = `${id}?:${ver}`;
+            } else {
+              slug = `${slug}?`;
+            }
+          }
+          modrinthProjects.push(slug);
         } else if (p?.spigetId) {
           spigetResources.push(p.spigetId);
         }
