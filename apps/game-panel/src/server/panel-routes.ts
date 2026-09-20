@@ -70,6 +70,12 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
       env.push(`MEMORY=${memMb}M`);
       env.push(`SERVER_PORT=${port}`);
 
+      // Konsol ve RCON entegrasyonu (rcon-cli & mc-send-to-console için)
+      env.push("ENABLE_RCON=true");
+      env.push(`RCON_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      env.push("RCON_PORT=25575");
+      env.push("CREATE_CONSOLE_IN_PIPE=true");
+
       if (config.maxPlayers) {
         env.push(`MAX_PLAYERS=${config.maxPlayers}`);
       }
@@ -91,7 +97,7 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
         if (p?.modrinthSlug) {
           modrinthProjects.push(p.modrinthSlug);
         } else if (p?.spigetId) {
-          spigetResources.push(String(p.spigetId));
+          spigetResources.push(p.spigetId);
         }
       }
       if (modrinthProjects.length > 0) {
@@ -270,6 +276,11 @@ async function ensureContainerExists(
       name: containerName,
       Image: gameDef.dockerImage,
       Env: getGameEnvVars(gameId, config),
+      OpenStdin: true,
+      Tty: true,
+      AttachStdin: true,
+      AttachStdout: true,
+      AttachStderr: true,
       HostConfig: {
         Memory: memMb * 1024 * 1024,
         PortBindings: portBindings,

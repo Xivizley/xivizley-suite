@@ -446,7 +446,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         description: "Korsan / Offline sunucularda hesap güvenliği için /register ve /login şifreleme kalkanı.",
         category: "Koruma",
         defaultEnabled: false,
-        spigetId: 2212,
+        modrinthSlug: "authmereloaded",
       },
 
       // ─── 3. Crossplay & Sürüm Uyumluluğu ───
@@ -508,14 +508,6 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         defaultEnabled: true,
         modrinthSlug: "skinsrestorer",
       },
-      {
-        id: "citizens",
-        name: "Citizens 2 (Canlı NPC)",
-        description: "Sunucunuza konuşan köylüler, gardiyanlar, tüccarlar ve görev veren NPC botlar ekler.",
-        category: "Görsel",
-        defaultEnabled: false,
-        spigetId: 13807,
-      },
 
       // ─── 5. Ekonomi & Pazar ───
       {
@@ -532,7 +524,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         description: "Geleneksel tabela tabanlı sandık marketi. Çok düşük kaynak tüketimiyle sorunsuz çalışır.",
         category: "Ekonomi",
         defaultEnabled: false,
-        spigetId: 5180,
+        modrinthSlug: "chestshop",
       },
       {
         id: "economyshopgui",
@@ -562,14 +554,6 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         modrinthSlug: "multiverse-core",
       },
       {
-        id: "clearlag",
-        name: "ClearLag (TPS Koruyucu)",
-        description: "Yerde biriken gereksiz eşyaları ve yaratıkları periyodik temizleyerek sunucu hızını 20 TPS'de tutar.",
-        category: "Dünya",
-        defaultEnabled: true,
-        spigetId: 3906,
-      },
-      {
         id: "spark",
         name: "Spark Profiler",
         description: "Hangi eklentinin veya chunk'ın lag yaptığını web tabanlı grafiklerle derinlemesine analiz eder.",
@@ -585,7 +569,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         description: "/rtp yazan oyuncuları lav ve su birikintilerinden koruyarak rastgele bir alana güvenle ışınlar.",
         category: "Oynanış",
         defaultEnabled: true,
-        modrinthSlug: "betterrtp",
+        spigetId: 36081,
       },
       {
         id: "combatlogx",
@@ -593,7 +577,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         description: "Savaş sırasında oyundan kaçmaya çalışan oyuncuları anında öldürür ve ganimetini düşürür.",
         category: "Oynanış",
         defaultEnabled: true,
-        modrinthSlug: "combatlogx",
+        spigetId: 31689,
       },
       {
         id: "auraskills",
@@ -624,7 +608,6 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         "skinsrestorer",
         "quickshop-hikari",
         "multiverse-core",
-        "clearlag",
         "betterrtp",
         "combatlogx",
       ],

@@ -9,9 +9,15 @@ export interface TerminalLogViewerProps {
   title: string;
   status: ServerStatus;
   gameId?: string;
+  onTerminalReady?: (term: { write: (text: string) => void; writeln: (text: string) => void } | null) => void;
 }
 
-export function TerminalLogViewer({ title, status, gameId = "fivem" }: TerminalLogViewerProps) {
+export function TerminalLogViewer({
+  title,
+  status,
+  gameId = "fivem",
+  onTerminalReady,
+}: TerminalLogViewerProps) {
   const terminalRef = useRef<HTMLDivElement | null>(null);
   const termInstanceRef = useRef<Terminal | null>(null);
 
@@ -39,6 +45,7 @@ export function TerminalLogViewer({ title, status, gameId = "fivem" }: TerminalL
     term.open(terminalRef.current);
     fitAddon.fit();
     termInstanceRef.current = term;
+    onTerminalReady?.(term);
 
     term.writeln(`\x1b[36m[XIVIZLEY]\x1b[0m ${title} konsol akışı bağlanıyor...`);
 
@@ -68,6 +75,7 @@ export function TerminalLogViewer({ title, status, gameId = "fivem" }: TerminalL
       eventSource.close();
       term.dispose();
       termInstanceRef.current = null;
+      onTerminalReady?.(null);
     };
   }, [gameId, title]);
 

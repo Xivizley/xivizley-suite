@@ -103,6 +103,8 @@ services:
     image: alpine:latest
     container_name: fivem-server
     restart: unless-stopped
+    stdin_open: true
+    tty: true
     command: >
       sh -c "echo '[FXServer] Initializing FiveM Artifact v7290...' &&
              echo '[FXServer] Mounting data and resources...' &&

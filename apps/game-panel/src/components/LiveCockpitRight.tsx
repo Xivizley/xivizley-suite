@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Button, MetricGauge, StatusBadge, type ServerStatus } from "@xivizley/aurora-ui";
 import { useGameStore, checkRamSafety, getContainerMemoryLimitMb } from "@/store/cockpit-store";
@@ -45,6 +45,7 @@ export function LiveCockpitRight() {
   const [commandInput, setCommandInput] = useState("");
   const [isSendingCommand, setIsSendingCommand] = useState(false);
   const [commandFeedback, setCommandFeedback] = useState<string | null>(null);
+  const termRef = useRef<{ write: (text: string) => void; writeln: (text: string) => void } | null>(null);
 
   // SSE Metrik Akışı
   useEffect(() => {
@@ -128,6 +129,9 @@ export function LiveCockpitRight() {
     setIsSendingCommand(true);
     setCommandFeedback(null);
 
+    // Terminale hemen yaz (Instant Echo)
+    termRef.current?.writeln(`\r\n\x1b[36m>\x1b[0m \x1b[1m${cmdToSend}\x1b[0m`);
+
     try {
       const res = await fetch("/api/server/command", {
         method: "POST",
@@ -140,15 +144,25 @@ export function LiveCockpitRight() {
 
       const json = await res.json();
       if (res.ok && json.ok) {
-        setCommandFeedback(json.data?.response || `[Başarılı] Komut iletildi: ${cmdToSend}`);
+        const resp = json.data?.response || `[Başarılı] Komut iletildi: ${cmdToSend}`;
+        setCommandFeedback(resp);
+        // Çok satırlı yanıtı terminale düzgün yazdır
+        const lines = resp.split("\n");
+        for (const line of lines) {
+          termRef.current?.writeln(`\x1b[32m${line}\x1b[0m`);
+        }
       } else {
-        setCommandFeedback(`[Hata] ${json.message || json.data?.error || "Komut yürütülemedi"}`);
+        const errMsg = json.message || json.data?.error || "Komut yürütülemedi";
+        setCommandFeedback(`[Hata] ${errMsg}`);
+        termRef.current?.writeln(`\x1b[31m[Hata] ${errMsg}\x1b[0m`);
       }
     } catch (err: any) {
-      setCommandFeedback(`[Hata] ${err.message || "Bağlantı hatası"}`);
+      const netErr = err.message || "Bağlantı hatası";
+      setCommandFeedback(`[Hata] ${netErr}`);
+      termRef.current?.writeln(`\x1b[31m[Hata] ${netErr}\x1b[0m`);
     } finally {
       setIsSendingCommand(false);
-      setTimeout(() => setCommandFeedback(null), 4000);
+      setTimeout(() => setCommandFeedback(null), 5000);
     }
   };
 
@@ -278,6 +292,9 @@ export function LiveCockpitRight() {
           title={`${game.name} Canlı Sunucu Konsolu`}
           status={currentStatus}
           gameId={activeGameId}
+          onTerminalReady={(term) => {
+            termRef.current = term;
+          }}
         />
 
         {/* 4. KOMUT GÖNDERME ÇUBUĞU (CommandAdapter ile Senkronize) */}
