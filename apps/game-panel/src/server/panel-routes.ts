@@ -39,11 +39,19 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
 
     try {
       if (action === "start") {
-        await container.start();
+        try {
+          await container.start();
+        } catch (e: any) {
+          if (e?.statusCode !== 304) throw e;
+        }
       } else if (action === "stop") {
-        await container.stop({ t: 10 });
+        try {
+          await container.stop({ t: 2 });
+        } catch (e: any) {
+          if (e?.statusCode !== 304) throw e;
+        }
       } else if (action === "restart") {
-        await container.restart({ t: 10 });
+        await container.restart({ t: 2 });
       } else {
         return reply.status(400).send({ ok: false, message: "Geçersiz aksiyon." });
       }
