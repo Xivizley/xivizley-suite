@@ -51,6 +51,8 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
   switch (gameId) {
     case "minecraft": {
       env.push("EULA=TRUE");
+      env.push("ONLINE_MODE=FALSE");
+      env.push("JVM_OPTS=-Dspark.enabled=false");
       const type =
         config.engineId === "purpur"
           ? "PURPUR"
