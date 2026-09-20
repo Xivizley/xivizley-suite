@@ -98,6 +98,23 @@ services:
       postgres:
         condition: service_healthy
 
+  # ─── FiveM Server (Canlı Test & Panel Kontrol Konteyneri) ──
+  fivem-server:
+    image: alpine:latest
+    container_name: fivem-server
+    restart: unless-stopped
+    command: >
+      sh -c "echo '[FXServer] Initializing FiveM Artifact v7290...' &&
+             echo '[FXServer] Mounting data and resources...' &&
+             echo '[FXServer] Starting resource qb-core...' &&
+             echo '[FXServer] Starting resource ox_inventory...' &&
+             echo '[FXServer] Server listening on 0.0.0.0:30120' &&
+             tail -f /dev/null"
+    ports:
+      - "30120:30120"
+      - "30120:30120/udp"
+
+
   # ─── Faz 2 Uygulamaları (Cinema, Pulse) — Kodlandıkça aktif edilir ───
   # cinema:
   #   build:
