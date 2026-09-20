@@ -13,6 +13,8 @@ export interface GamePanelRoutesOptions {
 
 // Konfigürasyon hash önbelleği (İdempotent Apply için - Claude Tavsiyesi)
 const appliedConfigHashes = new Map<GameId, string>();
+// Aktif olarak imajı indirilen oyunlar
+const pullingGames = new Set<GameId>();
 
 /** Oyun türüne göre konteyner adını türet */
 function getContainerName(gameId?: string): string {
@@ -20,6 +22,24 @@ function getContainerName(gameId?: string): string {
     return process.env["FIVEM_CONTAINER_NAME"] || "fivem-server";
   }
   return `xivizley-${gameId}-server`;
+}
+
+/** Image var mı kontrol et, yoksa docker.pull() ile çek (Kural 1) */
+async function ensureImageExists(docker: Docker, image: string): Promise<void> {
+  try {
+    await docker.getImage(image).inspect();
+  } catch (err: any) {
+    if (err.statusCode !== 404) throw err;
+    await new Promise<void>((resolve, reject) => {
+      docker.pull(image, (pullErr: any, stream: any) => {
+        if (pullErr) return reject(pullErr);
+        docker.modem.followProgress(stream, (progressErr: any) => {
+          if (progressErr) reject(progressErr);
+          else resolve();
+        });
+      });
+    });
+  }
 }
 
 /** Oyun konteynerine aktarılacak ortam değişkenleri */
@@ -83,6 +103,9 @@ async function ensureContainerExists(gameId: GameId, config: ActiveServerConfig,
     if (err.statusCode !== 404) throw err;
 
     const gameDef = GAME_CATALOG[gameId];
+    // Kural 2: ensureContainerExists içinde createContainer öncesi ensureImageExists çağır
+    await ensureImageExists(docker, gameDef.dockerImage);
+
     const memMb = (config as any).memLimitMb || gameDef.minRamMb || 2048;
     const port = config.port || gameDef.defaultPort;
 
@@ -145,6 +168,15 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
 
     try {
       if (action === "start") {
+        // İmaj indirme devam ediyorsa uyar
+        if (pullingGames.has(gameId)) {
+          return reply.status(400).send({
+            ok: false,
+            code: "IMAGE_PULLING",
+            message: `${GAME_CATALOG[gameId]?.name || gameId} image indiriliyor (~500 MB), lütfen bekleyin...`,
+          });
+        }
+
         // Kural 4: start sadece başlatır, konteyner oluşturmaz
         // Konteyner yoksa apply çağrılmadan start çalışmaz
         try {
@@ -256,7 +288,7 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
     }
   });
 
-  // ─── 3. POST /api/server/apply (Kural 3: İdempotent + ensureContainerExists) ──
+  // ─── 3. POST /api/server/apply (Kural 3: İdempotent + Pull Bildirimi + ensureContainerExists) ──
   fastify.post<{
     Body: { gameId: GameId; config: ActiveServerConfig };
   }>("/api/server/apply", async (request, reply) => {
@@ -289,7 +321,42 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       });
     }
 
-    // 2. Hash değiştiyse ensureContainerExists çağır
+    const gameDef = GAME_CATALOG[gameId];
+
+    // İmaj var mı kontrol et
+    let imageNeedsPull = false;
+    try {
+      await docker.getImage(gameDef.dockerImage).inspect();
+    } catch (inspectErr: any) {
+      if (inspectErr?.statusCode === 404) {
+        imageNeedsPull = true;
+      }
+    }
+
+    // Kural 3: İmaj yoksa pull başlat ve kullanıcıya süreci anında dön
+    if (imageNeedsPull) {
+      if (!pullingGames.has(gameId)) {
+        pullingGames.add(gameId);
+        ensureContainerExists(gameId, config, docker)
+          .then(() => {
+            appliedConfigHashes.set(gameId, configHash);
+          })
+          .catch((err) => {
+            fastify.log.error({ err }, "Arka plan image pull / container create hatası");
+          })
+          .finally(() => {
+            pullingGames.delete(gameId);
+          });
+      }
+
+      return reply.send({
+        ok: true,
+        pulling: true,
+        message: `${gameDef?.name || gameId} image indiriliyor (~500 MB), lütfen bekleyin...`,
+      });
+    }
+
+    // 2. İmaj zaten mevcutsa hemen ensureContainerExists çağır
     try {
       await ensureContainerExists(gameId, config, docker);
     } catch (createErr: any) {
@@ -314,7 +381,7 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       ok: true,
       noop: false,
       hash: configHash,
-      message: `${GAME_CATALOG[gameId]?.name || gameId} yapılandırması kaydedildi ve konteyner hazırlandı.`,
+      message: `${gameDef?.name || gameId} yapılandırması kaydedildi ve konteyner hazırlandı.`,
     });
   });
 
