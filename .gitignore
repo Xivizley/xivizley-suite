@@ -28,3 +28,4 @@ drizzle/migrations/
 .DS_Store
 .vscode/settings.json
 *.log
+*.tsbuildinfo

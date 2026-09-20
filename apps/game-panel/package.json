@@ -12,8 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@fastify/cors": "^10.0.2",
     "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^10.0.2",
     "@fastify/websocket": "^11.0.2",
     "@xivizley/aurora-ui": "workspace:*",
     "@xivizley/db": "workspace:*",
@@ -26,7 +26,8 @@
     "fastify": "^5.2.1",
     "next": "^15.3.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@types/dockerode": "^3.3.34",

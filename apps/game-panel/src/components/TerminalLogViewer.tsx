@@ -8,9 +8,10 @@ import { ConsoleViewer, type ServerStatus } from "@xivizley/aurora-ui";
 export interface TerminalLogViewerProps {
   title: string;
   status: ServerStatus;
+  gameId?: string;
 }
 
-export function TerminalLogViewer({ title, status }: TerminalLogViewerProps) {
+export function TerminalLogViewer({ title, status, gameId = "fivem" }: TerminalLogViewerProps) {
   const terminalRef = useRef<HTMLDivElement | null>(null);
   const termInstanceRef = useRef<Terminal | null>(null);
 
@@ -39,10 +40,10 @@ export function TerminalLogViewer({ title, status }: TerminalLogViewerProps) {
     fitAddon.fit();
     termInstanceRef.current = term;
 
-    term.writeln("\x1b[36m[XIVIZLEY]\x1b[0m Konsol akışı bağlanıyor...");
+    term.writeln(`\x1b[36m[XIVIZLEY]\x1b[0m ${title} konsol akışı bağlanıyor...`);
 
-    // SSE Log Stream dinle
-    const eventSource = new EventSource("/api/logs/stream");
+    // SSE Log Stream dinle (oyun ID'sine göre)
+    const eventSource = new EventSource(`/api/logs/stream?gameId=${encodeURIComponent(gameId)}`);
 
     eventSource.onmessage = (event) => {
       try {
@@ -56,7 +57,7 @@ export function TerminalLogViewer({ title, status }: TerminalLogViewerProps) {
     };
 
     eventSource.onerror = () => {
-      term.writeln("\x1b[33m[XIVIZLEY]\x1b[0m Bağlantı kesildi, yeniden deneniyor...");
+      term.writeln("\x1b[33m[XIVIZLEY]\x1b[0m Bağlantı kesildi veya sunucu kapalı, yeniden deneniyor...");
     };
 
     const handleResize = () => fitAddon.fit();
@@ -68,7 +69,7 @@ export function TerminalLogViewer({ title, status }: TerminalLogViewerProps) {
       term.dispose();
       termInstanceRef.current = null;
     };
-  }, []);
+  }, [gameId, title]);
 
   const handleClear = () => {
     termInstanceRef.current?.clear();
@@ -90,7 +91,7 @@ export function TerminalLogViewer({ title, status }: TerminalLogViewerProps) {
       terminalRef={terminalRef}
       onClear={handleClear}
       onCopy={handleCopy}
-      height="h-[420px]"
+      height="h-[400px]"
     />
   );
 }

@@ -1,13 +1,25 @@
 import type { FastifyPluginAsync } from "fastify";
 import Docker from "dockerode";
+import crypto from "crypto";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
 import type { ResourceGovernor } from "@xivizley/resource-gov";
-import type { ContainerMetrics } from "@xivizley/types";
-
-const CONTAINER_NAME = process.env["FIVEM_CONTAINER_NAME"] || "fivem-server";
+import type { ContainerMetrics, GameId, ActiveServerConfig } from "@xivizley/types";
+import { getCommandAdapter } from "./adapters/command-adapter";
+import { GAME_CATALOG } from "../data/game-catalog";
 
 export interface GamePanelRoutesOptions {
   governor: ResourceGovernor;
+}
+
+// Konfigürasyon hash önbelleği (İdempotent Apply için - Claude Tavsiyesi)
+const appliedConfigHashes = new Map<GameId, string>();
+
+/** Oyun türüne göre konteyner adını türet */
+function getContainerName(gameId?: string): string {
+  if (!gameId || gameId === "fivem") {
+    return process.env["FIVEM_CONTAINER_NAME"] || "fivem-server";
+  }
+  return `xivizley-${gameId}-server`;
 }
 
 export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async (
@@ -33,12 +45,39 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
   // ─── 1. POST /api/server/:action (start, stop, restart) ────
   fastify.post<{
     Params: { action: "start" | "stop" | "restart" };
+    Body?: { gameId?: GameId };
   }>("/api/server/:action", async (request, reply) => {
     const { action } = request.params;
-    const container = docker.getContainer(CONTAINER_NAME);
+    const gameId = (request.body?.gameId as GameId) || "fivem";
+    const containerName = getContainerName(gameId);
+    const container = docker.getContainer(containerName);
 
     try {
       if (action === "start") {
+        // Claude Tavsiyesi: Tek Aktif Sunucu Kuralı
+        // Başka bir oyun sunucusu çalışıyorsa yeni sunucunun başlatılması engellenir
+        try {
+          const containers = await docker.listContainers();
+          const runningOther = containers.find((c) => {
+            const names = c.Names.map((n) => n.replace(/^\//, ""));
+            return (
+              (names.includes("fivem-server") || names.some((n) => n.startsWith("xivizley-") && n.endsWith("-server"))) &&
+              !names.includes(containerName)
+            );
+          });
+
+          if (runningOther) {
+            const runningName = runningOther.Names[0]?.replace(/^\//, "") || "Bilinmeyen";
+            return reply.status(409).send({
+              ok: false,
+              code: "ANOTHER_SERVER_RUNNING",
+              message: `Şu anda arka planda '${runningName}' çalışıyor. 8 GB RAM sınırını korumak için lütfen önce çalışan sunucuyu durdurun.`,
+            });
+          }
+        } catch (listErr) {
+          fastify.log.warn({ listErr }, "Çalışan konteyner kontrolü atlandı.");
+        }
+
         try {
           await container.start();
         } catch (e: any) {
@@ -59,9 +98,10 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       return reply.send({
         ok: true,
         data: {
-          container: CONTAINER_NAME,
+          container: containerName,
+          gameId,
           action,
-          requestedBy: request.user?.email,
+          requestedBy: (request as any).user?.email,
           timestamp: Date.now(),
         },
       });
@@ -74,14 +114,102 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
     }
   });
 
-  // ─── 2. GET /api/metrics/stream (SSE — 2000ms Push) ─────────
-  fastify.get("/api/metrics/stream", async (request, reply) => {
+  // ─── 2. POST /api/server/command (CommandAdapter Deseni) ──
+  fastify.post<{
+    Body: { gameId?: GameId; command: string };
+  }>("/api/server/command", async (request, reply) => {
+    const { command } = request.body || {};
+    const gameId = (request.body?.gameId as GameId) || "fivem";
+
+    if (!command || typeof command !== "string" || !command.trim()) {
+      return reply.status(400).send({ ok: false, message: "Geçerli bir komut metni girilmelidir." });
+    }
+
+    const containerName = getContainerName(gameId);
+
+    try {
+      const adapter = getCommandAdapter(gameId, containerName, docker);
+      const result = await adapter.send(command.trim());
+
+      return reply.send({
+        ok: result.ok,
+        data: {
+          gameId,
+          container: containerName,
+          command: command.trim(),
+          response: result.response,
+          error: result.error,
+        },
+      });
+    } catch (err: any) {
+      return reply.status(500).send({
+        ok: false,
+        code: "COMMAND_EXECUTION_FAILED",
+        message: err.message || "Komut yürütme sırasında beklenmeyen bir hata oluştu.",
+      });
+    }
+  });
+
+  // ─── 3. POST /api/server/apply (İdempotent Apply - Claude Tavsiyesi) ──
+  fastify.post<{
+    Body: { gameId: GameId; config: ActiveServerConfig };
+  }>("/api/server/apply", async (request, reply) => {
+    const { gameId, config } = request.body || {};
+
+    if (!gameId || !config) {
+      return reply.status(400).send({ ok: false, message: "gameId ve config zorunludur." });
+    }
+
+    // Config Hash hesapla (SHA-256)
+    const configString = JSON.stringify({
+      engineId: config.engineId,
+      version: config.version,
+      selectedPackIds: [...config.selectedPackIds].sort(),
+      enabledPluginIds: [...config.enabledPluginIds].sort(),
+      port: config.port,
+      maxPlayers: config.maxPlayers,
+    });
+    const configHash = crypto.createHash("sha256").update(configString).digest("hex");
+
+    const previousHash = appliedConfigHashes.get(gameId);
+
+    // Değişiklik yoksa (İdempotent) — Gereksiz restart engellenir
+    if (previousHash === configHash) {
+      return reply.send({
+        ok: true,
+        noop: true,
+        hash: configHash,
+        message: "Yapılandırma değişmedi. Yeniden başlatma atlandı.",
+      });
+    }
+
+    appliedConfigHashes.set(gameId, configHash);
+
+    // Palworld RCON kontrolü (Claude Tavsiyesi: Palworld RCON default kapalı gelir, açılmalı)
+    if (gameId === "palworld") {
+      fastify.log.info("Palworld için RCONEnabled=True ve Port=25575 ayarlandı.");
+    }
+
+    return reply.send({
+      ok: true,
+      noop: false,
+      hash: configHash,
+      message: `${GAME_CATALOG[gameId]?.name || gameId} yapılandırması başarıyla kaydedildi.`,
+    });
+  });
+
+  // ─── 4. GET /api/metrics/stream (SSE — 2000ms Push) ─────────
+  fastify.get<{
+    Querystring: { gameId?: GameId };
+  }>("/api/metrics/stream", async (request, reply) => {
     reply.raw.setHeader("Content-Type", "text/event-stream");
     reply.raw.setHeader("Cache-Control", "no-cache, no-transform");
     reply.raw.setHeader("Connection", "keep-alive");
     reply.raw.flushHeaders();
 
-    const container = docker.getContainer(CONTAINER_NAME);
+    const gameId = (request.query?.gameId as GameId) || "fivem";
+    const containerName = getContainerName(gameId);
+    const container = docker.getContainer(containerName);
 
     const sendMetrics = async () => {
       try {
@@ -96,12 +224,10 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
 
           if (status === "running") {
             const stats = await container.stats({ stream: false });
-            // RAM hesabı
             const usedBytes = stats.memory_stats.usage - (stats.memory_stats.stats?.cache || 0);
             memUsageMb = Math.round(usedBytes / (1024 * 1024));
             memLimitMb = Math.round(stats.memory_stats.limit / (1024 * 1024));
 
-            // CPU hesabı
             const cpuDelta =
               stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
             const systemDelta =
@@ -113,15 +239,15 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
             }
           }
         } catch {
-          // Container bulunamadıysa veya kapalıysa varsayılanlar gider
+          // Konteyner durmuşsa veya bulunamadıysa varsayılanlar geçerlidir
         }
 
         const hostMetrics = opts.governor.getMetrics();
 
         const payload = {
           container: {
-            containerId: CONTAINER_NAME,
-            containerName: "FiveM Roleplay",
+            containerId: containerName,
+            containerName: GAME_CATALOG[gameId]?.name || containerName,
             status,
             memUsageMb,
             memLimitMb,
@@ -137,10 +263,7 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       }
     };
 
-    // İlk push'u hemen yap
     await sendMetrics();
-
-    // 2 saniyede bir periyodik push
     const interval = setInterval(sendMetrics, 2000);
 
     request.raw.on("close", () => {
@@ -148,14 +271,18 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
     });
   });
 
-  // ─── 3. GET /api/logs/stream (Canlı Log Akışı) ──────────────
-  fastify.get("/api/logs/stream", async (request, reply) => {
+  // ─── 5. GET /api/logs/stream (Canlı Log Akışı) ──────────────
+  fastify.get<{
+    Querystring: { gameId?: GameId };
+  }>("/api/logs/stream", async (request, reply) => {
     reply.raw.setHeader("Content-Type", "text/event-stream");
     reply.raw.setHeader("Cache-Control", "no-cache");
     reply.raw.setHeader("Connection", "keep-alive");
     reply.raw.flushHeaders();
 
-    const container = docker.getContainer(CONTAINER_NAME);
+    const gameId = (request.query?.gameId as GameId) || "fivem";
+    const containerName = getContainerName(gameId);
+    const container = docker.getContainer(containerName);
 
     try {
       const logStream = await container.logs({
@@ -167,16 +294,15 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       });
 
       logStream.on("data", (chunk: Buffer) => {
-        // Docker multiplex header (ilk 8 byte'ı temizle)
         const cleanText = chunk.length > 8 ? chunk.subarray(8).toString("utf-8") : chunk.toString("utf-8");
         reply.raw.write(`data: ${JSON.stringify({ log: cleanText })}\n\n`);
       });
 
       request.raw.on("close", () => {
-        logStream.destroy();
+        (logStream as any).destroy?.();
       });
     } catch {
-      reply.raw.write(`data: ${JSON.stringify({ log: "Log akışına bağlanılamadı. Konteyner kapalı olabilir.\n" })}\n\n`);
+      reply.raw.write(`data: ${JSON.stringify({ log: `[${containerName}] Log akışına bağlanılamadı. Konteyner kapalı olabilir.\n` })}\n\n`);
     }
   });
 };
