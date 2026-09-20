@@ -159,7 +159,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         overheadMb: 512,
         jvmOverheadMb: 384,
         defaultVersion: "1.21.1",
-        versions: ["1.21.1", "1.20.4", "1.16.5"],
+        versions: ["1.21.4", "1.21.1", "1.20.4", "1.20.1", "1.19.4", "1.18.2", "1.16.5"],
       },
       {
         id: "papermc",
@@ -167,7 +167,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         overheadMb: 256,
         jvmOverheadMb: 256,
         defaultVersion: "1.21.1",
-        versions: ["1.21.1", "1.20.4", "1.16.5", "1.12.2", "1.8.9"],
+        versions: ["1.21.4", "1.21.1", "1.20.4", "1.20.1", "1.19.4", "1.18.2", "1.16.5", "1.12.2", "1.8.9"],
       },
       {
         id: "fabric",
@@ -175,7 +175,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         overheadMb: 256,
         jvmOverheadMb: 256,
         defaultVersion: "1.21.1",
-        versions: ["1.21.1", "1.20.4"],
+        versions: ["1.21.4", "1.21.1", "1.20.4", "1.20.1", "1.19.4", "1.18.2"],
       },
       {
         id: "forge",
@@ -183,7 +183,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         overheadMb: 1024,
         jvmOverheadMb: 512,
         defaultVersion: "1.20.1",
-        versions: ["1.20.1", "1.19.2", "1.16.5", "1.12.2"],
+        versions: ["1.20.1", "1.19.2", "1.18.2", "1.16.5", "1.12.2"],
       },
       {
         id: "velocity",
@@ -191,7 +191,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         overheadMb: 128,
         jvmOverheadMb: 128,
         defaultVersion: "3.3.0",
-        versions: ["3.3.0"],
+        versions: ["3.3.0", "3.2.0"],
       },
     ],
     modPacks: [

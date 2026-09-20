@@ -27,6 +27,7 @@ interface StreamData {
 export function LiveCockpitRight() {
   const {
     activeGameId,
+    configPerGame,
     activeServer,
     setActiveServer,
     getEstimatedRam,
@@ -34,6 +35,8 @@ export function LiveCockpitRight() {
   } = useGameStore();
 
   const game = GAME_CATALOG[activeGameId];
+  const config = configPerGame[activeGameId] || game.defaultConfig;
+  const currentEngine = game.engines.find((e) => e.id === config.engineId) || game.engines[0];
   const [metrics, setMetrics] = useState<StreamData | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -161,9 +164,12 @@ export function LiveCockpitRight() {
             <div className="flex items-center gap-2">
               <h2 className="text-lg font-bold text-white">{game.name} Sunucusu</h2>
               <StatusBadge status={currentStatus} size="sm" />
+              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                {currentEngine?.name.split(" ")[0]} v{config.version}
+              </span>
             </div>
             <div className="flex items-center gap-2 text-xs text-aurora-text-muted mt-0.5">
-              <span>Port: {game.defaultPort}</span>
+              <span>Port: {config.port || game.defaultPort}</span>
               <span>•</span>
               <span className="font-mono text-aurora-cyan/80">
                 {game.protocol === "stdin" ? "STDIN Konsol" : "RCON Soket"}

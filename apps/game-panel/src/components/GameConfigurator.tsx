@@ -92,50 +92,93 @@ export function GameConfigurator() {
         </div>
       </div>
 
-      {/* 1. MOTOR & VERSİYON SEÇİMİ */}
-      <div className="flex flex-col gap-3">
-        <label className="text-xs font-semibold uppercase tracking-wider text-aurora-cyan flex items-center gap-1.5">
-          <span>⚙️</span> 1. Oyun Motoru ve Sürümü
-        </label>
+      {/* 1. MOTOR & SÜRÜM SEÇİM MENÜSÜ */}
+      <div className="flex flex-col gap-4 p-4 rounded-2xl bg-aurora-bg-dark/70 border border-aurora-border-light/30 shadow-inner">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold uppercase tracking-wider text-aurora-cyan flex items-center gap-1.5">
+            <span>⚙️</span> 1. Oyun Motoru ve Sürüm Seçimi
+          </label>
+          <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+            Aktif: {currentEngine?.name.split(" ")[0]} v{config.version}
+          </span>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Motor Seçici */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] text-aurora-text-muted">Motor:</span>
-            <select
-              value={config.engineId}
-              onChange={(e) => {
-                const newEngineId = e.target.value;
-                const newEngine = game.engines.find((eng) => eng.id === newEngineId);
-                updateConfig(activeGameId, {
-                  engineId: newEngineId,
-                  version: newEngine?.defaultVersion || "latest",
-                });
-              }}
-              className="w-full bg-aurora-bg-dark border border-aurora-border-light/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-aurora-cyan transition-colors"
-            >
-              {game.engines.map((eng) => (
-                <option key={eng.id} value={eng.id}>
-                  {eng.name} (+{eng.overheadMb} MB)
-                </option>
-              ))}
-            </select>
+        {/* Motor Seçici Kartları */}
+        <div className="flex flex-col gap-2">
+          <span className="text-[11px] font-medium text-aurora-text-muted">Sunucu Motoru / Çekirdeği:</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {game.engines.map((eng) => {
+              const isSelected = config.engineId === eng.id;
+              return (
+                <button
+                  key={eng.id}
+                  type="button"
+                  onClick={() => {
+                    updateConfig(activeGameId, {
+                      engineId: eng.id,
+                      version: eng.defaultVersion || eng.versions[0] || "latest",
+                    });
+                  }}
+                  className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    isSelected
+                      ? "bg-aurora-cyan/15 border-aurora-cyan text-white shadow-[0_0_12px_rgba(0,242,254,0.15)] ring-1 ring-aurora-cyan"
+                      : "bg-aurora-bg-card/40 border-aurora-border-light/20 text-aurora-text-muted hover:border-aurora-border-light/50 hover:text-white"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="font-semibold text-xs text-white">{eng.name}</span>
+                    <span className="text-[10px] font-mono text-aurora-cyan/90 shrink-0">+{eng.overheadMb} MB</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Sürüm Seçim Menüsü (Tıklanabilir Haplar + Özel Giriş) */}
+        <div className="flex flex-col gap-2.5 pt-3 border-t border-aurora-border-light/15">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-medium text-aurora-text-muted flex items-center gap-1.5">
+              <span>🎯</span> Sürüm Menüsü ({currentEngine?.name.split(" ")[0]}):
+            </span>
+            <span className="text-[10px] text-aurora-cyan/80 font-mono">1-Tıkla Sürüm Değiştir</span>
           </div>
 
-          {/* Sürüm Seçici */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] text-aurora-text-muted">Sürüm:</span>
-            <select
-              value={config.version}
-              onChange={(e) => updateConfig(activeGameId, { version: e.target.value })}
-              className="w-full bg-aurora-bg-dark border border-aurora-border-light/30 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-aurora-cyan transition-colors"
-            >
-              {(currentEngine?.versions || ["latest"]).map((v) => (
-                <option key={v} value={v}>
+          {/* Hızlı Seçim Butonları / Sürüm Hapları */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {(currentEngine?.versions || ["latest"]).map((v) => {
+              const isSelected = config.version === v;
+              return (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => updateConfig(activeGameId, { version: v })}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-aurora-cyan text-aurora-bg-dark font-bold shadow-[0_0_12px_rgba(0,242,254,0.4)] scale-105"
+                      : "bg-aurora-bg-dark text-white/80 hover:text-white hover:bg-aurora-bg-card border border-aurora-border-light/30"
+                  }`}
+                >
                   {v}
-                </option>
-              ))}
-            </select>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Özel / Manuel Sürüm Giriş Alanı */}
+          <div className="flex items-center gap-2 mt-1">
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-mono font-semibold text-aurora-cyan">
+                Özel Sürüm:
+              </span>
+              <input
+                type="text"
+                placeholder="Örn: 1.21.4, 1.20.1 veya latest..."
+                value={config.version}
+                onChange={(e) => updateConfig(activeGameId, { version: e.target.value })}
+                className="w-full bg-aurora-bg-dark border border-aurora-border-light/30 rounded-xl pl-24 pr-3 py-2 text-xs font-mono text-white placeholder-aurora-text-muted/40 focus:outline-none focus:border-aurora-cyan transition-colors"
+              />
+            </div>
           </div>
         </div>
       </div>
