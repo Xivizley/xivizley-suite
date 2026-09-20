@@ -96,9 +96,21 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
 /** Konteyner yoksa otomatik oluşturucu (Lazy Container Creation) */
 async function ensureContainerExists(gameId: GameId, config: ActiveServerConfig, docker: Docker): Promise<void> {
   const containerName = getContainerName(gameId);
+  const gameDef = GAME_CATALOG[gameId];
+
   try {
-    await docker.getContainer(containerName).inspect();
-    // Varsa dokunma
+    const existing = docker.getContainer(containerName);
+    const inspect = await existing.inspect();
+
+    // İmaj güncellendiyse (örneğin Java 25 -> Java 21) eski konteyneri silip yenisini yarat
+    if (inspect.Config.Image !== gameDef.dockerImage) {
+      if (inspect.State.Running) {
+        await existing.stop({ t: 2 }).catch(() => {});
+      }
+      await existing.remove({ force: true }).catch(() => {});
+      throw { statusCode: 404 };
+    }
+    // İmaj aynıysa ve varsa dokunma
   } catch (err: any) {
     if (err.statusCode !== 404) throw err;
 
@@ -295,12 +307,15 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
   }>("/api/server/apply", async (request, reply) => {
     const { gameId, config } = request.body || {};
 
-    if (!gameId || !config) {
-      return reply.status(400).send({ ok: false, message: "gameId ve config zorunludur." });
+    if (!gameId || !config || !GAME_CATALOG[gameId]) {
+      return reply.status(400).send({ ok: false, message: "Geçerli bir gameId ve config zorunludur." });
     }
+
+    const gameDef = GAME_CATALOG[gameId];
 
     // 1. Config hash hesapla ve kontrol et (idempotent)
     const configString = JSON.stringify({
+      image: gameDef?.dockerImage,
       engineId: config.engineId,
       version: config.version,
       selectedPackIds: [...config.selectedPackIds].sort(),
@@ -321,8 +336,6 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
         message: "Yapılandırma değişmedi. Yeniden başlatma atlandı.",
       });
     }
-
-    const gameDef = GAME_CATALOG[gameId];
 
     // İmaj var mı kontrol et
     let imageNeedsPull = false;

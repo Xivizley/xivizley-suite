@@ -142,7 +142,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
   minecraft: {
     id: "minecraft",
     name: "Minecraft",
-    dockerImage: "itzg/minecraft-server",
+    dockerImage: "itzg/minecraft-server:java21",
     tagline: "Paper, Purpur, Fabric & Forge Java / Bedrock Sunucuları",
     icon: "⛏️",
     badge: "CROSSPLAY",
