@@ -1,9 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { Card, Button, MetricGauge, StatusBadge, type ServerStatus } from "@xivizley/aurora-ui";
-import { TerminalLogViewer } from "@/components/TerminalLogViewer";
 import type { HostMetrics, ContainerMetrics } from "@xivizley/types";
+
+const TerminalLogViewer = dynamic(
+  () => import("@/components/TerminalLogViewer").then((mod) => mod.TerminalLogViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-80 rounded-aurora aurora-glass border border-aurora flex items-center justify-center">
+        <span className="text-xs text-aurora-text-muted font-mono">Terminal yükleniyor...</span>
+      </div>
+    ),
+  }
+);
 
 interface StreamData {
   container: ContainerMetrics & { status: ServerStatus };
