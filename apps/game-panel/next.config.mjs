@@ -7,6 +7,13 @@ const nextConfig = {
     "@xivizley/xivizley-id",
     "@xivizley/resource-gov",
   ],
+  webpack: (config) => {
+    config.resolve.extensionAlias = {
+      ".js": [".ts", ".tsx", ".d.ts", ".js"],
+      ".jsx": [".tsx", ".jsx"],
+    };
+    return config;
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

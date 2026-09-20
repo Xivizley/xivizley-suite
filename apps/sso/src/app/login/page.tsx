@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { LoginForm } from "./LoginForm.js";
+import { LoginForm } from "./LoginForm";
 import { Spinner } from "@xivizley/aurora-ui";
 
 export default function LoginPage() {
