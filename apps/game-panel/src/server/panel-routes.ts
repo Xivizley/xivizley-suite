@@ -104,17 +104,42 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
     }
     case "fivem": {
       env.push(`PORT=${port}`);
+      if (config.serverName) {
+        env.push(`SV_HOSTNAME=${config.serverName}`);
+      }
+      if (config.maxPlayers) {
+        env.push(`MAX_CLIENTS=${config.maxPlayers}`);
+      }
       break;
     }
     case "cs2": {
       env.push(`SRCDS_PORT=${port}`);
       env.push(`SRCDS_MAXPLAYERS=${config.maxPlayers || 10}`);
+      if (config.serverName) {
+        env.push(`SRCDS_HOSTNAME=${config.serverName}`);
+      }
+      if (config.map) {
+        env.push(`SRCDS_STARTMAP=${config.map}`);
+      }
+      if (config.tickrate) {
+        env.push(`SRCDS_TICKRATE=${config.tickrate}`);
+      }
+      env.push(`SRCDS_RCONPW=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
       break;
     }
     case "rust": {
       env.push(`RUST_SERVER_PORT=${port}`);
       env.push("RUST_RCON_PORT=28016");
       env.push(`RUST_RCON_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      if (config.serverName) {
+        env.push(`RUST_SERVER_NAME=${config.serverName}`);
+      }
+      if (config.serverDesc) {
+        env.push(`RUST_SERVER_DESCRIPTION=${config.serverDesc}`);
+      }
+      if (config.maxPlayers) {
+        env.push(`RUST_SERVER_MAXPLAYERS=${config.maxPlayers}`);
+      }
       break;
     }
     case "palworld": {
@@ -122,6 +147,70 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
       env.push("RCON_ENABLED=true");
       env.push("RCON_PORT=25575");
       env.push(`ADMIN_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      if (config.serverName) {
+        env.push(`SERVER_NAME=${config.serverName}`);
+      }
+      if (config.serverDesc) {
+        env.push(`SERVER_DESCRIPTION=${config.serverDesc}`);
+      }
+      if (config.maxPlayers) {
+        env.push(`PLAYERS=${config.maxPlayers}`);
+      }
+      if (config.serverPassword) {
+        env.push(`SERVER_PASSWORD=${config.serverPassword}`);
+      }
+      break;
+    }
+    case "unturned": {
+      env.push(`SERVER_PORT=${port}`);
+      if (config.serverName) {
+        env.push(`SERVER_NAME=${config.serverName}`);
+      }
+      if (config.map) {
+        env.push(`SERVER_MAP=${config.map}`);
+      }
+      if (config.maxPlayers) {
+        env.push(`MAX_PLAYERS=${config.maxPlayers}`);
+      }
+      break;
+    }
+    case "ark": {
+      env.push(`SERVER_PORT=${port}`);
+      env.push(`ADMIN_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      if (config.serverName) {
+        env.push(`SESSION_NAME=${config.serverName}`);
+      }
+      if (config.map) {
+        env.push(`SERVER_MAP=${config.map}`);
+      }
+      if (config.maxPlayers) {
+        env.push(`MAX_PLAYERS=${config.maxPlayers}`);
+      }
+      if (config.serverPassword) {
+        env.push(`SERVER_PASSWORD=${config.serverPassword}`);
+      }
+      break;
+    }
+    case "terraria": {
+      env.push(`PORT=${port}`);
+      if (config.map) {
+        env.push(`WORLD_NAME=${config.map}`);
+      }
+      if (config.maxPlayers) {
+        env.push(`MAX_PLAYERS=${config.maxPlayers}`);
+      }
+      break;
+    }
+    case "valheim": {
+      env.push(`SERVER_PORT=${port}`);
+      env.push("SERVER_PUBLIC=1");
+      if (config.serverName) {
+        env.push(`SERVER_NAME=${config.serverName}`);
+      }
+      if (config.map) {
+        env.push(`WORLD_NAME=${config.map}`);
+      }
+      env.push(`SERVER_PASS=${config.serverPassword || "xivizley123"}`);
       break;
     }
     default:
@@ -376,6 +465,12 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       onlineMode: config.onlineMode,
       difficulty: config.difficulty,
       pvp: config.pvp,
+      serverName: config.serverName,
+      serverDesc: config.serverDesc,
+      serverPassword: config.serverPassword,
+      map: config.map,
+      gameMode: config.gameMode,
+      tickrate: config.tickrate,
     });
     const configHash = crypto.createHash("sha256").update(configString).digest("hex");
 

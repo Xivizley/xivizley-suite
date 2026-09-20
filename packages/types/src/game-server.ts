@@ -101,6 +101,14 @@ export interface ActiveServerConfig {
   onlineMode?: boolean; // false = Korsan (TLauncher vb.) & Orijinal, true = Sadece Orijinal
   difficulty?: "peaceful" | "easy" | "normal" | "hard";
   pvp?: boolean;
+  // Diğer Oyunlar İçin Genişletilmiş Özellikler
+  serverName?: string;     // Hostname / Sunucu Başlığı
+  serverDesc?: string;     // Sunucu Açıklaması / Alt Metin
+  serverPassword?: string; // Giriş Şifresi
+  adminPassword?: string;  // Yönetici / RCON Şifresi
+  map?: string;            // Harita (de_mirage, PEI, TheIsland, Seed vb.)
+  gameMode?: string;       // Oyun Modu (5v5 Rekabetçi, Hayatta Kalma vb.)
+  tickrate?: number;       // Sunucu Tickrate (64, 128 vb.)
 }
 
 /** Tam oyun sunucusu kaydı */
