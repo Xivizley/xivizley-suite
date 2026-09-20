@@ -64,6 +64,8 @@ export interface GamePlugin {
   isRequired?: boolean;
   isOneTimeTask?: boolean; // Chunky gibi tek seferlik başlangıç görevleri
   defaultEnabled?: boolean;
+  modrinthSlug?: string; // Modrinth proje slug'ı (itzg otomatik indirme için)
+  spigetId?: number;     // SpigotMC resource ID'si (itzg otomatik indirme için)
 }
 
 /** 9 Oyun İçin Üst Düzey Katalog Metadatası */
@@ -95,6 +97,10 @@ export interface ActiveServerConfig {
   maxPlayers: number;
   autoRestart: boolean;
   configHash?: string;
+  motd?: string;
+  onlineMode?: boolean; // false = Korsan (TLauncher vb.) & Orijinal, true = Sadece Orijinal
+  difficulty?: "peaceful" | "easy" | "normal" | "hard";
+  pvp?: boolean;
 }
 
 /** Tam oyun sunucusu kaydı */

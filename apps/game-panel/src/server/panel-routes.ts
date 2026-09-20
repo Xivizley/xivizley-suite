@@ -51,7 +51,7 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
   switch (gameId) {
     case "minecraft": {
       env.push("EULA=TRUE");
-      env.push("ONLINE_MODE=FALSE");
+      env.push(`ONLINE_MODE=${config.onlineMode ? "TRUE" : "FALSE"}`);
       env.push("JVM_OPTS=-Dspark.enabled=false");
       const type =
         config.engineId === "purpur"
@@ -60,11 +60,46 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
           ? "FABRIC"
           : config.engineId === "forge"
           ? "FORGE"
+          : config.engineId === "neoforge"
+          ? "NEOFORGE"
+          : config.engineId === "vanilla"
+          ? "VANILLA"
           : "PAPER";
       env.push(`TYPE=${type}`);
       env.push(`VERSION=${config.version || "LATEST"}`);
       env.push(`MEMORY=${memMb}M`);
       env.push(`SERVER_PORT=${port}`);
+
+      if (config.maxPlayers) {
+        env.push(`MAX_PLAYERS=${config.maxPlayers}`);
+      }
+      if (config.difficulty) {
+        env.push(`DIFFICULTY=${config.difficulty}`);
+      }
+      if (config.pvp !== undefined) {
+        env.push(`PVP=${config.pvp ? "true" : "false"}`);
+      }
+      if (config.motd) {
+        env.push(`MOTD=${config.motd}`);
+      }
+
+      // Eklentiler (Modrinth & Spiget otomatik indirme)
+      const modrinthProjects: string[] = [];
+      const spigetResources: number[] = [];
+      for (const pId of config.enabledPluginIds || []) {
+        const p = GAME_CATALOG.minecraft?.plugins.find((item) => item.id === pId);
+        if (p?.modrinthSlug) {
+          modrinthProjects.push(p.modrinthSlug);
+        } else if (p?.spigetId) {
+          spigetResources.push(String(p.spigetId));
+        }
+      }
+      if (modrinthProjects.length > 0) {
+        env.push(`MODRINTH_PROJECTS=${modrinthProjects.join(",")}`);
+      }
+      if (spigetResources.length > 0) {
+        env.push(`SPIGET_RESOURCES=${spigetResources.join(",")}`);
+      }
       break;
     }
     case "fivem": {
@@ -96,23 +131,30 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
 }
 
 /** Konteyner yoksa otomatik oluşturucu (Lazy Container Creation) */
-async function ensureContainerExists(gameId: GameId, config: ActiveServerConfig, docker: Docker): Promise<void> {
+async function ensureContainerExists(
+  gameId: GameId,
+  config: ActiveServerConfig,
+  docker: Docker,
+  forceRecreate = false,
+): Promise<{ recreated: boolean }> {
   const containerName = getContainerName(gameId);
   const gameDef = GAME_CATALOG[gameId];
 
+  let wasRunning = false;
   try {
     const existing = docker.getContainer(containerName);
     const inspect = await existing.inspect();
+    wasRunning = inspect.State.Running;
 
-    // İmaj güncellendiyse (örneğin Java 25 -> Java 21) eski konteyneri silip yenisini yarat
-    if (inspect.Config.Image !== gameDef.dockerImage) {
-      if (inspect.State.Running) {
+    // İmaj güncellendiyse veya zorunlu yeniden oluşturma talep edildiyse eski konteyneri silip yenisini yarat
+    if (forceRecreate || inspect.Config.Image !== gameDef.dockerImage) {
+      if (wasRunning) {
         await existing.stop({ t: 2 }).catch(() => {});
       }
       await existing.remove({ force: true }).catch(() => {});
       throw { statusCode: 404 };
     }
-    // İmaj aynıysa ve varsa dokunma
+    return { recreated: false };
   } catch (err: any) {
     if (err.statusCode !== 404) throw err;
 
@@ -135,7 +177,7 @@ async function ensureContainerExists(gameId: GameId, config: ActiveServerConfig,
     }
 
     // Yoksa oluştur
-    await docker.createContainer({
+    const newContainer = await docker.createContainer({
       name: containerName,
       Image: gameDef.dockerImage,
       Env: getGameEnvVars(gameId, config),
@@ -148,6 +190,12 @@ async function ensureContainerExists(gameId: GameId, config: ActiveServerConfig,
         NetworkMode: "xivizley-network",
       },
     });
+
+    if (wasRunning) {
+      await newContainer.start().catch(() => {});
+    }
+
+    return { recreated: true };
   }
 }
 
@@ -320,10 +368,14 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       image: gameDef?.dockerImage,
       engineId: config.engineId,
       version: config.version,
-      selectedPackIds: [...config.selectedPackIds].sort(),
-      enabledPluginIds: [...config.enabledPluginIds].sort(),
+      selectedPackIds: [...(config.selectedPackIds || [])].sort(),
+      enabledPluginIds: [...(config.enabledPluginIds || [])].sort(),
       port: config.port,
       maxPlayers: config.maxPlayers,
+      motd: config.motd,
+      onlineMode: config.onlineMode,
+      difficulty: config.difficulty,
+      pvp: config.pvp,
     });
     const configHash = crypto.createHash("sha256").update(configString).digest("hex");
 
@@ -353,7 +405,7 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
     if (imageNeedsPull) {
       if (!pullingGames.has(gameId)) {
         pullingGames.add(gameId);
-        ensureContainerExists(gameId, config, docker)
+        ensureContainerExists(gameId, config, docker, true)
           .then(() => {
             appliedConfigHashes.set(gameId, configHash);
           })
@@ -372,9 +424,9 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       });
     }
 
-    // 2. İmaj zaten mevcutsa hemen ensureContainerExists çağır
+    // 2. İmaj zaten mevcutsa hemen ensureContainerExists çağır (yapılandırma değiştiği için güncelle)
     try {
-      await ensureContainerExists(gameId, config, docker);
+      await ensureContainerExists(gameId, config, docker, true);
     } catch (createErr: any) {
       fastify.log.error({ createErr }, "ensureContainerExists başarısız oldu");
       return reply.status(500).send({
