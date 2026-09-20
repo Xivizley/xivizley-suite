@@ -10,7 +10,7 @@ COPY . .
 RUN pnpm install --frozen-lockfile=false
 
 WORKDIR /app/apps/sso
-RUN pnpm build || true
+RUN pnpm build
 
 EXPOSE 3000
 ENV PORT=3000

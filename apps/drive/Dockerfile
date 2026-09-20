@@ -10,7 +10,7 @@ COPY . .
 RUN pnpm install --frozen-lockfile=false
 
 WORKDIR /app/apps/drive
-RUN pnpm build || true
+RUN pnpm build
 
 EXPOSE 3002
 ENV PORT=3002

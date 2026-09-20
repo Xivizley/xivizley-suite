@@ -10,7 +10,7 @@ COPY . .
 RUN pnpm install --frozen-lockfile=false
 
 WORKDIR /app/apps/game-panel
-RUN pnpm build || true
+RUN pnpm build
 
 EXPOSE 3001
 ENV PORT=3001
