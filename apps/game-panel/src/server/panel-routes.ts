@@ -131,6 +131,7 @@ async function ensureContainerExists(gameId: GameId, config: ActiveServerConfig,
         Binds: [`${gameDef.volumeName}:${gameDef.volumeMountPath}`],
         OomScoreAdj: gameId === "fivem" ? -500 : 0,
         RestartPolicy: { Name: "unless-stopped" },
+        NetworkMode: "xivizley-network",
       },
     });
   }
