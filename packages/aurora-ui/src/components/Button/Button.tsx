@@ -1,3 +1,5 @@
+"use client";
+
 import { type ButtonHTMLAttributes, forwardRef } from "react";
 import { clsx } from "clsx";
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { type HTMLAttributes, forwardRef, useMemo } from "react";
 import { clsx } from "clsx";
 

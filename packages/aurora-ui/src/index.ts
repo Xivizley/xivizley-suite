@@ -1,3 +1,5 @@
+"use client";
+
 // ============================================================
 // @xivizley/aurora-ui — Ana Giriş Noktası
 // 12 uygulamanın tamamı bu paketten import eder.
