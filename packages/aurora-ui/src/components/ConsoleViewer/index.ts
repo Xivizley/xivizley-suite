@@ -1,2 +1,2 @@
-export { ConsoleViewer } from "./ConsoleViewer.js";
-export type { ConsoleViewerProps } from "./ConsoleViewer.js";
+export { ConsoleViewer } from "./ConsoleViewer";
+export type { ConsoleViewerProps } from "./ConsoleViewer";

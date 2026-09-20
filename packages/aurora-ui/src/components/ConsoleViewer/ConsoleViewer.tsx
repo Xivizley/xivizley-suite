@@ -7,8 +7,8 @@ import {
   type RefObject,
 } from "react";
 import { clsx } from "clsx";
-import { Button } from "../Button/index.js";
-import { StatusBadge, type ServerStatus } from "../Badge/index.js";
+import { Button } from "../Button";
+import { StatusBadge, type ServerStatus } from "../Badge";
 
 // ─── Props ──────────────────────────────────────────────────
 

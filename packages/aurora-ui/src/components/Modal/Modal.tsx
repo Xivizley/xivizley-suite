@@ -7,7 +7,7 @@ import {
   useCallback,
 } from "react";
 import { clsx } from "clsx";
-import { Button } from "../Button/index.js";
+import { Button } from "../Button";
 
 // ─── Props ──────────────────────────────────────────────────
 
