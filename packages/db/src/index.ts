@@ -7,12 +7,12 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 // Schema'ları re-export et — uygulamalar doğrudan buradan import eder
-export * from "./schemas/sso.js";
-export * from "./schemas/game-panel.js";
-export * from "./schemas/drive.js";
-export * from "./schemas/cinema.js";
-export * from "./schemas/vault.js";
-export * from "./schemas/pulse.js";
+export * from "./schemas/sso";
+export * from "./schemas/game-panel";
+export * from "./schemas/drive";
+export * from "./schemas/cinema";
+export * from "./schemas/vault";
+export * from "./schemas/pulse";
 
 // ─── Bağlantı Fabrikası ───────────────────────────────────
 

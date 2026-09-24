@@ -7,7 +7,7 @@ import {
   boolean,
   timestamp,
 } from "drizzle-orm/pg-core";
-import { users } from "./sso.js";
+import { users } from "./sso";
 
 // ─── Drive Şeması ────────────────────────────────────────────
 export const drive = pgSchema("drive");

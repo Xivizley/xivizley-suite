@@ -11,16 +11,26 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@xivizley/types": "workspace:*",
+    "@xivizley/aurora-ui": "workspace:*",
     "@xivizley/db": "workspace:*",
+    "@xivizley/types": "workspace:*",
+    "@xivizley/xivizley-id": "workspace:*",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.39.0",
+    "lucide-react": "^0.475.0",
     "next": "^15.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@xivizley/tsconfig": "workspace:*",
+    "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@xivizley/tsconfig": "workspace:*",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
 }
