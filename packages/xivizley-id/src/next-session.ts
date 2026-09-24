@@ -22,6 +22,7 @@ export async function getSession(options: GetSessionOptions = {}): Promise<Xiviz
   if (!token) {
     try {
       // next/headers dinamik import
+      // @ts-ignore next/headers is dynamically loaded in Next.js environments
       const { cookies } = await import("next/headers");
       const cookieStore = await cookies();
       const cookieName = options.cookieName || "xivizley_access_token";

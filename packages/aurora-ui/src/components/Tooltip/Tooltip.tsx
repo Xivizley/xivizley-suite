@@ -16,7 +16,7 @@ import { clsx } from "clsx";
 
 export type TooltipPosition = "top" | "bottom" | "left" | "right";
 
-export interface TooltipProps extends HTMLAttributes<HTMLDivElement> {
+export interface TooltipProps extends Omit<HTMLAttributes<HTMLDivElement>, "content"> {
   /** Tooltip içeriği (metin veya JSX) */
   content: ReactNode;
   /** Konum */

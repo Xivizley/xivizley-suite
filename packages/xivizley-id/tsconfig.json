@@ -2,6 +2,7 @@
   "extends": "@xivizley/tsconfig/base.json",
   "include": ["src", "scripts"],
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "lib": ["ES2022", "DOM"]
   }
 }

@@ -15,7 +15,7 @@ import { Button } from "../Button";
 
 export type ModalSize = "sm" | "md" | "lg" | "xl";
 
-export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
+export interface ModalProps extends Omit<HTMLAttributes<HTMLDivElement>, "title"> {
   /** Modal görünürlüğü */
   isOpen: boolean;
   /** Kapatma çağrısı (dışarı tıklandığında, X'e basıldığında veya Escape'e basıldığında) */
