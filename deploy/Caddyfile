@@ -31,9 +31,9 @@ drive.xivizley.com.tr {
 # docs.xivizley.com.tr {
 # 	reverse_proxy docs:3006
 # }
-# pulse.xivizley.com.tr {
-# 	reverse_proxy pulse:3007
-# }
+pulse.xivizley.com.tr {
+	reverse_proxy pulse:3007
+}
 # shield.xivizley.com.tr {
 # 	reverse_proxy shield-agent:3008
 # }
