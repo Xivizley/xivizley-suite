@@ -449,12 +449,27 @@ importers:
 
   apps/shield-agent:
     dependencies:
+      '@xivizley/aurora-ui':
+        specifier: workspace:*
+        version: link:../../packages/aurora-ui
       '@xivizley/db':
         specifier: workspace:*
         version: link:../../packages/db
       '@xivizley/types':
         specifier: workspace:*
         version: link:../../packages/types
+      '@xivizley/xivizley-id':
+        specifier: workspace:*
+        version: link:../../packages/xivizley-id
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      drizzle-orm:
+        specifier: ^0.39.0
+        version: 0.39.3(postgres@3.4.9)
+      lucide-react:
+        specifier: ^0.475.0
+        version: 0.475.0(react@19.3.0)
       next:
         specifier: ^15.3.0
         version: 15.5.25(@types/node@22.20.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -465,6 +480,9 @@ importers:
         specifier: ^19.0.0
         version: 19.3.0(react@19.3.0)
     devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.20.4
       '@types/react':
         specifier: ^19.0.0
         version: 19.3.0
@@ -474,6 +492,18 @@ importers:
       '@xivizley/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.6.1(postcss@8.5.28)
+      postcss:
+        specifier: ^8.4.49
+        version: 8.5.28
+      tailwindcss:
+        specifier: ^3.4.17
+        version: 3.4.19(tsx@4.23.15)
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.15
       typescript:
         specifier: ^5.7.3
         version: 5.9.3

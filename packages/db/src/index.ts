@@ -14,6 +14,7 @@ export * from "./schemas/cinema";
 export * from "./schemas/vault";
 export * from "./schemas/pulse";
 export * from "./schemas/pass";
+export * from "./schemas/shield";
 
 // ─── Bağlantı Fabrikası ───────────────────────────────────
 

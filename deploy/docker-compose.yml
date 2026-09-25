@@ -159,6 +159,23 @@ services:
       postgres:
         condition: service_healthy
 
+  # ─── Shield (Siber Tehdit Radarı, WAF & Güvenlik Kalkanı) ────
+  shield-agent:
+    build:
+      context: ../
+      dockerfile: apps/shield-agent/Dockerfile
+    container_name: xivizley-shield
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
+      PORT: "3008"
+      NODE_ENV: production
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-8642076722:AAFUZfYPMixrLKAMVrbHRORh4hNqrEi3ksA}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 
 volumes:
   postgres_data:
