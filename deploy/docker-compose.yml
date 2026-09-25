@@ -143,6 +143,22 @@ services:
       postgres:
         condition: service_healthy
 
+  # ─── Pass (Sıfır Bilgili Şifre, Sunucu Sırları & 2FA Kasası) ──
+  pass:
+    build:
+      context: ../
+      dockerfile: apps/pass/Dockerfile
+    container_name: xivizley-pass
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
+      PORT: "3009"
+      NODE_ENV: production
+      VAULT_MASTER_KEY: ${VAULT_MASTER_KEY:-xivizley_vault_zero_knowledge_super_secret_2026}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 
 volumes:
   postgres_data:

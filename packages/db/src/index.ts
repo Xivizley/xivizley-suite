@@ -13,6 +13,7 @@ export * from "./schemas/drive";
 export * from "./schemas/cinema";
 export * from "./schemas/vault";
 export * from "./schemas/pulse";
+export * from "./schemas/pass";
 
 // ─── Bağlantı Fabrikası ───────────────────────────────────
 

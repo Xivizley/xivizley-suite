@@ -37,9 +37,9 @@ pulse.xivizley.com.tr {
 # shield.xivizley.com.tr {
 # 	reverse_proxy shield-agent:3008
 # }
-# pass.xivizley.com.tr {
-# 	reverse_proxy pass:3009
-# }
+pass.xivizley.com.tr {
+	reverse_proxy pass:3009
+}
 # fortress.xivizley.com.tr {
 # 	reverse_proxy fortress:3010
 # }
