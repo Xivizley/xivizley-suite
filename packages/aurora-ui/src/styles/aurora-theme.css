@@ -1,0 +1,121 @@
+/* ================================================================
+ * @xivizley/aurora-ui — Aurora Night Tema Değişkenleri
+ * ================================================================
+ * Tüm renkler, gölgeler ve geçişler burada tanımlanır.
+ * Tailwind bu değişkenleri token olarak okur (tailwind.config.ts).
+ * Üçüncü parti widget'lar (xterm, Vaultwarden vb.) de doğrudan
+ * var(--aurora-xxx) ile bu değerlere erişebilir.
+ * ================================================================ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ─── Arka Planlar (Nextcloud Hub & Soft Dark Homelab) ─── */
+    --aurora-bg-dark: #181e24;
+    --aurora-bg-deeper: #13171c;
+    --aurora-bg-surface: #222933;
+    --aurora-bg-card: #222933;
+    --aurora-bg-elevated: #2b3442;
+
+    /* ─── Nextcloud İmzası & Aksan Renkleri ─────────────────── */
+    --nextcloud-blue: #0082c9;
+    --nextcloud-blue-hover: #006aa3;
+    --nextcloud-header: #0082c9;
+    --aurora-cyan: #0082c9;
+    --aurora-purple: #4f46e5;
+    --aurora-green: #10b981;
+    --aurora-amber: #f59e0b;
+    --aurora-rose: #e11d48;
+
+    /* ─── Yumuşak Vurgu Opaklıkları (Sade & Profesyonel) ────── */
+    --aurora-cyan-glow: rgba(0, 130, 201, 0.12);
+    --aurora-purple-glow: rgba(79, 70, 229, 0.12);
+    --aurora-green-glow: rgba(16, 185, 129, 0.12);
+    --aurora-amber-glow: rgba(245, 158, 11, 0.12);
+    --aurora-rose-glow: rgba(225, 29, 72, 0.12);
+
+    /* ─── Metin ─────────────────────────────────────────────── */
+    --aurora-text-primary: #f8fafc;
+    --aurora-text-secondary: #94a3b8;
+    --aurora-text-muted: #64748b;
+
+    /* ─── Kenarlar ──────────────────────────────────────────── */
+    --aurora-border: #2d3748;
+    --aurora-border-glow: #0082c9;
+
+    /* ─── Temiz Yüzey Katmanı ───────────────────────────────── */
+    --aurora-glass-bg: #222933;
+    --aurora-glass-blur: 8px;
+    --aurora-glass-border: #2d3748;
+
+    /* ─── Geçiş Süreleri ────────────────────────────────────── */
+    --aurora-transition-fast: 150ms;
+    --aurora-transition-base: 200ms;
+    --aurora-transition-slow: 350ms;
+
+    /* ─── Gölge Katmanları (Doğal Gölgeler) ─────────────────── */
+    --aurora-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --aurora-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --aurora-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    /* ─── Font Boyutları ────────────────────────────────────── */
+    --aurora-text-xs: 0.75rem;
+    --aurora-text-sm: 0.875rem;
+    --aurora-text-base: 1rem;
+    --aurora-text-lg: 1.125rem;
+    --aurora-text-xl: 1.25rem;
+    --aurora-text-2xl: 1.5rem;
+  }
+}
+
+/* ─── Global Temel Stiller ────────────────────────────────── */
+@layer base {
+  body {
+    @apply bg-aurora-dark text-aurora-text-primary font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Scrollbar — Aurora temasına uygun ince scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--aurora-bg-deeper);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--aurora-border);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* ─── Ortak Utility Sınıfları ─────────────────────────────── */
+@layer utilities {
+  /* Temiz panel efekti */
+  .aurora-glass {
+    background: var(--aurora-glass-bg);
+    border: 1px solid var(--aurora-glass-border);
+  }
+
+  /* Nextcloud odak halkası */
+  .aurora-focus-ring {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--aurora-bg-dark), 0 0 0 4px rgba(0, 130, 201, 0.4);
+  }
+
+  /* Yumuşak vurgu efekti (hover / active) */
+  .aurora-neon-glow {
+    border-color: rgba(0, 130, 201, 0.5);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  }
+}
