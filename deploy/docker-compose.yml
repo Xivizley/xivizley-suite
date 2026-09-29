@@ -1,0 +1,111 @@
+services:
+  # ─── Veritabanı (Unified PostgreSQL 16) ───────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: xivizley-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: xivizley
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-xivizley_dev}
+      POSTGRES_DB: xivizley_suite
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-schemas.sql:/docker-entrypoint-initdb.d/init-schemas.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xivizley -d xivizley_suite"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Reverse Proxy & TLS (Caddy v2) ────────────────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: xivizley-caddy
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:-suite.xivizley.com.tr}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - caddy_logs:/var/log/caddy
+    depends_on:
+      - hub
+
+  # ─── XIVIZLEY Nextcloud Unified Hub (Tek Çatı Ekosistem) ────
+  hub:
+    build:
+      context: ../
+      dockerfile: apps/sso/Dockerfile
+    container_name: xivizley-hub
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
+      PORT: "3000"
+      NODE_ENV: production
+      DOMAIN: ${DOMAIN:-suite.xivizley.com.tr}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+      COOKIE_SECRET: ${COOKIE_SECRET:-xivizley_cookie_secret_key_32_chars_min}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      VAULT_MASTER_KEY: ${VAULT_MASTER_KEY:-xivizley_vault_zero_knowledge_super_secret_2026}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      CADDY_LOG_PATH: /var/log/caddy/access.log
+      FIVEM_CONTAINER_NAME: ${FIVEM_CONTAINER_NAME:-fivem-server}
+      DRIVE_STORAGE_PATH: /data/storage
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - caddy_logs:/var/log/caddy:ro
+      - drive_data:/data/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+    oom_score_adj: -500
+
+  # ─── FiveM Server (Canlı Test & Panel Kontrol Konteyneri) ──
+  fivem-server:
+    image: alpine:latest
+    container_name: fivem-server
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    command: >
+      sh -c "echo '[FXServer] Initializing FiveM Artifact v7290...' &&
+             echo '[FXServer] Mounting data and resources...' &&
+             echo '[FXServer] Starting resource qb-core...' &&
+             echo '[FXServer] Starting resource ox_inventory...' &&
+             echo '[FXServer] Server listening on 0.0.0.0:30120' &&
+             tail -f /dev/null"
+    volumes:
+      - xivizley-fivem-data:/config
+    ports:
+      - "30120:30120"
+      - "30120:30120/udp"
+
+volumes:
+  postgres_data:
+  caddy_data:
+  caddy_config:
+  caddy_logs:
+  drive_data:
+  xivizley-fivem-data:
+  xivizley-minecraft-data:
+  xivizley-cs2-data:
+  xivizley-rust-data:
+  xivizley-palworld-data:
+  xivizley-unturned-data:
+  xivizley-ark-data:
+  xivizley-terraria-data:
+  xivizley-valheim-data:
+
+networks:
+  default:
+    name: xivizley-network

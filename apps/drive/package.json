@@ -1,0 +1,41 @@
+{
+  "name": "@xivizley/drive",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "next dev -p 3002",
+    "dev:server": "tsx watch src/server/index.ts",
+    "build": "next build",
+    "start": "node dist/server/index.js",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^10.0.2",
+    "@fastify/multipart": "^9.0.3",
+    "@xivizley/aurora-ui": "workspace:*",
+    "@xivizley/db": "workspace:*",
+    "@xivizley/types": "workspace:*",
+    "@xivizley/xivizley-id": "workspace:*",
+    "archiver": "^8.0.0",
+    "drizzle-orm": "^0.39.0",
+    "fastify": "^5.2.1",
+    "next": "^15.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/archiver": "^8.0.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@xivizley/tsconfig": "workspace:*",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

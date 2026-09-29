@@ -1,0 +1,17 @@
+{
+  "name": "XIVIZLEY Drive",
+  "short_name": "Drive",
+  "description": "Nextcloud Tasarımlı Hızlı & Güvenli NVMe Bulut Depolama",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#181e24",
+  "theme_color": "#0082c9",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

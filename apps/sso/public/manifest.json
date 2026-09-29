@@ -1,0 +1,17 @@
+{
+  "name": "XIVIZLEY Cloud (Nextcloud)",
+  "short_name": "XIVIZLEY Cloud",
+  "description": "XIVIZLEY Homelab Cloud & App Launcher",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#181e24",
+  "theme_color": "#0082c9",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

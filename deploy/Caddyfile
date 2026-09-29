@@ -1,0 +1,58 @@
+{
+	# Global Caddy ayarları (Kullanıcı .env içinde ACME_EMAIL belirleyebilir)
+	email {$ACME_EMAIL:admin@xivizley.com.tr}
+}
+
+(common_log) {
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 50mb
+			roll_keep 3
+		}
+		format json
+	}
+}
+
+# ─── Unified Hub (Kullanıcının Kendi Domaini veya Varsayılan) ──────────────
+{$DOMAIN:suite.xivizley.com.tr} {
+	import common_log
+	reverse_proxy hub:3000 {
+		flush_interval -1
+	}
+}
+
+# ─── Alt Alan Adları (Geriye Dönük Uyumluluk & Yönlendirme) ────
+drive.xivizley.com.tr {
+	import common_log
+	@root path /
+	redir @root https://suite.xivizley.com.tr/files permanent
+	reverse_proxy hub:3000
+}
+
+pass.xivizley.com.tr {
+	import common_log
+	@root path /
+	redir @root https://suite.xivizley.com.tr/pass permanent
+	reverse_proxy hub:3000
+}
+
+pulse.xivizley.com.tr {
+	import common_log
+	@root path /
+	redir @root https://suite.xivizley.com.tr/pulse permanent
+	reverse_proxy hub:3000
+}
+
+shield.xivizley.com.tr {
+	import common_log
+	@root path /
+	redir @root https://suite.xivizley.com.tr/shield permanent
+	reverse_proxy hub:3000
+}
+
+game.xivizley.com.tr {
+	import common_log
+	@root path /
+	redir @root https://suite.xivizley.com.tr/game permanent
+	reverse_proxy hub:3000
+}
