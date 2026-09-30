@@ -26,7 +26,8 @@ function isPublicRoute(method: string, urlPath: string): boolean {
     urlPath.startsWith("/api/auth") ||
     urlPath === "/favicon.ico" ||
     urlPath === "/icon.svg" ||
-    urlPath === "/manifest.json"
+    urlPath === "/manifest.json" ||
+    urlPath === "/robots.txt"
   ) {
     return true;
   }
@@ -187,6 +188,13 @@ async function bootstrap() {
   // Arama motorlarının (Google vb.) ekosistemi indekslemesini kesin olarak engelle
   fastify.addHook("onSend", async (_request, reply) => {
     reply.header("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
+  });
+
+  // Standalone robots.txt rotası
+  fastify.get("/robots.txt", async (_req, reply) => {
+    reply.header("Content-Type", "text/plain; charset=utf-8");
+    reply.header("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
+    return "User-agent: *\nDisallow: /\n";
   });
 
   // Fastify API Rotaları (Tüm Suite Modülleri)
