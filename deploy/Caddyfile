@@ -13,9 +13,17 @@
 	}
 }
 
+(no_search_engines) {
+	header {
+		X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+		-Server
+	}
+}
+
 # ─── Unified Hub (Kullanıcının Kendi Domaini veya Varsayılan) ──────────────
 {$DOMAIN:suite.xivizley.com.tr} {
 	import common_log
+	import no_search_engines
 	reverse_proxy hub:3000 {
 		flush_interval -1
 	}
@@ -24,6 +32,7 @@
 # ─── Alt Alan Adları (Geriye Dönük Uyumluluk & Yönlendirme) ────
 drive.xivizley.com.tr {
 	import common_log
+	import no_search_engines
 	@root path /
 	redir @root https://suite.xivizley.com.tr/files permanent
 	reverse_proxy hub:3000
@@ -31,6 +40,7 @@ drive.xivizley.com.tr {
 
 pass.xivizley.com.tr {
 	import common_log
+	import no_search_engines
 	@root path /
 	redir @root https://suite.xivizley.com.tr/pass permanent
 	reverse_proxy hub:3000
@@ -38,6 +48,7 @@ pass.xivizley.com.tr {
 
 pulse.xivizley.com.tr {
 	import common_log
+	import no_search_engines
 	@root path /
 	redir @root https://suite.xivizley.com.tr/pulse permanent
 	reverse_proxy hub:3000
@@ -45,6 +56,7 @@ pulse.xivizley.com.tr {
 
 shield.xivizley.com.tr {
 	import common_log
+	import no_search_engines
 	@root path /
 	redir @root https://suite.xivizley.com.tr/shield permanent
 	reverse_proxy hub:3000
@@ -52,6 +64,7 @@ shield.xivizley.com.tr {
 
 game.xivizley.com.tr {
 	import common_log
+	import no_search_engines
 	@root path /
 	redir @root https://suite.xivizley.com.tr/game permanent
 	reverse_proxy hub:3000

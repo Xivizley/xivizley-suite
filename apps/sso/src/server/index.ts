@@ -184,6 +184,11 @@ async function bootstrap() {
     }
   });
 
+  // Arama motorlarının (Google vb.) ekosistemi indekslemesini kesin olarak engelle
+  fastify.addHook("onSend", async (_request, reply) => {
+    reply.header("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
+  });
+
   // Fastify API Rotaları (Tüm Suite Modülleri)
   await fastify.register(authRoutes);
   await fastify.register(driveRoutes);
