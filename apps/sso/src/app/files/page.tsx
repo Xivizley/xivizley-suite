@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Button, Input, Modal, NextcloudHeader } from "@xivizley/aurora-ui";
+import { Button, Input, Modal, NextcloudHeader, useToast } from "@xivizley/aurora-ui";
 
 interface DriveFolder {
   id: string;
@@ -22,11 +22,18 @@ interface DriveItemFile {
   createdAt: string;
 }
 
+interface BreadcrumbItem {
+  id: string;
+  name: string;
+}
+
 export default function DrivePage() {
+  const toast = useToast();
   const [folders, setFolders] = useState<DriveFolder[]>([]);
   const [files, setFiles] = useState<DriveItemFile[]>([]);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [currentFolderName, setCurrentFolderName] = useState<string | null>(null);
+  const [folderPath, setFolderPath] = useState<BreadcrumbItem[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
@@ -36,7 +43,10 @@ export default function DrivePage() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  // Drag and Drop Durumu
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const dragCounter = useRef(0);
 
   // Çoklu Dosya Seçimi & Paylaşım Bağlantısı Durumları
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([]);
@@ -73,40 +83,106 @@ export default function DrivePage() {
     fetchItems(currentFolderId, activeNav);
   }, [currentFolderId, activeNav]);
 
-  const showNotification = (msg: string) => {
-    setStatusMessage(msg);
-    setTimeout(() => setStatusMessage(null), 3500);
+  // Çoklu Dosya Yükleme Pipeline'ı (Fastify Stream)
+  const uploadFiles = async (fileList: File[]) => {
+    if (!fileList || fileList.length === 0) return;
+    setIsUploading(true);
+    const total = fileList.length;
+
+    toast.info(
+      total === 1
+        ? `"${fileList[0]!.name}" yükleniyor...`
+        : `${total} dosya sırayla yükleniyor...`,
+      { title: "Yükleme Başlatıldı", duration: 3000 }
+    );
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < total; i++) {
+      const file = fileList[i]!;
+      const formData = new FormData();
+      formData.append("file", file);
+      if (currentFolderId && activeNav === "all") {
+        formData.append("folder_id", currentFolderId);
+      }
+
+      try {
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const json = await res.json();
+        if (json.ok) {
+          successCount++;
+        } else {
+          failCount++;
+          toast.error(json.message || `"${file.name}" yüklenemedi.`, {
+            title: "Yükleme Hatası",
+          });
+        }
+      } catch (err: any) {
+        failCount++;
+        toast.error(`"${file.name}" yüklenirken hata oluştu: ${err?.message || "Bağlantı hatası"}`, {
+          title: "Ağ Hatası",
+        });
+      }
+    }
+
+    setIsUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    await fetchItems(currentFolderId, activeNav);
+
+    if (successCount > 0) {
+      toast.success(
+        total === 1
+          ? `"${fileList[0]!.name}" başarıyla yüklendi.`
+          : `${successCount} dosya başarıyla yüklendi.${failCount > 0 ? ` (${failCount} başarısız)` : ""}`,
+        { title: "İşlem Tamamlandı" }
+      );
+    }
   };
 
-  // Dosya Yükleme İşlemi (Fastify Stream)
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (!selectedFiles || selectedFiles.length === 0) return;
+    await uploadFiles(Array.from(selectedFiles));
+  };
 
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append("file", selectedFiles[0]!);
-    if (currentFolderId && activeNav === "all") {
-      formData.append("folder_id", currentFolderId);
+  // Drag and Drop Olay Yöneticileri
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDraggingOver(true);
     }
+  };
 
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const json = await res.json();
-      if (json.ok) {
-        showNotification(`"${selectedFiles[0]!.name}" başarıyla yüklendi.`);
-        await fetchItems(currentFolderId, activeNav);
-      } else {
-        alert(json.message || "Dosya yüklenemedi.");
-      }
-    } catch (err: any) {
-      alert("Dosya yüklenirken hata oluştu: " + (err?.message || "Bağlantı hatası"));
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      setIsDraggingOver(false);
+      dragCounter.current = 0;
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+    dragCounter.current = 0;
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      await uploadFiles(Array.from(e.dataTransfer.files));
     }
   };
 
@@ -129,13 +205,19 @@ export default function DrivePage() {
         setIsCreateFolderOpen(false);
         const folderName = newFolderName.trim();
         setNewFolderName("");
-        showNotification(`"${folderName}" klasörü oluşturuldu.`);
+        toast.success(`"${folderName}" klasörü başarıyla oluşturuldu.`, {
+          title: "Klasör Oluşturuldu",
+        });
         await fetchItems(currentFolderId, activeNav);
       } else {
-        alert(json.message || "Klasör oluşturulamadı.");
+        toast.error(json.message || "Klasör oluşturulamadı.", {
+          title: "Hata",
+        });
       }
     } catch (err: any) {
-      alert("Klasör oluşturma hatası: " + (err?.message || "Bağlantı hatası"));
+      toast.error(`Klasör oluşturma hatası: ${err?.message || "Bağlantı hatası"}`, {
+        title: "Hata",
+      });
     }
   };
 
@@ -158,7 +240,7 @@ export default function DrivePage() {
   const handleBatchDownloadZip = async () => {
     if (selectedFileIds.length === 0) return;
     try {
-      showNotification("ZIP arşivi paketleniyor...");
+      toast.info("ZIP arşivi hazırlanıyor...", { title: "İndirme Başlatıldı" });
       const res = await fetch("/api/download/batch-zip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -174,9 +256,9 @@ export default function DrivePage() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      showNotification("ZIP arşivi başarıyla indirildi.");
+      toast.success("ZIP arşivi başarıyla indirildi.", { title: "İndirme Tamamlandı" });
     } catch {
-      showNotification("Toplu indirme sırasında bir hata oluştu.");
+      toast.error("Toplu indirme sırasında bir hata oluştu.", { title: "Hata" });
     }
   };
 
@@ -186,11 +268,11 @@ export default function DrivePage() {
       for (const id of selectedFileIds) {
         await fetch(`/api/files/${id}`, { method: "DELETE" });
       }
-      showNotification(`${selectedFileIds.length} dosya çöp kutusuna taşındı.`);
+      toast.success(`${selectedFileIds.length} dosya çöp kutusuna taşındı.`, { title: "Silindi" });
       setSelectedFileIds([]);
       await fetchItems(currentFolderId, activeNav);
     } catch {
-      showNotification("Dosyalar silinirken hata oluştu.");
+      toast.error("Dosyalar silinirken hata oluştu.", { title: "Hata" });
     }
   };
 
@@ -212,7 +294,7 @@ export default function DrivePage() {
         setShareUrl(json.data.shareUrl);
       }
     } catch {
-      showNotification("Paylaşım bağlantısı oluşturulamadı.");
+      toast.error("Paylaşım bağlantısı oluşturulamadı.", { title: "Paylaşım Hatası" });
     } finally {
       setIsCreatingShare(false);
     }
@@ -225,7 +307,7 @@ export default function DrivePage() {
       const res = await fetch(`/api/files/${file.id}/favorite`, { method: "POST" });
       const json = await res.json();
       if (json.ok) {
-        showNotification(file.isFavorite ? "Favorilerden kaldırıldı." : "Favorilere eklendi.");
+        toast.success(file.isFavorite ? "Favorilerden kaldırıldı." : "Favorilere eklendi.");
         await fetchItems(currentFolderId, activeNav);
       }
     } catch {}
@@ -238,7 +320,7 @@ export default function DrivePage() {
       const res = await fetch(`/api/files/${file.id}`, { method: "DELETE" });
       const json = await res.json();
       if (json.ok) {
-        showNotification(`"${file.name}" çöp kutusuna taşındı.`);
+        toast.success(`"${file.name}" çöp kutusuna taşındı.`);
         if (selectedItem?.data.id === file.id) setSelectedItem(null);
         await fetchItems(currentFolderId, activeNav);
       }
@@ -252,7 +334,7 @@ export default function DrivePage() {
       const res = await fetch(`/api/files/${file.id}/restore`, { method: "POST" });
       const json = await res.json();
       if (json.ok) {
-        showNotification(`"${file.name}" geri yüklendi.`);
+        toast.success(`"${file.name}" başarıyla geri yüklendi.`);
         if (selectedItem?.data.id === file.id) setSelectedItem(null);
         await fetchItems(currentFolderId, activeNav);
       }
@@ -268,7 +350,7 @@ export default function DrivePage() {
       const res = await fetch(`/api/files/${file.id}/permanent`, { method: "DELETE" });
       const json = await res.json();
       if (json.ok) {
-        showNotification(`"${file.name}" kalıcı olarak silindi.`);
+        toast.success(`"${file.name}" kalıcı olarak silindi.`);
         if (selectedItem?.data.id === file.id) setSelectedItem(null);
         await fetchItems(currentFolderId, activeNav);
       }
@@ -310,12 +392,25 @@ export default function DrivePage() {
   const handleOpenFolder = (folder: DriveFolder) => {
     setCurrentFolderId(folder.id);
     setCurrentFolderName(folder.name);
+    setFolderPath((prev) => {
+      const idx = prev.findIndex((p) => p.id === folder.id);
+      if (idx !== -1) return prev.slice(0, idx + 1);
+      return [...prev, { id: folder.id, name: folder.name }];
+    });
+    setSelectedItem(null);
+  };
+
+  const handleNavigateToBreadcrumb = (folder: BreadcrumbItem, index: number) => {
+    setCurrentFolderId(folder.id);
+    setCurrentFolderName(folder.name);
+    setFolderPath((prev) => prev.slice(0, index + 1));
     setSelectedItem(null);
   };
 
   const handleGoHome = () => {
     setCurrentFolderId(null);
     setCurrentFolderName(null);
+    setFolderPath([]);
     setSelectedItem(null);
   };
 
@@ -338,6 +433,7 @@ export default function DrivePage() {
               type="file"
               ref={fileInputRef}
               onChange={handleFileUpload}
+              multiple
               className="hidden"
             />
             <Button
@@ -372,14 +468,6 @@ export default function DrivePage() {
           </div>
         }
       />
-
-      {/* Bildirim Toast */}
-      {statusMessage && (
-        <div className="fixed bottom-4 right-4 z-50 bg-[#0082c9] text-white text-xs px-4 py-2.5 rounded-lg shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
-          <span>✓</span>
-          <span>{statusMessage}</span>
-        </div>
-      )}
 
       {/* ─── Nextcloud 2/3-Column Body Layout ───────────────── */}
       <div className="flex-1 flex overflow-hidden relative">
@@ -538,15 +626,44 @@ export default function DrivePage() {
           </div>
         </aside>
 
-        {/* ORTA ALAN: Dosya & Klasör Listesi ─────────────────── */}
-        <main className="flex-1 flex flex-col min-w-0 bg-[#181e24] overflow-hidden">
+        {/* ORTA ALAN: Dosya & Klasör Listesi & Dropzone ─────── */}
+        <main
+          onDragEnter={handleDragEnter}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className="flex-1 flex flex-col min-w-0 bg-[#181e24] overflow-hidden relative"
+        >
+          {/* Tam Ekran Drag & Drop Dropzone Overlay */}
+          {isDraggingOver && (
+            <div className="absolute inset-0 z-50 bg-[#181e24]/85 backdrop-blur-[2px] border-2 border-dashed border-[#0082c9] flex flex-col items-center justify-center p-6 text-center pointer-events-none animate-in fade-in duration-150">
+              <div className="p-6 rounded-2xl bg-[#222933]/95 border border-[#0082c9]/40 shadow-2xl flex flex-col items-center max-w-sm space-y-3">
+                <div className="w-16 h-16 rounded-2xl bg-[#0082c9]/20 border border-[#0082c9]/30 flex items-center justify-center text-[#0082c9] animate-bounce">
+                  <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                </div>
+                <h3 className="text-base font-bold text-white">Dosyaları Buraya Bırakın</h3>
+                <p className="text-xs text-slate-300">
+                  Bıraktığınız tüm dosyalar anında{" "}
+                  <span className="text-[#38bdf8] font-semibold">
+                    {currentFolderName || (activeNav === "all" ? "Tüm Dosyalar" : "Aktif Dizin")}
+                  </span>{" "}
+                  konumuna yüklenecektir.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Gezinti & Breadcrumb Araç Çubuğu */}
           <div className="h-12 border-b border-[#2d3748] bg-[#222933]/50 px-4 sm:px-6 flex items-center justify-between shrink-0">
-            {/* Breadcrumb Yolu */}
-            <div className="flex items-center gap-2 text-xs">
+            {/* Tıklanabilir Hiyerarşik Breadcrumbs */}
+            <div className="flex items-center gap-1.5 text-xs overflow-x-auto py-1 min-w-0 mr-2 scrollbar-none">
               <button
                 onClick={() => setIsMobileSidebarOpen((p) => !p)}
-                className="md:hidden p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-[#2b3442] -ml-2 mr-1"
+                className="md:hidden p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-[#2b3442] -ml-2 mr-1 shrink-0"
                 aria-label="Dosya Menüsü"
                 title="Dosya Gezgini Menüsü"
               >
@@ -559,7 +676,11 @@ export default function DrivePage() {
 
               <button
                 onClick={handleGoHome}
-                className="flex items-center gap-1.5 text-slate-300 hover:text-white font-medium transition-colors"
+                className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors shrink-0 ${
+                  folderPath.length === 0
+                    ? "text-white font-semibold bg-[#2b3442]/60"
+                    : "text-slate-300 hover:text-white hover:bg-[#2b3442]/40"
+                }`}
               >
                 <svg className="w-3.5 h-3.5 text-[#0082c9]" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
@@ -577,12 +698,22 @@ export default function DrivePage() {
                 </span>
               </button>
 
-              {currentFolderName && activeNav === "all" && (
-                <>
-                  <span className="text-slate-500">/</span>
-                  <span className="text-slate-100 font-semibold truncate max-w-[120px] sm:max-w-none">{currentFolderName}</span>
-                </>
-              )}
+              {activeNav === "all" && folderPath.map((item, idx) => (
+                <div key={item.id} className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-slate-500 font-mono">/</span>
+                  <button
+                    onClick={() => handleNavigateToBreadcrumb(item, idx)}
+                    className={`px-2 py-1 rounded-md transition-colors truncate max-w-[140px] ${
+                      idx === folderPath.length - 1
+                        ? "text-white font-semibold bg-[#2b3442]/60"
+                        : "text-slate-300 hover:text-white hover:bg-[#2b3442]/40"
+                    }`}
+                    title={item.name}
+                  >
+                    {item.name}
+                  </button>
+                </div>
+              ))}
             </div>
 
             {/* Görünüm Değiştirici & Yeni Klasör Butonu */}
@@ -685,35 +816,66 @@ export default function DrivePage() {
           {/* Dosya / Klasör İçeriği */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             {filteredFolders.length === 0 && filteredFiles.length === 0 ? (
-              <div className="h-64 flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-dashed border-[#2d3748] bg-[#222933]/30">
-                <div className="w-12 h-12 rounded-full bg-[#222933] flex items-center justify-center text-slate-400 mb-3">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                  </svg>
+              <div className="h-72 flex flex-col items-center justify-center text-center p-8 rounded-2xl border-2 border-dashed border-[#2d3748] bg-[#222933]/30 transition-colors">
+                <div className="w-16 h-16 rounded-2xl bg-[#181e24] border border-[#2d3748] flex items-center justify-center text-slate-400 mb-4 shadow-sm">
+                  {activeNav === "trash" ? (
+                    <svg className="w-8 h-8 text-rose-400/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                  ) : activeNav === "favorites" ? (
+                    <svg className="w-8 h-8 text-amber-400/80" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                  ) : (
+                    <svg className="w-8 h-8 text-[#0082c9]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+                      <path d="M12 12v9" />
+                      <path d="m16 16-4-4-4 4" />
+                    </svg>
+                  )}
                 </div>
-                <h3 className="text-sm font-semibold text-slate-200">
+                <h3 className="text-sm font-semibold text-slate-100">
                   {activeNav === "trash"
                     ? "Çöp kutusu boş"
                     : activeNav === "favorites"
                     ? "Henüz favori dosya yok"
-                    : "Bu klasör henüz boş"}
+                    : currentFolderName
+                    ? `"${currentFolderName}" klasörü henüz boş`
+                    : "Henüz hiç dosya yüklenmedi"}
                 </h3>
-                <p className="text-xs text-slate-400 max-w-sm mt-1 mb-4">
+                <p className="text-xs text-slate-400 max-w-sm mt-1 mb-5">
                   {activeNav === "trash"
-                    ? "Silinen dosyalarınız burada listelenir."
+                    ? "Sildiğiniz dosyalar ve klasörler kalıcı olarak silinene kadar burada güvenle saklanır."
                     : activeNav === "favorites"
-                    ? "Önemli dosyalarınıza yıldız ekleyerek buradan kolayca erişebilirsiniz."
-                    : "Yeni klasör oluşturarak veya sağ üstteki Yükle butonuyla dosya ekleyerek başlayabilirsiniz."}
+                    ? "Sık kullandığınız dosyalara yıldız ekleyerek buradan tek tıkla erişebilirsiniz."
+                    : "Masaüstünüzden dosyaları buraya sürükleyip bırakabilir veya yükleme butonunu kullanabilirsiniz."}
                 </p>
                 {activeNav === "all" && (
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="bg-[#0082c9] text-white hover:bg-[#006aa3]"
-                  >
-                    İlk Dosyanızı Yükleyin
-                  </Button>
+                  <div className="flex items-center gap-2.5">
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="bg-[#0082c9] text-white hover:bg-[#006aa3] shadow-sm font-medium"
+                      leftIcon={
+                        <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                          <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                          <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V10.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
+                        </svg>
+                      }
+                    >
+                      Dosya Yükle
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setIsCreateFolderOpen(true)}
+                      className="border-[#2d3748] text-slate-300 hover:text-white"
+                    >
+                      Yeni Klasör
+                    </Button>
+                  </div>
                 )}
               </div>
             ) : viewMode === "list" ? (
@@ -1195,7 +1357,7 @@ export default function DrivePage() {
         onClose={() => setShareModalFile(null)}
         title={`Bağlantı ile Paylaş — ${shareModalFile?.name}`}
         size="md"
-        actions={
+        footer={
           <Button
             variant="secondary"
             size="sm"

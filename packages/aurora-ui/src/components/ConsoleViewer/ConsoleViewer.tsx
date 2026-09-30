@@ -130,29 +130,57 @@ export const ConsoleViewer = forwardRef<HTMLDivElement, ConsoleViewerProps>(
           <div className="flex items-center gap-1.5 shrink-0">
             {extraActions}
 
-            {/* Otomatik Kaydırma Toggle */}
+            {/* Otomatik Kaydırma / Akış Kilitleme Toggle */}
             <Button
-              variant={isAutoScrollActive ? "primary" : "ghost"}
+              variant={isAutoScrollActive ? "primary" : "secondary"}
               size="sm"
               onClick={toggleAutoScroll}
-              title={isAutoScrollActive ? "Otomatik Kaydırma: Açık" : "Otomatik Kaydırma: Kapalı"}
-              className="text-xs px-2.5 h-7"
+              title={
+                isAutoScrollActive
+                  ? "Canlıya Sabitlendi (Yeni loglar otomatik aşağı kaydırılıyor - Tıkla ve Kilitle)"
+                  : "Akış Kilitlendi (İnceleme Modu - Tıkla ve Canlıya Sabitle)"
+              }
+              className={clsx(
+                "text-xs px-2.5 h-7 flex items-center gap-1.5 font-medium transition-all",
+                isAutoScrollActive
+                  ? "bg-[#0082c9] text-white shadow-sm"
+                  : "border-amber-500/40 text-amber-300 bg-amber-500/10 hover:bg-amber-500/20",
+              )}
             >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M12 5l-4 4-4-4" />
-                <path d="M12 9l-4 4-4-4" />
-              </svg>
-              <span className="hidden sm:inline">Oto Kaydır</span>
+              {isAutoScrollActive ? (
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5l-4 4-4-4" />
+                  <path d="M12 9l-4 4-4-4" />
+                </svg>
+              ) : (
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="7" width="10" height="7" rx="1.5" />
+                  <path d="M5 7V4a3 3 0 0 1 6 0v3" />
+                </svg>
+              )}
+              <span className="hidden sm:inline">
+                {isAutoScrollActive ? "Canlıya Sabitle" : "Akış Kilitli"}
+              </span>
             </Button>
 
             {/* Kopyala */}

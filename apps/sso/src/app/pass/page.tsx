@@ -36,10 +36,240 @@ import {
   Smartphone,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { NextcloudHeader } from '@xivizley/aurora-ui';
+import { NextcloudHeader, useToast } from '@xivizley/aurora-ui';
 import type { VaultItem } from '@/server/services/passService';
 
+// ─── 30s Dairesel SVG TOTP Geri Sayım Halkası ───────────────
+function TotpCountdownRing({ remainingSeconds }: { remainingSeconds: number }) {
+  const radius = 15;
+  const circumference = 2 * Math.PI * radius; // ~94.25
+  const clampedSeconds = Math.max(0, Math.min(remainingSeconds, 30));
+  const offset = circumference * (1 - clampedSeconds / 30);
+
+  const isCritical = remainingSeconds <= 3;
+  const isWarning = remainingSeconds <= 7 && !isCritical;
+
+  const strokeColor = isCritical
+    ? '#f43f5e' // rose-500
+    : isWarning
+    ? '#f59e0b' // amber-500
+    : '#10b981'; // emerald-500
+
+  const textColor = isCritical
+    ? 'text-rose-400'
+    : isWarning
+    ? 'text-amber-400'
+    : 'text-emerald-400';
+
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
+        <svg className="w-10 h-10 -rotate-90" viewBox="0 0 36 36">
+          {/* Arka plan sönük halka */}
+          <circle
+            cx="18"
+            cy="18"
+            r={radius}
+            fill="none"
+            stroke="rgba(255, 255, 255, 0.12)"
+            strokeWidth="2.75"
+          />
+          {/* Animasyonlu dinamik geri sayım halkası */}
+          <circle
+            cx="18"
+            cy="18"
+            r={radius}
+            fill="none"
+            stroke={strokeColor}
+            strokeWidth="2.75"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            style={{
+              transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease',
+            }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span className={`text-[11px] font-mono font-black ${textColor}`}>
+            {remainingSeconds}
+          </span>
+        </div>
+      </div>
+      <div className="text-right">
+        <span className={`text-xs font-mono font-bold ${textColor}`}>
+          {remainingSeconds}s
+        </span>
+        <span className="text-[9px] text-slate-400 block font-sans">kalan süre</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Parola Gücü & Entropi Hesaplayıcı ───────────────────────
+interface PasswordStrength {
+  score: number;
+  entropyBits: number;
+  label: 'Çok Zayıf' | 'Zayıf' | 'Orta' | 'Çok Güçlü';
+  colorClass: string;
+  hasMinLength: boolean;
+  hasLower: boolean;
+  hasUpper: boolean;
+  hasNumber: boolean;
+  hasSpecial: boolean;
+}
+
+function calculatePasswordStrength(pass: string): PasswordStrength {
+  if (!pass) {
+    return {
+      score: 0,
+      entropyBits: 0,
+      label: 'Çok Zayıf',
+      colorClass: 'bg-rose-500',
+      hasMinLength: false,
+      hasLower: false,
+      hasUpper: false,
+      hasNumber: false,
+      hasSpecial: false,
+    };
+  }
+
+  const hasLower = /[a-z]/.test(pass);
+  const hasUpper = /[A-Z]/.test(pass);
+  const hasNumber = /[0-9]/.test(pass);
+  const hasSpecial = /[^A-Za-z0-9]/.test(pass);
+  const hasMinLength = pass.length >= 12;
+
+  let poolSize = 0;
+  if (hasLower) poolSize += 26;
+  if (hasUpper) poolSize += 26;
+  if (hasNumber) poolSize += 10;
+  if (hasSpecial) poolSize += 33;
+
+  const entropyBits = Math.round(pass.length * (poolSize > 0 ? Math.log2(poolSize) : 0));
+
+  let score = 0;
+  if (hasMinLength) score++;
+  if (hasLower && hasUpper) score++;
+  if (hasNumber) score++;
+  if (hasSpecial) score++;
+  if (pass.length >= 16 && score >= 3) score = 4;
+
+  let label: 'Çok Zayıf' | 'Zayıf' | 'Orta' | 'Çok Güçlü' = 'Çok Zayıf';
+  let colorClass = 'bg-rose-500';
+
+  if (score <= 1) {
+    label = 'Çok Zayıf';
+    colorClass = 'bg-rose-500';
+  } else if (score === 2) {
+    label = 'Zayıf';
+    colorClass = 'bg-amber-500';
+  } else if (score === 3) {
+    label = 'Orta';
+    colorClass = 'bg-sky-400';
+  } else {
+    label = 'Çok Güçlü';
+    colorClass = 'bg-emerald-500';
+  }
+
+  return {
+    score,
+    entropyBits,
+    label,
+    colorClass,
+    hasMinLength,
+    hasLower,
+    hasUpper,
+    hasNumber,
+    hasSpecial,
+  };
+}
+
+function PasswordStrengthBar({ password }: { password: string }) {
+  const strength = calculatePasswordStrength(password);
+  if (!password) return null;
+
+  return (
+    <div className="space-y-2 select-none pt-1">
+      <div className="flex items-center justify-between text-[11px]">
+        <div className="flex items-center gap-1.5 font-medium">
+          <span className="text-slate-400">Güvenlik:</span>
+          <span
+            className={
+              strength.score <= 1
+                ? 'text-rose-400 font-semibold'
+                : strength.score === 2
+                ? 'text-amber-400 font-semibold'
+                : strength.score === 3
+                ? 'text-sky-400 font-semibold'
+                : 'text-emerald-400 font-semibold'
+            }
+          >
+            {strength.label}
+          </span>
+        </div>
+        <span className="text-[10px] font-mono text-slate-400">
+          ~{strength.entropyBits} bit entropi
+        </span>
+      </div>
+
+      {/* 4 Seviyeli Görsel Bar */}
+      <div className="grid grid-cols-4 gap-1.5 h-1.5">
+        {[1, 2, 3, 4].map((step) => (
+          <div
+            key={step}
+            className={`h-full rounded-full transition-all duration-300 ${
+              step <= strength.score ? strength.colorClass : 'bg-slate-700/60'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Kural Kontrol Rozetleri */}
+      <div className="flex flex-wrap gap-1.5 pt-1 text-[10px] font-mono">
+        <span
+          className={`px-1.5 py-0.5 rounded border transition-colors ${
+            strength.hasMinLength
+              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+              : 'bg-slate-800/60 text-slate-400 border-slate-700/60'
+          }`}
+        >
+          {strength.hasMinLength ? '✓' : '○'} 12+ Karakter
+        </span>
+        <span
+          className={`px-1.5 py-0.5 rounded border transition-colors ${
+            strength.hasUpper && strength.hasLower
+              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+              : 'bg-slate-800/60 text-slate-400 border-slate-700/60'
+          }`}
+        >
+          {strength.hasUpper && strength.hasLower ? '✓' : '○'} Büyük & Küçük
+        </span>
+        <span
+          className={`px-1.5 py-0.5 rounded border transition-colors ${
+            strength.hasNumber
+              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+              : 'bg-slate-800/60 text-slate-400 border-slate-700/60'
+          }`}
+        >
+          {strength.hasNumber ? '✓' : '○'} Rakam
+        </span>
+        <span
+          className={`px-1.5 py-0.5 rounded border transition-colors ${
+            strength.hasSpecial
+              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+              : 'bg-slate-800/60 text-slate-400 border-slate-700/60'
+          }`}
+        >
+          {strength.hasSpecial ? '✓' : '○'} Sembol
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function PassDashboard() {
+  const toast = useToast();
   const [items, setItems] = useState<VaultItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
@@ -137,9 +367,10 @@ export default function PassDashboard() {
   }, [selectedItem]);
 
   // ─── Kopyalama Yardımcısı ──────────────────────────────────
-  const copyToClipboard = (text: string, key: string) => {
+  const copyToClipboard = (text: string, key: string, label = 'Değer') => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
+    toast.success(`${label} panoya kopyalandı.`);
     setTimeout(() => {
       setCopiedKey(null);
     }, 2000);
@@ -184,15 +415,17 @@ export default function PassDashboard() {
         setItems((prev) =>
           prev.map((i) => (i.id === id ? { ...i, isFavorite: data.isFavorite } : i))
         );
+        toast.success(data.isFavorite ? 'Favorilere eklendi.' : 'Favorilerden çıkarıldı.');
       }
     } catch {
-      // ignore
+      toast.error('Favori güncellenemedi.');
     }
   };
 
   // ─── Öğe Silme ─────────────────────────────────────────────
   const handleDelete = async (id: string) => {
-    if (!confirm('Bu öğeyi kasanızdan silmek istediğinize emin misiniz?')) return;
+    const itemToDelete = items.find((i) => i.id === id);
+    if (!confirm(`"${itemToDelete?.title || 'Bu öğeyi'}" kasanızdan silmek istediğinize emin misiniz?`)) return;
     try {
       const res = await fetch(`/api/vault/${id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -200,9 +433,10 @@ export default function PassDashboard() {
         if (selectedId === id) {
           setSelectedId(null);
         }
+        toast.success(`"${itemToDelete?.title || 'Öğe'}" kasanızdan silindi.`);
       }
     } catch (err) {
-      console.error('Silinemedi', err);
+      toast.error('Öğe silinemedi.');
     }
   };
 
@@ -222,6 +456,9 @@ export default function PassDashboard() {
         setItems((prev) => [data.data, ...prev]);
         setSelectedId(data.data.id);
         setIsAddOpen(false);
+        toast.success(`"${formData.title}" başarıyla kasaya kaydedildi.`, {
+          title: 'Kasa Güncellendi',
+        });
         setFormData({
           title: '',
           type: 'login',
@@ -234,7 +471,7 @@ export default function PassDashboard() {
         });
       }
     } catch (err) {
-      console.error('Kayıt başarısız', err);
+      toast.error('Kayıt oluşturulamadı.');
     }
   };
 
@@ -490,15 +727,30 @@ export default function PassDashboard() {
             <span className="text-xs">Filtre</span>
           </button>
 
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
+          <div className="relative flex-1 flex items-center">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Kasada ara... (Cmd+K)"
-              className="w-full h-8 pl-8 pr-3 rounded-lg bg-[#222933] border border-[#2d3748] text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-[#0082c9] transition-all"
+              className="w-full h-8 pl-8 pr-16 rounded-lg bg-[#222933] border border-[#2d3748] text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-[#0082c9] transition-all"
             />
+            {searchQuery && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#181e24] text-[#38bdf8] border border-[#2d3748]">
+                  {filteredItems.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="text-slate-400 hover:text-white p-0.5 rounded transition-colors"
+                  title="Aramayı Temizle"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
           </div>
 
           <button
@@ -657,15 +909,10 @@ export default function PassDashboard() {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <span className="text-xs font-mono font-bold text-emerald-400">
-                        {totpData.remainingSeconds}s
-                      </span>
-                      <span className="text-[9px] text-slate-500 block">kalan süre</span>
-                    </div>
+                    <TotpCountdownRing remainingSeconds={totpData.remainingSeconds} />
 
                     <button
-                      onClick={() => copyToClipboard(totpData.code, 'totp')}
+                      onClick={() => copyToClipboard(totpData.code, 'totp', '2FA Doğrulama Kodu')}
                       className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-sm"
                     >
                       {copiedKey === 'totp' ? (
@@ -700,7 +947,7 @@ export default function PassDashboard() {
                   </div>
 
                   <button
-                    onClick={() => copyToClipboard(selectedItem.username!, 'user')}
+                    onClick={() => copyToClipboard(selectedItem.username!, 'user', 'Kullanıcı Adı')}
                     className="p-2 rounded-lg hover:bg-[#181e24] text-slate-400 hover:text-slate-100 transition-colors"
                     title="Kullanıcı Adını Kopyala"
                   >
@@ -739,7 +986,7 @@ export default function PassDashboard() {
                     </button>
 
                     <button
-                      onClick={() => copyToClipboard(selectedItem.password!, 'pass')}
+                      onClick={() => copyToClipboard(selectedItem.password!, 'pass', 'Parola')}
                       className="px-3 py-1.5 rounded-lg bg-[#0082c9]/10 hover:bg-[#0082c9]/20 border border-[#0082c9]/30 text-xs font-medium text-[#0082c9] flex items-center gap-1.5 transition-all"
                     >
                       {copiedKey === 'pass' ? (
@@ -916,6 +1163,13 @@ export default function PassDashboard() {
                 </div>
               </div>
 
+              {/* Canlı Parola Gücü & Entropi Ölçer */}
+              {formData.password && (
+                <div className="p-3 rounded-xl bg-[#181e24] border border-[#2d3748]">
+                  <PasswordStrengthBar password={formData.password} />
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-[11px] text-slate-400 block mb-1">
@@ -1000,7 +1254,7 @@ export default function PassDashboard() {
                 {generatedPassword}
               </span>
               <button
-                onClick={() => copyToClipboard(generatedPassword, 'gen')}
+                onClick={() => copyToClipboard(generatedPassword, 'gen', 'Üretilen parola')}
                 className="p-2 rounded-lg bg-[#0082c9]/10 hover:bg-[#0082c9]/20 text-[#0082c9] transition-colors shrink-0"
                 title="Kopyala"
               >
@@ -1010,6 +1264,11 @@ export default function PassDashboard() {
                   <Copy className="h-4 w-4" />
                 )}
               </button>
+            </div>
+
+            {/* Canlı Parola Gücü & Entropi Barı */}
+            <div className="p-3 rounded-xl bg-[#181e24] border border-[#2d3748]">
+              <PasswordStrengthBar password={generatedPassword} />
             </div>
 
             {/* Seçenekler */}
