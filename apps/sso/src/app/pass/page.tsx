@@ -459,7 +459,7 @@ export default function PassDashboard() {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (data.ok && data.data) {
+      if (res.ok && data.ok && data.data) {
         setItems((prev) => [data.data, ...prev]);
         setSelectedId(data.data.id);
         setIsAddOpen(false);
@@ -476,9 +476,11 @@ export default function PassDashboard() {
           folder: 'Sunucular & Altyapı',
           notes: '',
         });
+      } else {
+        toast.error(data.error || data.message || 'Kayıt oluşturulamadı.');
       }
-    } catch (err) {
-      toast.error('Kayıt oluşturulamadı.');
+    } catch (err: any) {
+      toast.error(err?.message || 'Kayıt oluşturulamadı.');
     }
   };
 
