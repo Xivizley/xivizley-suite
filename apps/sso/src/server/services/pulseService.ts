@@ -110,8 +110,8 @@ export async function getAllMonitors(): Promise<PulseMonitor[]> {
         target: row.target,
         intervalSeconds: row.intervalSeconds,
         status: row.status as 'up' | 'down' | 'pending',
-        lastCheckAt: row.lastCheckAt?.toISOString(),
-        lastLatencyMs: row.lastLatencyMs ?? undefined,
+        ...(row.lastCheckAt ? { lastCheckAt: row.lastCheckAt.toISOString() } : {}),
+        ...(row.lastLatencyMs !== null && row.lastLatencyMs !== undefined ? { lastLatencyMs: row.lastLatencyMs } : {}),
         uptimePercentage: row.uptimePercentage,
         recentHeartbeats: hbs.reverse().map((h) => ({
           id: h.id,
@@ -172,8 +172,8 @@ export async function createMonitor(data: {
         target: inserted.target,
         intervalSeconds: inserted.intervalSeconds,
         status: inserted.status as any,
-        lastCheckAt: inserted.lastCheckAt?.toISOString(),
-        lastLatencyMs: inserted.lastLatencyMs ?? undefined,
+        ...(inserted.lastCheckAt ? { lastCheckAt: inserted.lastCheckAt.toISOString() } : {}),
+        ...(inserted.lastLatencyMs !== null && inserted.lastLatencyMs !== undefined ? { lastLatencyMs: inserted.lastLatencyMs } : {}),
         uptimePercentage: inserted.uptimePercentage,
         recentHeartbeats: [
           {
@@ -231,7 +231,7 @@ export async function checkMonitorById(id: string): Promise<CheckResult | null> 
       target: monitor.target,
       status: result.status,
       latencyMs: result.latencyMs,
-      errorMessage: result.error,
+      ...(result.error ? { errorMessage: result.error } : {}),
     });
   }
 

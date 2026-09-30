@@ -33,12 +33,15 @@ export async function checkHttp(url: string, timeoutMs = 5000): Promise<CheckRes
     const latencyMs = Math.round(performance.now() - start);
     const isUp = res.status < 400 || res.status === 401 || res.status === 403; // Auth gerektirse bile sunucu ayaktadır
 
-    return {
+    const result: CheckResult = {
       status: isUp ? 'up' : 'down',
       latencyMs,
       statusCode: res.status,
-      error: isUp ? undefined : `HTTP Hata Kodu: ${res.status} ${res.statusText}`,
     };
+    if (!isUp) {
+      result.error = `HTTP Hata Kodu: ${res.status} ${res.statusText}`;
+    }
+    return result;
   } catch (err: any) {
     const latencyMs = Math.round(performance.now() - start);
     return {

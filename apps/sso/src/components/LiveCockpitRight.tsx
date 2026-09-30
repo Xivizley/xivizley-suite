@@ -81,11 +81,13 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
         draftCommandRef.current = commandInput;
         const nextIndex = 0;
         setHistoryIndex(nextIndex);
-        setCommandInput(commandHistory[nextIndex]);
+        const nextCmd = commandHistory[nextIndex];
+        if (nextCmd !== undefined) setCommandInput(nextCmd);
       } else if (historyIndex < commandHistory.length - 1) {
         const nextIndex = historyIndex + 1;
         setHistoryIndex(nextIndex);
-        setCommandInput(commandHistory[nextIndex]);
+        const nextCmd = commandHistory[nextIndex];
+        if (nextCmd !== undefined) setCommandInput(nextCmd);
       }
     } else if (e.key === "ArrowDown") {
       if (historyIndex === -1) return;
@@ -94,7 +96,8 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
       if (historyIndex > 0) {
         const nextIndex = historyIndex - 1;
         setHistoryIndex(nextIndex);
-        setCommandInput(commandHistory[nextIndex]);
+        const nextCmd = commandHistory[nextIndex];
+        if (nextCmd !== undefined) setCommandInput(nextCmd);
       } else if (historyIndex === 0) {
         setHistoryIndex(-1);
         setCommandInput(draftCommandRef.current);
@@ -179,6 +182,7 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
   const handleSendCommand = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const cmdToSend = commandInput.trim();
+    if (!cmdToSend) return;
     setCommandInput("");
     setHistoryIndex(-1);
     draftCommandRef.current = "";
@@ -340,14 +344,14 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
                   {/* Canlı Kullanılan RAM */}
                   <div
                     className={`h-full rounded-full transition-all duration-500 relative z-10 ${
-                      ((metrics?.container.memUsageMb || 0) / containerMemLimit) > 0.9
+                      ((metrics?.container?.memUsageMb || 0) / containerMemLimit) > 0.9
                         ? "bg-gradient-to-r from-rose-500 to-red-600 shadow-[0_0_8px_rgba(244,63,94,0.5)]"
-                        : ((metrics?.container.memUsageMb || 0) / containerMemLimit) > 0.75
+                        : ((metrics?.container?.memUsageMb || 0) / containerMemLimit) > 0.75
                         ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
                         : "bg-gradient-to-r from-emerald-500 to-[#1AD76F] shadow-[0_0_8px_rgba(26,215,111,0.3)]"
                     }`}
                     style={{
-                      width: `${Math.min(100, Math.round(((metrics?.container.memUsageMb || 0) / containerMemLimit) * 100))}%`,
+                      width: `${Math.min(100, Math.round(((metrics?.container?.memUsageMb || 0) / containerMemLimit) * 100))}%`,
                     }}
                   />
                 </div>
@@ -357,7 +361,7 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
                   <div className="flex items-center gap-2.5">
                     <span className="flex items-center gap-1 text-slate-200">
                       <span className="w-2 h-2 rounded-full bg-[#1AD76F]" />
-                      Aktif: {metrics?.container.memUsageMb || 0} MB
+                      Aktif: {metrics?.container?.memUsageMb || 0} MB
                     </span>
                     <span className="flex items-center gap-1 text-cyan-300">
                       <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
@@ -393,13 +397,13 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-slate-300">İşlemci Kullanımı</span>
                 <span className="font-mono text-white font-bold">
-                  {metrics?.container.cpuPercent || 0}%
+                  {metrics?.container?.cpuPercent || 0}%
                 </span>
               </div>
 
               <MetricGauge
                 label="Konteyner CPU Yükü"
-                value={metrics?.container.cpuPercent || 0}
+                value={metrics?.container?.cpuPercent || 0}
                 unit="%"
                 size="sm"
                 thresholds={{ warning: 70, critical: 90 }}

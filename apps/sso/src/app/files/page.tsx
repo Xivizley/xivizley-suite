@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Button, Input, Modal, NextcloudHeader, useToast } from "@xivizley/aurora-ui";
+import { Button, Input, Modal, NextcloudHeader, Spinner, useToast } from "@xivizley/aurora-ui";
 
 interface DriveFolder {
   id: string;
@@ -83,6 +83,19 @@ export default function DrivePage() {
     fetchItems(currentFolderId, activeNav);
   }, [currentFolderId, activeNav]);
 
+  // Tarayıcının masaüstünden sürüklenen dosyayı pencereye bırakınca doğrudan açmasını engelle
+  useEffect(() => {
+    const handlePreventBrowserDrop = (e: DragEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("dragover", handlePreventBrowserDrop);
+    window.addEventListener("drop", handlePreventBrowserDrop);
+    return () => {
+      window.removeEventListener("dragover", handlePreventBrowserDrop);
+      window.removeEventListener("drop", handlePreventBrowserDrop);
+    };
+  }, []);
+
   // Çoklu Dosya Yükleme Pipeline'ı (Fastify Stream)
   const uploadFiles = async (fileList: File[]) => {
     if (!fileList || fileList.length === 0) return;
@@ -102,10 +115,10 @@ export default function DrivePage() {
     for (let i = 0; i < total; i++) {
       const file = fileList[i]!;
       const formData = new FormData();
-      formData.append("file", file);
       if (currentFolderId && activeNav === "all") {
         formData.append("folder_id", currentFolderId);
       }
+      formData.append("file", file);
 
       try {
         const res = await fetch("/api/upload", {
@@ -390,6 +403,9 @@ export default function DrivePage() {
   }, [files, searchQuery]);
 
   const handleOpenFolder = (folder: DriveFolder) => {
+    if (activeNav !== "all") {
+      setActiveNav("all");
+    }
     setCurrentFolderId(folder.id);
     setCurrentFolderName(folder.name);
     setFolderPath((prev) => {
@@ -827,6 +843,19 @@ export default function DrivePage() {
                     <svg className="w-8 h-8 text-amber-400/80" viewBox="0 0 24 24" fill="currentColor">
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                     </svg>
+                  ) : activeNav === "shares" ? (
+                    <svg className="w-8 h-8 text-emerald-400/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                      <circle cx="18" cy="5" r="3" />
+                      <circle cx="6" cy="12" r="3" />
+                      <circle cx="18" cy="19" r="3" />
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                    </svg>
+                  ) : activeNav === "recent" ? (
+                    <svg className="w-8 h-8 text-sky-400/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+                      <circle cx="12" cy="12" r="10" />
+                      <polyline points="12 6 12 12 14 14" />
+                    </svg>
                   ) : (
                     <svg className="w-8 h-8 text-[#0082c9]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
@@ -840,6 +869,10 @@ export default function DrivePage() {
                     ? "Çöp kutusu boş"
                     : activeNav === "favorites"
                     ? "Henüz favori dosya yok"
+                    : activeNav === "shares"
+                    ? "Henüz paylaşılan bağlantı yok"
+                    : activeNav === "recent"
+                    ? "Son kullanılan dosya bulunamadı"
                     : currentFolderName
                     ? `"${currentFolderName}" klasörü henüz boş`
                     : "Henüz hiç dosya yüklenmedi"}
@@ -849,6 +882,10 @@ export default function DrivePage() {
                     ? "Sildiğiniz dosyalar ve klasörler kalıcı olarak silinene kadar burada güvenle saklanır."
                     : activeNav === "favorites"
                     ? "Sık kullandığınız dosyalara yıldız ekleyerek buradan tek tıkla erişebilirsiniz."
+                    : activeNav === "shares"
+                    ? "Bağlantı oluşturarak dışarıya paylaştığınız dosyalar burada listelenir."
+                    : activeNav === "recent"
+                    ? "Yakın zamanda açtığınız veya değiştirdiğiniz dosyalar hızlı erişim için burada görünür."
                     : "Masaüstünüzden dosyaları buraya sürükleyip bırakabilir veya yükleme butonunu kullanabilirsiniz."}
                 </p>
                 {activeNav === "all" && (

@@ -76,13 +76,15 @@ export default function PhotosPage() {
 
   const handleNext = () => {
     if (currentIndex >= 0 && currentIndex < filteredMedia.length - 1) {
-      setSelectedMedia(filteredMedia[currentIndex + 1]);
+      const nextMedia = filteredMedia[currentIndex + 1];
+      if (nextMedia) setSelectedMedia(nextMedia);
     }
   };
 
   const handlePrev = () => {
     if (currentIndex > 0) {
-      setSelectedMedia(filteredMedia[currentIndex - 1]);
+      const prevMedia = filteredMedia[currentIndex - 1];
+      if (prevMedia) setSelectedMedia(prevMedia);
     }
   };
 

@@ -7,7 +7,7 @@ const nextConfig = {
     "@xivizley/xivizley-id",
   ],
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: true,

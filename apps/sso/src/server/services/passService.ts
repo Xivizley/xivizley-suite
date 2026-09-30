@@ -229,7 +229,7 @@ export async function toggleVaultFavorite(id: string): Promise<boolean> {
         .set({ isFavorite: !existing.isFavorite, updatedAt: new Date() })
         .where(eq(vaultItems.id, id))
         .returning();
-      return updated.isFavorite;
+      return updated?.isFavorite ?? !existing.isFavorite;
     }
   } catch {
     // ignore

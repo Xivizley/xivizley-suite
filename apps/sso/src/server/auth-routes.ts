@@ -93,7 +93,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     reply.setCookie("xivizley_access_token", accessToken, {
       path: "/",
-      domain: cookieDomain,
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -102,7 +102,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     reply.setCookie("xivizley_refresh_token", rawToken, {
       path: "/",
-      domain: cookieDomain,
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -233,7 +233,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     reply.setCookie("xivizley_access_token", newAccessToken, {
       path: "/",
-      domain: cookieDomain,
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -242,7 +242,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
 
     reply.setCookie("xivizley_refresh_token", newRawToken, {
       path: "/",
-      domain: cookieDomain,
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -262,9 +262,10 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
   // ─── 3. POST /api/auth/logout ──────────────────────────────
   fastify.post("/api/auth/logout", async (request, reply) => {
     const domain = getCookieDomain(request.headers.host);
-    reply.clearCookie("xivizley_access_token", { path: "/", domain });
-    reply.clearCookie("xivizley_refresh_token", { path: "/", domain });
-    reply.clearCookie("xivizley_refresh_token", { path: "/api/auth", domain });
+    const cookieOpts = { path: "/", ...(domain ? { domain } : {}) };
+    reply.clearCookie("xivizley_access_token", cookieOpts);
+    reply.clearCookie("xivizley_refresh_token", cookieOpts);
+    reply.clearCookie("xivizley_refresh_token", { path: "/api/auth", ...(domain ? { domain } : {}) });
 
     return reply.status(200).send({
       ok: true,
@@ -329,7 +330,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
             const cookieDomain = getCookieDomain(request.headers.host);
             reply.setCookie("xivizley_access_token", newAccessToken, {
               path: "/",
-              domain: cookieDomain,
+              ...(cookieDomain ? { domain: cookieDomain } : {}),
               httpOnly: true,
               secure: process.env.NODE_ENV === "production",
               sameSite: "lax",
