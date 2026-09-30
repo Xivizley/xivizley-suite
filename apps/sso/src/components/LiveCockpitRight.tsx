@@ -42,11 +42,65 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  // Komut satırı durumu
+  // Komut satırı ve Geçmişi (ArrowUp / ArrowDown navigation, 50 komut, localStorage)
   const [commandInput, setCommandInput] = useState("");
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState<number>(-1);
+  const draftCommandRef = useRef<string>("");
   const [isSendingCommand, setIsSendingCommand] = useState(false);
   const [commandFeedback, setCommandFeedback] = useState<string | null>(null);
   const termRef = useRef<{ write: (text: string) => void; writeln: (text: string) => void } | null>(null);
+
+  // localStorage'dan komut geçmişini yükle (oyun bazında)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const stored = localStorage.getItem(`xivizley_cmd_history_${activeGameId}`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setCommandHistory(parsed.slice(0, 50));
+        }
+      } else {
+        setCommandHistory([]);
+      }
+    } catch {
+      setCommandHistory([]);
+    }
+    setHistoryIndex(-1);
+    draftCommandRef.current = "";
+  }, [activeGameId]);
+
+  // ArrowUp / ArrowDown ile komut geçmişinde gezinme (draft korunur)
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowUp") {
+      if (commandHistory.length === 0) return;
+      e.preventDefault();
+
+      if (historyIndex === -1) {
+        draftCommandRef.current = commandInput;
+        const nextIndex = 0;
+        setHistoryIndex(nextIndex);
+        setCommandInput(commandHistory[nextIndex]);
+      } else if (historyIndex < commandHistory.length - 1) {
+        const nextIndex = historyIndex + 1;
+        setHistoryIndex(nextIndex);
+        setCommandInput(commandHistory[nextIndex]);
+      }
+    } else if (e.key === "ArrowDown") {
+      if (historyIndex === -1) return;
+      e.preventDefault();
+
+      if (historyIndex > 0) {
+        const nextIndex = historyIndex - 1;
+        setHistoryIndex(nextIndex);
+        setCommandInput(commandHistory[nextIndex]);
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+        setCommandInput(draftCommandRef.current);
+      }
+    }
+  };
 
   // SSE Metrik Akışı
   useEffect(() => {
@@ -124,10 +178,23 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
   // Komut Gönderimi (CommandAdapter - Claude Tavsiyesi)
   const handleSendCommand = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!isAdmin || !commandInput.trim() || isSendingCommand) return;
-
     const cmdToSend = commandInput.trim();
     setCommandInput("");
+    setHistoryIndex(-1);
+    draftCommandRef.current = "";
+
+    // Komutu geçmişe ekle ve localStorage'a kaydet (en son gönderilen başta, max 50)
+    setCommandHistory((prev) => {
+      const filtered = prev.filter((c) => c !== cmdToSend);
+      const updated = [cmdToSend, ...filtered].slice(0, 50);
+      try {
+        localStorage.setItem(`xivizley_cmd_history_${activeGameId}`, JSON.stringify(updated));
+      } catch {
+        // storage quota
+      }
+      return updated;
+    });
+
     setIsSendingCommand(true);
     setCommandFeedback(null);
 
@@ -247,25 +314,76 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
 
           {/* 2. DİNAMİK KAYNAK VE METRİK GÖSTERGELERİ */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* RAM Göstergesi */}
-            <div className="p-4 rounded-xl bg-[#141d2a] border border-[#1f2d40] shadow-sm flex flex-col gap-2">
+            {/* RAM ve Bellek Güvenlik Göstergesi */}
+            <div className="p-4 rounded-xl bg-[#141d2a] border border-[#1f2d40] shadow-sm flex flex-col gap-2.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-300">Dinamik RAM İhtiyacı</span>
-                <span className="font-mono text-white font-bold">{estimatedRam} MB</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-semibold text-slate-200">Bellek Dağılımı & Güvenlik</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">
+                    +%15 Headroom Buffer
+                  </span>
+                </div>
+                <span className="font-mono text-white font-bold">
+                  {metrics?.container.memUsageMb || 0} / {containerMemLimit} MB
+                </span>
               </div>
 
-              <MetricGauge
-                label="Konteyner RAM Limiti (%15 Buffer)"
-                value={metrics?.container.memUsageMb || 0}
-                max={containerMemLimit}
-                unit="MB"
-                size="sm"
-                helperText={`Konteyner Limiti: ${containerMemLimit} MB | Taban: ${game.minRamMb} MB`}
-              />
+              {/* Çift Katmanlı / Multi-segment RAM Güvenlik Çubuğu */}
+              <div className="space-y-1.5">
+                <div className="h-3 w-full bg-[#0d131d] rounded-full overflow-hidden p-0.5 flex border border-[#1f2d40] relative">
+                  {/* Taban Tahmin Arka Planı */}
+                  <div
+                    className="absolute top-0 bottom-0 left-0 bg-blue-500/10 border-r border-blue-400/40"
+                    style={{ width: `${Math.min(100, Math.round((estimatedRam / containerMemLimit) * 100))}%` }}
+                    title={`Taban Tahmin: ${estimatedRam} MB`}
+                  />
+                  {/* Canlı Kullanılan RAM */}
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 relative z-10 ${
+                      ((metrics?.container.memUsageMb || 0) / containerMemLimit) > 0.9
+                        ? "bg-gradient-to-r from-rose-500 to-red-600 shadow-[0_0_8px_rgba(244,63,94,0.5)]"
+                        : ((metrics?.container.memUsageMb || 0) / containerMemLimit) > 0.75
+                        ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
+                        : "bg-gradient-to-r from-emerald-500 to-[#1AD76F] shadow-[0_0_8px_rgba(26,215,111,0.3)]"
+                    }`}
+                    style={{
+                      width: `${Math.min(100, Math.round(((metrics?.container.memUsageMb || 0) / containerMemLimit) * 100))}%`,
+                    }}
+                  />
+                </div>
+
+                {/* Lejant & Değerler */}
+                <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex items-center gap-1 text-slate-200">
+                      <span className="w-2 h-2 rounded-full bg-[#1AD76F]" />
+                      Aktif: {metrics?.container.memUsageMb || 0} MB
+                    </span>
+                    <span className="flex items-center gap-1 text-cyan-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                      Taban: {estimatedRam} MB
+                    </span>
+                    <span className="flex items-center gap-1 text-slate-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                      Tampon: +{containerMemLimit - estimatedRam} MB
+                    </span>
+                  </div>
+                  <span>Limit: {containerMemLimit} MB</span>
+                </div>
+              </div>
+
+              {/* Host Emniyet Durumu */}
+              <div className="flex items-center justify-between pt-1 border-t border-[#1f2d40]/60 text-[11px]">
+                <span className="text-slate-400">Host Güvenli Sınırı (%80):</span>
+                <span className={`font-mono font-semibold ${ramSafety.isSafe ? "text-emerald-400" : "text-rose-400 font-bold"}`}>
+                  {containerMemLimit} / {ramSafety.hostSafeLimitMb} MB ({Math.round((containerMemLimit / ramSafety.hostSafeLimitMb) * 100)}%)
+                </span>
+              </div>
 
               {!ramSafety.isSafe && (
-                <div className="text-[10px] text-rose-400 bg-rose-500/15 p-1.5 rounded-lg border border-rose-500/30">
-                  🚨 Host Güvenli Sınırı ({ramSafety.hostSafeLimitMb} MB) aşıldı!
+                <div className="text-[10px] text-rose-400 bg-rose-500/15 p-2 rounded-lg border border-rose-500/30 flex items-start gap-1.5">
+                  <span className="text-sm">🚨</span>
+                  <span>{ramSafety.reason || `Host Güvenli Sınırı (${ramSafety.hostSafeLimitMb} MB) aşıldı! Çökme riskine karşı kaynak azaltın.`}</span>
                 </div>
               )}
             </div>
@@ -320,7 +438,10 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
               type="button"
               disabled={!isAdmin}
               onClick={() => {
-                if (isAdmin) setCommandInput(item.cmd);
+                if (isAdmin) {
+                  setCommandInput(item.cmd);
+                  setHistoryIndex(-1);
+                }
               }}
               className="px-2 py-0.5 rounded-md bg-[#131b26] hover:bg-[#1a2536] border border-[#1e2a3c] hover:border-[#1AD76F]/50 text-slate-300 hover:text-white text-[10px] font-mono transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
@@ -329,7 +450,7 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
           ))}
         </div>
 
-        {/* 5. KOMUT GÖNDERME ÇUBUĞU (CommandAdapter ile Senkronize) */}
+        {/* 5. KOMUT GÖNDERME ÇUBUĞU (CommandAdapter ile Senkronize & Geçmiş Destekli) */}
         <form onSubmit={handleSendCommand} className="flex items-center gap-2 mt-1">
           <div className="relative flex-1">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-[#1AD76F] font-bold">
@@ -339,14 +460,23 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
               type="text"
               disabled={!isAdmin}
               value={commandInput}
-              onChange={(e) => setCommandInput(e.target.value)}
+              onChange={(e) => {
+                setCommandInput(e.target.value);
+                if (historyIndex !== -1) setHistoryIndex(-1);
+              }}
+              onKeyDown={handleKeyDown}
               placeholder={
                 !isAdmin
                   ? "🔒 Konsol komutu göndermek için sağ üstten Yönetici Girişi yapmalısınız (Canlı log izleme aktif)..."
-                  : `${game.name} konsoluna komut yazın (örn: status, help, save-all, kick)...`
+                  : `${game.name} konsoluna komut yazın (↑/↓ geçmişte gezin, Enter gönder)...`
               }
-              className="w-full bg-[#111824] border border-[#1f2d40] rounded-xl pl-7 pr-3 py-2 text-xs font-mono text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#1AD76F] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full bg-[#111824] border border-[#1f2d40] rounded-xl pl-7 pr-16 py-2 text-xs font-mono text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#1AD76F] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             />
+            {historyIndex !== -1 && (
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-800/50">
+                {historyIndex + 1}/{commandHistory.length}
+              </span>
+            )}
           </div>
 
           <button

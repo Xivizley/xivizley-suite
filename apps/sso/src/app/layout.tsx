@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { ToastProvider } from "@xivizley/aurora-ui";
 import "../styles/globals.css";
 
 export const viewport: Viewport = {
@@ -32,7 +33,9 @@ export default function RootLayout({
   return (
     <html lang="tr" className="dark">
       <body className="bg-[#181e24] text-slate-100 min-h-screen selection:bg-[#0082c9]/30 selection:text-white antialiased flex flex-col justify-between">
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

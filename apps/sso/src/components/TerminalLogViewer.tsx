@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
@@ -21,6 +21,16 @@ export function TerminalLogViewer({
 }: TerminalLogViewerProps) {
   const terminalRef = useRef<HTMLDivElement | null>(null);
   const termInstanceRef = useRef<Terminal | null>(null);
+  const [autoScroll, setAutoScroll] = useState(true);
+  const autoScrollRef = useRef(true);
+
+  // autoScroll güncellendikçe ref'i senkronize et ve gerekirse alta kaydır
+  useEffect(() => {
+    autoScrollRef.current = autoScroll;
+    if (autoScroll && termInstanceRef.current) {
+      termInstanceRef.current.scrollToBottom();
+    }
+  }, [autoScroll]);
 
   useEffect(() => {
     if (!terminalRef.current) return;
@@ -76,6 +86,9 @@ export function TerminalLogViewer({
         const data = JSON.parse(event.data);
         if (data.log) {
           term.write(data.log);
+          if (autoScrollRef.current) {
+            term.scrollToBottom();
+          }
           try {
             fitAddon.fit();
           } catch {}
@@ -129,6 +142,14 @@ export function TerminalLogViewer({
       terminalRef={terminalRef}
       onClear={handleClear}
       onCopy={handleCopy}
+      autoScroll={autoScroll}
+      onAutoScrollChange={(enabled) => {
+        setAutoScroll(enabled);
+        autoScrollRef.current = enabled;
+        if (enabled) {
+          termInstanceRef.current?.scrollToBottom();
+        }
+      }}
       height="h-[400px]"
     />
   );
