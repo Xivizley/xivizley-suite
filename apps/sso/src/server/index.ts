@@ -10,6 +10,7 @@ import { driveRoutes } from "./drive-routes.js";
 import { notesRoutes } from "./notes-routes.js";
 import { photosRoutes } from "./photos-routes.js";
 import { gamePanelRoutes } from "./game-routes.js";
+import { passRoutes } from "./pass-routes.js";
 import { verifyAccessToken, hashToken, generateAccessToken } from "./tokens.js";
 import { startLogTailer } from "./engine/logTailer.js";
 
@@ -189,6 +190,7 @@ async function bootstrap() {
   await fastify.register(notesRoutes);
   await fastify.register(photosRoutes);
   await fastify.register(gamePanelRoutes, { governor });
+  await fastify.register(passRoutes);
 
   // Shield Log Tailer'ı başlat (arka planda)
   try {
