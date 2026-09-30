@@ -145,7 +145,7 @@ export function MCServerHero() {
   };
 
   // RAM Hesaplama
-  const usedRamMb = metrics?.container?.memoryUsageMb || 0;
+  const usedRamMb = metrics?.container?.memUsageMb || 0;
   const ramPercent = Math.min(100, Math.round((usedRamMb / containerMemLimit) * 100));
 
   // CPU Hesaplama

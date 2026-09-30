@@ -86,7 +86,7 @@ function TotpCountdownRing({ remainingSeconds }: { remainingSeconds: number }) {
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             style={{
-              transition: 'stroke-dashoffset 1s linear, stroke 0.3s ease',
+              transition: remainingSeconds >= 30 ? 'none' : 'stroke-dashoffset 1s linear, stroke 0.3s ease',
             }}
           />
         </svg>
@@ -154,6 +154,13 @@ function calculatePasswordStrength(pass: string): PasswordStrength {
   if (hasNumber) score++;
   if (hasSpecial) score++;
   if (pass.length >= 16 && score >= 3) score = 4;
+
+  // Güvenlik eşikleri: 8 karakterden kısa şifreler "Çok Zayıf", 12'den kısalar en fazla "Zayıf"
+  if (pass.length < 8) {
+    score = Math.min(score, 1);
+  } else if (!hasMinLength) {
+    score = Math.min(score, 2);
+  }
 
   let label: 'Çok Zayıf' | 'Zayıf' | 'Orta' | 'Çok Güçlü' = 'Çok Zayıf';
   let colorClass = 'bg-rose-500';

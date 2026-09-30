@@ -139,7 +139,7 @@ export default function NotesPage() {
       await fetch(`/api/notes/${id}`, { method: "DELETE" });
       const nextNotes = notes.filter((n) => n.id !== id);
       setNotes(nextNotes);
-      if (nextNotes.length > 0) {
+      if (nextNotes.length > 0 && nextNotes[0]) {
         selectNote(nextNotes[0]);
       } else {
         setActiveNoteId(null);
