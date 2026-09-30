@@ -18,6 +18,9 @@
 		X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
 		-Server
 	}
+	@block_robots path /robots.txt
+	header @block_robots Content-Type "text/plain; charset=utf-8"
+	respond @block_robots "User-agent: *\nDisallow: /\n" 200
 }
 
 # ─── Unified Hub (Kullanıcının Kendi Domaini veya Varsayılan) ──────────────
