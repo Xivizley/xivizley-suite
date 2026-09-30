@@ -54,6 +54,15 @@ export default function DrivePage() {
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [isCreatingShare, setIsCreatingShare] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
+  const [storageQuota, setStorageQuota] = useState<{
+    usedBytes: number;
+    totalBytes: number;
+    freeBytes: number;
+  }>({
+    usedBytes: 0,
+    totalBytes: 80 * 1024 * 1024 * 1024,
+    freeBytes: 70 * 1024 * 1024 * 1024,
+  });
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -71,6 +80,9 @@ export default function DrivePage() {
       if (json.ok) {
         setFolders(json.data.folders || []);
         setFiles(json.data.files || []);
+        if (json.data.storage) {
+          setStorageQuota(json.data.storage);
+        }
       } else {
         console.warn("Veriler yüklenirken uyarı:", json.message);
       }
@@ -626,19 +638,34 @@ export default function DrivePage() {
             </button>
           </div>
 
-          {/* Depolama Kotası Kartı */}
+          {/* Depolama Kotası Kartı (Gerçek Disk ve Kullanıcı Taraması) */}
           <div className="p-3 rounded-xl bg-[#181e24] border border-[#2d3748] space-y-2">
             <div className="flex items-center justify-between text-[11px] text-slate-400">
               <span>Depolama Alanı</span>
-              <span className="font-mono text-slate-200">{formatBytes(totalUsedBytes)} / 1 TB</span>
+              <span className="font-mono text-slate-200">
+                {formatBytes(storageQuota.usedBytes)} / {formatBytes(storageQuota.totalBytes)}
+              </span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
               <div
-                className="h-full rounded-full bg-[#0082c9]"
-                style={{ width: `${Math.max(Math.min((totalUsedBytes / (1024 * 1024 * 1024 * 1024)) * 100, 100), 2)}%` }}
+                className="h-full rounded-full bg-[#0082c9] transition-all duration-500"
+                style={{
+                  width: `${Math.max(
+                    Math.min(
+                      (storageQuota.usedBytes / (storageQuota.totalBytes || 1)) * 100,
+                      100
+                    ),
+                    2
+                  )}%`,
+                }}
               />
             </div>
-            <p className="text-[10px] text-slate-400">NVMe ZFS Depolama Havuzu</p>
+            <div className="flex items-center justify-between text-[10px] text-slate-400">
+              <span>NVMe Disk Havuzu</span>
+              <span className="font-mono text-emerald-400">
+                {formatBytes(storageQuota.freeBytes)} boş
+              </span>
+            </div>
           </div>
         </aside>
 

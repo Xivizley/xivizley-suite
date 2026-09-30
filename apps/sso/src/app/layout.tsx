@@ -14,6 +14,21 @@ export const metadata: Metadata = {
   title: "XIVIZLEY Hub — Merkezi Kimlik & Homelab Bulut Portalı",
   description: "XIVIZLEY Native Suite Merkezi Kimlik Doğrulama ve Homelab Bulut Servisi",
   manifest: "/manifest.json",
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    noarchive: true,
+    nosnippet: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+      "max-video-preview": -1,
+      "max-image-preview": "none",
+      "max-snippet": -1,
+    },
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

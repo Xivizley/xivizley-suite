@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { pipeline } from "node:stream/promises";
-import { eq, and, isNull, desc, inArray } from "drizzle-orm";
+import { eq, and, isNull, desc, inArray, sql } from "drizzle-orm";
 // @ts-ignore
 import archiver from "archiver";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
@@ -105,11 +105,70 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
         .orderBy(desc(files.createdAt));
     }
 
+    // Gerçek Disk ve Kullanıcı Depolama Taraması
+    let totalDiskBytes = 80 * 1024 * 1024 * 1024;
+    let freeDiskBytes = 70 * 1024 * 1024 * 1024;
+    try {
+      const stats = fs.statfsSync(UPLOAD_DIR);
+      totalDiskBytes = stats.bsize * stats.blocks;
+      freeDiskBytes = stats.bsize * stats.bavail;
+    } catch {}
+
+    let userUsedBytes = 0;
+    try {
+      const [usageRow] = await db
+        .select({
+          total: sql<string>`COALESCE(SUM(${files.sizeBytes}), 0)`,
+        })
+        .from(files)
+        .where(and(eq(files.userId, userId), eq(files.isTrashed, false)));
+      userUsedBytes = Number(usageRow?.total || 0);
+    } catch {
+      userUsedBytes = userFiles.reduce((acc, f) => acc + (f.sizeBytes || 0), 0);
+    }
+
     return reply.send({
       ok: true,
       data: {
         folders: userFolders,
         files: userFiles,
+        storage: {
+          usedBytes: userUsedBytes,
+          totalBytes: totalDiskBytes,
+          freeBytes: freeDiskBytes,
+        },
+      },
+    });
+  });
+
+  // ─── 1.1 GET /api/drive/storage (Gerçek Disk ve Kota Durumu) ───
+  fastify.get("/api/drive/storage", async (request, reply) => {
+    const userId = resolveUserId(request);
+    let totalDiskBytes = 80 * 1024 * 1024 * 1024;
+    let freeDiskBytes = 70 * 1024 * 1024 * 1024;
+    try {
+      const stats = fs.statfsSync(UPLOAD_DIR);
+      totalDiskBytes = stats.bsize * stats.blocks;
+      freeDiskBytes = stats.bsize * stats.bavail;
+    } catch {}
+
+    let userUsedBytes = 0;
+    try {
+      const [usageRow] = await db
+        .select({
+          total: sql<string>`COALESCE(SUM(${files.sizeBytes}), 0)`,
+        })
+        .from(files)
+        .where(and(eq(files.userId, userId), eq(files.isTrashed, false)));
+      userUsedBytes = Number(usageRow?.total || 0);
+    } catch {}
+
+    return reply.send({
+      ok: true,
+      data: {
+        usedBytes: userUsedBytes,
+        totalBytes: totalDiskBytes,
+        freeBytes: freeDiskBytes,
       },
     });
   });
