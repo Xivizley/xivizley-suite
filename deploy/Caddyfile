@@ -20,7 +20,14 @@
 	}
 	@block_robots path /robots.txt
 	header @block_robots Content-Type "text/plain; charset=utf-8"
-	respond @block_robots "User-agent: *\nDisallow: /\n" 200
+	respond @block_robots "User-agent: *\nAllow: /\n" 200
+
+	@search_bots {
+		header_regexp User-Agent "(?i)(googlebot|bingbot|yandex|duckduckbot|baiduspider|slurp)"
+		not path /robots.txt
+	}
+	header @search_bots X-Robots-Tag "noindex, nofollow, noarchive, nosnippet"
+	respond @search_bots "410 Gone - This resource is permanently removed from search indices." 410
 }
 
 # ─── Unified Hub (Kullanıcının Kendi Domaini veya Varsayılan) ──────────────

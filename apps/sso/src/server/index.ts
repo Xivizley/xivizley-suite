@@ -194,7 +194,7 @@ async function bootstrap() {
   fastify.get("/robots.txt", async (_req, reply) => {
     reply.header("Content-Type", "text/plain; charset=utf-8");
     reply.header("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
-    return "User-agent: *\nDisallow: /\n";
+    return "User-agent: *\nAllow: /\n";
   });
 
   // Fastify API Rotaları (Tüm Suite Modülleri)
