@@ -34,10 +34,13 @@ import {
   AlertCircle,
   X,
   Smartphone,
+  Download,
+  Upload,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NextcloudHeader, useToast } from '@xivizley/aurora-ui';
 import type { VaultItem } from '@/server/services/passService';
+import { PassImportExportModal } from '@/components/PassImportExportModal';
 
 // ─── 30s Dairesel SVG TOTP Geri Sayım Halkası ───────────────
 function TotpCountdownRing({ remainingSeconds }: { remainingSeconds: number }) {
@@ -294,6 +297,7 @@ export default function PassDashboard() {
   // Modallar
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
+  const [isImportExportOpen, setIsImportExportOpen] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -536,14 +540,25 @@ export default function PassDashboard() {
         onSearchChange={setSearchQuery}
         searchPlaceholder="Parolalarda ara... (Cmd+K)"
         rightActions={
-          <button
-            onClick={() => setIsAddOpen(true)}
-            className="h-7 px-3 rounded-md bg-white text-[#0082c9] hover:bg-white/90 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors"
-            title="Yeni Şifre / Anahtar Ekle"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Yeni Parola</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsImportExportOpen(true)}
+              className="h-7 px-2.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Bitwarden / CSV Kasa İçe & Dışa Aktarma"
+            >
+              <Download className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">İçe / Dışa Aktar</span>
+            </button>
+
+            <button
+              onClick={() => setIsAddOpen(true)}
+              className="h-7 px-3 rounded-md bg-white text-[#0082c9] hover:bg-white/90 text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+              title="Yeni Şifre / Anahtar Ekle"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Yeni Parola</span>
+            </button>
+          </div>
         }
       />
 
@@ -1352,6 +1367,14 @@ export default function PassDashboard() {
           </div>
         </div>
       )}
+
+      {/* ─── Kasa İçe / Dışa Aktar Modalı ─────────────────────── */}
+      <PassImportExportModal
+        isOpen={isImportExportOpen}
+        onClose={() => setIsImportExportOpen(false)}
+        items={items}
+        onImportSuccess={fetchItems}
+      />
     </div>
   );
 }

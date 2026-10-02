@@ -11,9 +11,11 @@ import { GameConfigurator } from "@/components/GameConfigurator";
 import { LiveCockpitRight } from "@/components/LiveCockpitRight";
 import { ServerFileManager } from "@/components/ServerFileManager";
 import { ServerPlayerRoster } from "@/components/ServerPlayerRoster";
+import { ServerBackupStudio } from "@/components/ServerBackupStudio";
+import { ServerPluginManager } from "@/components/ServerPluginManager";
 import { NextcloudHeader } from "@xivizley/aurora-ui";
 
-type CockpitTab = "console" | "config" | "files" | "players";
+type CockpitTab = "console" | "config" | "files" | "backups" | "plugins" | "players";
 
 interface TabItem {
   id: CockpitTab;
@@ -26,6 +28,8 @@ const TABS: TabItem[] = [
   { id: "console", label: "Canlı Konsol & Terminal", icon: "🖥️", badge: "xterm" },
   { id: "config", label: "Sunucu Ayarları & Motor", icon: "⚙️", badge: "12 Motor" },
   { id: "files", label: "Dosya Yöneticisi & Editör", icon: "📁", badge: "Pterodactyl" },
+  { id: "backups", label: "Yedekler & Kurtarma", icon: "🗄️", badge: "tar.gz" },
+  { id: "plugins", label: "Eklentiler & Modlar", icon: "🧩", badge: "Pazar Yeri" },
   { id: "players", label: "Canlı Oyuncular", icon: "👥", badge: "Moderasyon" },
 ];
 
@@ -144,7 +148,21 @@ export default function GameCockpitPage() {
             </div>
           )}
 
-          {/* TAB 4: Canlı Oyuncu Masası & Moderasyon */}
+          {/* TAB 4: Sunucu Yedekleri & Felaket Kurtarma */}
+          {activeTab === "backups" && (
+            <div className="w-full">
+              <ServerBackupStudio />
+            </div>
+          )}
+
+          {/* TAB 5: Eklentiler & Mod Pazar Yeri */}
+          {activeTab === "plugins" && (
+            <div className="w-full">
+              <ServerPluginManager />
+            </div>
+          )}
+
+          {/* TAB 6: Canlı Oyuncu Masası & Moderasyon */}
           {activeTab === "players" && (
             <div className="w-full">
               <ServerPlayerRoster />

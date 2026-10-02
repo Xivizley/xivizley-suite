@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import type { PulseMonitor } from '@/server/services/pulseService';
 import { NextcloudHeader } from '@xivizley/aurora-ui';
+import { PulseSentinelCard } from '@/components/PulseSentinelCard';
 
 export default function PulseDashboard() {
   const [monitors, setMonitors] = useState<PulseMonitor[]>([]);
@@ -259,6 +260,9 @@ export default function PulseDashboard() {
             </p>
           </div>
         </div>
+
+        {/* ─── VDS Sistem Bekçisi & Telegram Kalkanı ─────────────── */}
+        <PulseSentinelCard />
 
         {/* ─── Monitor Cards Section ───────────────────────────── */}
         <div className="space-y-3">

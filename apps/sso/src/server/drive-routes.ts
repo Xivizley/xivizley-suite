@@ -254,12 +254,14 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
     }
   });
 
-  // ─── 4. GET /api/download/:id (Zero-Copy Akışla İndir) ──────
+  // ─── 4. GET /api/download/:id (Zero-Copy Akışla İndir & Inline Önizleme) ──────
   fastify.get<{
     Params: { id: string };
+    Querystring: { inline?: string };
   }>("/api/download/:id", async (request, reply) => {
     const userId = resolveUserId(request);
     const { id } = request.params;
+    const isInline = request.query?.inline === "true" || request.query?.inline === "1";
 
     const [file] = await db
       .select()
@@ -271,8 +273,9 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.status(404).send({ ok: false, message: "Dosya bulunamadı." });
     }
 
-    reply.header("Content-Type", file.mimeType);
-    reply.header("Content-Disposition", `attachment; filename="${encodeURIComponent(file.name)}"`);
+    const dispositionType = isInline ? "inline" : "attachment";
+    reply.header("Content-Type", file.mimeType || "application/octet-stream");
+    reply.header("Content-Disposition", `${dispositionType}; filename="${encodeURIComponent(file.name)}"`);
     reply.header("Content-Length", file.sizeBytes);
 
     const stream = fs.createReadStream(file.storagePath);
