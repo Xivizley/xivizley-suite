@@ -34,7 +34,7 @@ interface PluginItem {
 
 export function ServerPluginManager() {
   const toast = useToast();
-  const { activeGameId } = useGameStore();
+  const { activeGameId, isAdmin } = useGameStore();
   const [plugins, setPlugins] = useState<PluginItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,6 +65,11 @@ export function ServerPluginManager() {
   }, [activeGameId]);
 
   const handleInstall = async (plugin: PluginItem) => {
+    if (!isAdmin) {
+      toast.error("Eklenti kurmak için Yönetici Girişi yapmalısınız.");
+      return;
+    }
+
     setActionLoadingId(plugin.id);
     try {
       const res = await fetch("/api/server/plugins/install", {
@@ -93,6 +98,11 @@ export function ServerPluginManager() {
   };
 
   const handleUninstall = async (plugin: PluginItem) => {
+    if (!isAdmin) {
+      toast.error("Eklentiyi kaldırmak için Yönetici Girişi yapmalısınız.");
+      return;
+    }
+
     if (!confirm(`${plugin.name} eklentisini sunucudan kaldırmak istediğinize emin misiniz?`)) return;
 
     setActionLoadingId(plugin.id);

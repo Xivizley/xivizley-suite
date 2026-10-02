@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Upload,
   Download,
@@ -24,6 +24,7 @@ interface PassImportExportModalProps {
   onClose: () => void;
   items: VaultItem[];
   onImportSuccess: () => void;
+  initialTab?: "export" | "import";
 }
 
 interface ParsedItem {
@@ -43,9 +44,16 @@ export function PassImportExportModal({
   onClose,
   items,
   onImportSuccess,
+  initialTab = "export",
 }: PassImportExportModalProps) {
   const toast = useToast();
-  const [activeTab, setActiveTab] = useState<"export" | "import">("export");
+  const [activeTab, setActiveTab] = useState<"export" | "import">(initialTab);
+
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
 
   // Export State
   const [exportFormat, setExportFormat] = useState<"bitwarden_json" | "csv">("bitwarden_json");
@@ -176,40 +184,55 @@ export function PassImportExportModal({
     }
   };
 
-  // ─── CSV Parser Yardımcısı ──────────────────────────────────
+  // ─── CSV Parser Yardımcısı (RFC-4180 Uyumlu Çok Satırlı Alan & 1Password Desteği) ───
   const parseCSV = (text: string): ParsedItem[] => {
-    const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-    if (lines.length < 2) return [];
+    const rows: string[][] = [];
+    let currentRow: string[] = [];
+    let currentField = "";
+    let inQuotes = false;
 
-    // Parse CSV line taking quotes into account
-    const parseLine = (line: string): string[] => {
-      const result: string[] = [];
-      let cur = "";
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const c = line[i];
-        if (c === '"') {
-          if (inQuotes && line[i + 1] === '"') {
-            cur += '"';
-            i++;
-          } else {
-            inQuotes = !inQuotes;
-          }
-        } else if (c === "," && !inQuotes) {
-          result.push(cur.trim());
-          cur = "";
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const nextChar = text[i + 1];
+
+      if (char === '"') {
+        if (inQuotes && nextChar === '"') {
+          currentField += '"';
+          i++; // Tırnak kaçışını atla ("")
         } else {
-          cur += c;
+          inQuotes = !inQuotes;
         }
+      } else if (char === ',' && !inQuotes) {
+        currentRow.push(currentField.trim());
+        currentField = "";
+      } else if ((char === '\r' || char === '\n') && !inQuotes) {
+        if (char === '\r' && nextChar === '\n') {
+          i++;
+        }
+        currentRow.push(currentField.trim());
+        currentField = "";
+        if (currentRow.some((col) => col.length > 0)) {
+          rows.push(currentRow);
+        }
+        currentRow = [];
+      } else {
+        currentField += char;
       }
-      result.push(cur.trim());
-      return result;
-    };
+    }
 
-    const header = parseLine(lines[0]!).map((h) => h.toLowerCase());
+    if (currentField.length > 0 || currentRow.length > 0) {
+      currentRow.push(currentField.trim());
+      if (currentRow.some((col) => col.length > 0)) {
+        rows.push(currentRow);
+      }
+    }
+
+    if (rows.length < 2) return [];
+
+    const header = rows[0]!.map((h) => h.toLowerCase().trim());
     const titleIdx = header.findIndex((h) => h === "name" || h === "title");
     const userIdx = header.findIndex(
-      (h) => h === "login_username" || h === "username" || h === "user"
+      (h) => h === "login_username" || h === "username" || h === "user" || h === "email"
     );
     const passIdx = header.findIndex(
       (h) => h === "login_password" || h === "password" || h === "pass"
@@ -218,16 +241,22 @@ export function PassImportExportModal({
       (h) => h === "login_uri" || h === "url" || h === "uri" || h === "website"
     );
     const totpIdx = header.findIndex(
-      (h) => h === "login_totp" || h === "totp" || h === "otp"
+      (h) =>
+        h === "login_totp" ||
+        h === "totp" ||
+        h === "otp" ||
+        h === "one-time password" ||
+        h.includes("totp") ||
+        h.includes("one-time")
     );
-    const notesIdx = header.findIndex((h) => h === "notes" || h === "note");
+    const notesIdx = header.findIndex((h) => h === "notes" || h === "note" || h === "comments");
     const folderIdx = header.findIndex((h) => h === "folder" || h === "category");
     const favIdx = header.findIndex((h) => h === "favorite");
 
     const parsed: ParsedItem[] = [];
 
-    for (let i = 1; i < lines.length; i++) {
-      const parts = parseLine(lines[i]!);
+    for (let i = 1; i < rows.length; i++) {
+      const parts = rows[i]!;
       const title = (titleIdx !== -1 ? parts[titleIdx] : parts[0]) || "";
       if (!title) continue;
 
@@ -240,7 +269,7 @@ export function PassImportExportModal({
         totpSecret: (totpIdx !== -1 ? parts[totpIdx] : "") || "",
         notes: (notesIdx !== -1 ? parts[notesIdx] : "") || "",
         folder: (folderIdx !== -1 ? parts[folderIdx] : "") || "İçe Aktarılanlar",
-        isFavorite: favIdx !== -1 ? parts[favIdx] === "1" || parts[favIdx] === "true" : false,
+        isFavorite: favIdx !== -1 ? parts[favIdx] === "1" || parts[favIdx]?.toLowerCase() === "true" : false,
       });
     }
 

@@ -172,7 +172,13 @@ export function ServerBackupStudio() {
           </button>
 
           <button
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={() => {
+              if (!isAdmin) {
+                toast.error("Yedek oluşturmak için Yönetici Girişi yapmalısınız.");
+                return;
+              }
+              setIsCreateModalOpen(true);
+            }}
             className="h-10 px-4 rounded-xl bg-[#1AD76F] hover:bg-[#15b75e] text-black text-xs font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(26,215,111,0.2)] transition-all cursor-pointer"
           >
             <Plus className="h-4 w-4" />
@@ -290,7 +296,13 @@ export function ServerBackupStudio() {
 
                   {/* Geri Yükle Butonu */}
                   <button
-                    onClick={() => setRestoreTarget(b)}
+                    onClick={() => {
+                      if (!isAdmin) {
+                        toast.error("Yedeği geri yüklemek için Yönetici Girişi yapmalısınız.");
+                        return;
+                      }
+                      setRestoreTarget(b);
+                    }}
                     className="h-8 px-3 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-xs font-semibold flex items-center gap-1.5 border border-amber-500/30 transition-colors cursor-pointer"
                     title="Sunucuyu bu yedek durumuna geri döndür"
                   >
@@ -300,7 +312,13 @@ export function ServerBackupStudio() {
 
                   {/* Sil Butonu */}
                   <button
-                    onClick={() => setDeleteTarget(b)}
+                    onClick={() => {
+                      if (!isAdmin) {
+                        toast.error("Yedeği silmek için Yönetici Girişi yapmalısınız.");
+                        return;
+                      }
+                      setDeleteTarget(b);
+                    }}
                     className="h-8 w-8 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 flex items-center justify-center border border-rose-500/30 transition-colors cursor-pointer"
                     title="Bu yedeği kalıcı olarak sil"
                   >

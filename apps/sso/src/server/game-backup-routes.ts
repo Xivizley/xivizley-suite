@@ -223,6 +223,10 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     const safeFilename = path.basename(rawFilename);
+    if (!safeFilename.endsWith(".tar.gz") && !safeFilename.endsWith(".zip")) {
+      return reply.status(400).send({ ok: false, message: "Geçersiz yedek dosya biçimi." });
+    }
+
     const backupPath = path.join(BACKUP_DIR, safeFilename);
 
     if (!fs.existsSync(backupPath)) {
@@ -243,7 +247,9 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
           const gunzip = zlib.createGunzip();
 
           const tarStream = readStream.pipe(gunzip);
-          await container.putArchive(tarStream, { path: rootMount });
+          // Hedef olarak üst dizin (ör. "/") verilir; böylece arşiv içindeki "data/" klasörü /data içerisine açılır
+          const targetDir = path.posix.dirname(rootMount) || "/";
+          await container.putArchive(tarStream, { path: targetDir });
           restoredInDocker = true;
         }
       } catch {
@@ -269,6 +275,11 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
   }>("/api/server/backups/:filename", async (request, reply) => {
     const rawFilename = request.params.filename;
     const safeFilename = path.basename(rawFilename);
+
+    if (!safeFilename.endsWith(".tar.gz") && !safeFilename.endsWith(".zip")) {
+      return reply.status(400).send({ ok: false, message: "Geçersiz yedek dosya biçimi." });
+    }
+
     const backupPath = path.join(BACKUP_DIR, safeFilename);
 
     try {
@@ -298,6 +309,11 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
   }>("/api/server/backups/download/:filename", async (request, reply) => {
     const rawFilename = request.params.filename;
     const safeFilename = path.basename(rawFilename);
+
+    if (!safeFilename.endsWith(".tar.gz") && !safeFilename.endsWith(".zip")) {
+      return reply.status(400).send({ ok: false, message: "Geçersiz yedek dosya biçimi." });
+    }
+
     const backupPath = path.join(BACKUP_DIR, safeFilename);
 
     if (!fs.existsSync(backupPath)) {
