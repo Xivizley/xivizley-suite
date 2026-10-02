@@ -61,8 +61,19 @@ async function runVisualAudit() {
   // 1.3 Architect Canvas Page
   console.log('\n--- 1.3 Auditing https://xivizley.com.tr/architect (Canvas & Modals) ---');
   try {
+    await context.addInitScript(() => {
+      window.localStorage.setItem('xivizley_tour_done', '1');
+    });
     await page.goto('https://xivizley.com.tr/architect', { waitUntil: 'networkidle', timeout: 30000 });
     await page.waitForTimeout(2000);
+
+    const skipTourBtn = await page.$('button:has-text("Atla"), button:has-text("Skip")');
+    if (skipTourBtn) {
+      console.log('  * Dismissing onboarding tour...');
+      await skipTourBtn.click();
+      await page.waitForTimeout(800);
+    }
+
     const canvasShot = path.join(ARTIFACT_DIR, 'audit_xivizley_canvas.png');
     await page.screenshot({ path: canvasShot, fullPage: false });
     console.log('  ✓ Captured architect canvas screenshot:', canvasShot);
@@ -72,14 +83,19 @@ async function runVisualAudit() {
     const blueprintBtn = await page.$('button:has-text("BLUEPRINT"), button:has-text("DIN // BLUEPRINT")');
     if (blueprintBtn) {
       await blueprintBtn.click();
-      await page.waitForTimeout(1200);
+      await page.waitForTimeout(1500);
       const blueprintShot = path.join(ARTIFACT_DIR, 'audit_xivizley_blueprint_modal.png');
       await page.screenshot({ path: blueprintShot, fullPage: false });
       console.log('  ✓ Captured Blueprint modal screenshot:', blueprintShot);
 
+      const pdfBtn = await page.$('button:has-text("PDF İndir")');
+      const printBtn = await page.$('button:has-text("Yazdır")');
+      console.log('    - PDF Download Button present:', !!pdfBtn);
+      console.log('    - Print Button present:', !!printBtn);
+
       // Close modal (Escape or close button)
       await page.keyboard.press('Escape');
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(600);
     } else {
       findings.push({ page: page.url(), type: 'ui-element-missing', text: 'DIN // BLUEPRINT button not found in Navbar' });
     }
