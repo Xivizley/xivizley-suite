@@ -298,6 +298,7 @@ export default function PassDashboard() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   const [isImportExportOpen, setIsImportExportOpen] = useState(false);
+  const [importExportTab, setImportExportTab] = useState<'export' | 'import'>('export');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -542,12 +543,27 @@ export default function PassDashboard() {
         rightActions={
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsImportExportOpen(true)}
+              onClick={() => {
+                setImportExportTab('export');
+                setIsImportExportOpen(true);
+              }}
               className="h-7 px-2.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="Bitwarden / CSV Kasa İçe & Dışa Aktarma"
+              title="Kasadaki parolaları Bitwarden JSON veya CSV olarak dışa aktar"
             >
               <Download className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">İçe / Dışa Aktar</span>
+              <span className="hidden sm:inline">📤 Dışa Aktar</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setImportExportTab('import');
+                setIsImportExportOpen(true);
+              }}
+              className="h-7 px-2.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Bitwarden, 1Password veya CSV'den parola içe aktar"
+            >
+              <Upload className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">📥 İçe Aktar</span>
             </button>
 
             <button
@@ -1374,6 +1390,7 @@ export default function PassDashboard() {
         onClose={() => setIsImportExportOpen(false)}
         items={items}
         onImportSuccess={fetchItems}
+        initialTab={importExportTab}
       />
     </div>
   );

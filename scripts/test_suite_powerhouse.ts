@@ -42,7 +42,13 @@ async function runTests() {
   assert.ok(statusJson.data.host.ram.totalBytes > 0, "RAM total bytes must be > 0");
   assert.ok(statusJson.data.host.disk.totalBytes > 0, "Disk total bytes must be > 0");
   assert.ok(Array.isArray(statusJson.data.containers), "Containers must be an array");
+  // Privacy verification: telegramChatId must be masked (null or "***") for unauthenticated requests
+  assert.ok(
+    statusJson.data.telegramChatId === null || statusJson.data.telegramChatId === "***",
+    "telegramChatId must be masked for unauthenticated callers"
+  );
   console.log(`  ✓ Host CPU: %${statusJson.data.host.cpu.usagePercent}, RAM: %${statusJson.data.host.ram.usagePercent}, Disk: %${statusJson.data.host.disk.usagePercent}`);
+  console.log(`  ✓ Privacy check passed: unauthenticated telegramChatId is '${statusJson.data.telegramChatId}'`);
   console.log(`  ✓ Monitored Containers: ${statusJson.data.containers.map((c: any) => c.name).join(", ")}`);
 
   console.log("\n▶ [Test 2] Sentinel Config Update...");
@@ -141,6 +147,20 @@ async function runTests() {
   assert.strictEqual(deleteJson.ok, true);
   console.log(`  ✓ Backup safely cleaned up.`);
 
+  console.log("\n▶ [Test 7b] Game Backup Security (Invalid Extension Rejection)...");
+  const badDownloadRes = await fastify.inject({
+    method: "GET",
+    url: "/api/server/backups/download/backups_meta.json",
+  });
+  assert.strictEqual(badDownloadRes.statusCode, 400, "Downloading non .tar.gz/.zip must return 400");
+
+  const badDeleteRes = await fastify.inject({
+    method: "DELETE",
+    url: "/api/server/backups/backups_meta.json",
+  });
+  assert.strictEqual(badDeleteRes.statusCode, 400, "Deleting non .tar.gz/.zip must return 400");
+  console.log("  ✓ Extension security verified: unauthorized non-archive files rejected with 400.");
+
   // ─── TEST SUITE 3: Game Plugin Manager ─────────────────────────
   console.log("\n▶ [Test 8] Game Plugin Catalog & Status...");
   const pluginsRes = await fastify.inject({
@@ -235,9 +255,12 @@ async function runTests() {
   assert.strictEqual(manifest.theme_color, "#0082c9");
   assert.ok(manifest.icons.some((i: any) => i.src === "/icon-192.png"));
   assert.ok(manifest.icons.some((i: any) => i.src === "/icon-512.png"));
-  console.log("  ✓ Service Worker, 192/512 PNG icons, and standalone manifest verified!");
 
-  console.log("\n🎉 ALL 11 POWERHOUSE VERIFICATION TESTS PASSED SUCCESSFULLY!\n");
+  const swContent = fs.readFileSync(path.join(publicDir, "sw.js"), "utf-8");
+  assert.ok(swContent.includes("/login"), "sw.js must include /login in STATIC_ASSETS");
+  console.log("  ✓ Service Worker, 192/512 PNG icons, /login offline shell, and standalone manifest verified!");
+
+  console.log("\n🎉 ALL POWERHOUSE VERIFICATION TESTS PASSED SUCCESSFULLY!\n");
 }
 
 runTests().catch((err) => {

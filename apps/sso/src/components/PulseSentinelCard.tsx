@@ -27,6 +27,7 @@ export function PulseSentinelCard() {
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [configSuccess, setConfigSuccess] = useState(false);
+  const [configError, setConfigError] = useState<string | null>(null);
 
   // Form State for Config Modal
   const [configForm, setConfigForm] = useState({
@@ -93,6 +94,7 @@ export function PulseSentinelCard() {
     e.preventDefault();
     setIsSavingConfig(true);
     setConfigSuccess(false);
+    setConfigError(null);
     try {
       const res = await fetch("/api/sentinel/config", {
         method: "POST",
@@ -107,9 +109,12 @@ export function PulseSentinelCard() {
           setIsConfigOpen(false);
           setConfigSuccess(false);
         }, 1200);
+      } else {
+        setConfigError(data.message || "Ayarlar kaydedilemedi (Yönetici yetkisi gereklidir).");
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Ayarlar kaydedilemedi:", err);
+      setConfigError(err?.message || "Bağlantı hatası.");
     } finally {
       setIsSavingConfig(false);
     }
@@ -398,6 +403,13 @@ export function PulseSentinelCard() {
             </div>
 
             <form onSubmit={handleSaveConfig} className="space-y-4 text-xs">
+              {configError && (
+                <div className="p-3 rounded-lg border border-rose-500/30 bg-rose-950/30 text-xs text-rose-300 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" />
+                  <span>{configError}</span>
+                </div>
+              )}
+
               {/* CPU Eşiği */}
               <div className="space-y-1">
                 <div className="flex justify-between font-medium text-slate-300">

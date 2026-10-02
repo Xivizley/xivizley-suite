@@ -55,7 +55,9 @@ function isPublicRoute(method: string, urlPath: string): boolean {
     urlPath.startsWith("/api/metrics/stream") ||
     urlPath.startsWith("/api/logs/stream") ||
     (method === "GET" && urlPath.startsWith("/api/server/players")) ||
-    (method === "GET" && urlPath === "/api/server/files")
+    (method === "GET" && urlPath === "/api/server/files") ||
+    (method === "GET" && urlPath.startsWith("/api/server/backups")) ||
+    (method === "GET" && urlPath.startsWith("/api/server/plugins"))
   ) {
     return true;
   }
@@ -65,7 +67,8 @@ function isPublicRoute(method: string, urlPath: string): boolean {
     urlPath === "/pulse" ||
     urlPath.startsWith("/pulse?") ||
     (method === "GET" && urlPath.startsWith("/api/monitors")) ||
-    (method === "GET" && urlPath.startsWith("/api/telemetry"))
+    (method === "GET" && urlPath.startsWith("/api/telemetry")) ||
+    (method === "GET" && urlPath.startsWith("/api/sentinel/status"))
   ) {
     return true;
   }

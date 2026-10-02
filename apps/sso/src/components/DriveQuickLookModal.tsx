@@ -337,29 +337,46 @@ export function DriveQuickLookModal({
           )}
 
           {/* 5. Metin & Kod Önizleyici */}
-          {isCodeOrText && (
-            <div className="w-full h-full flex flex-col rounded-xl border border-[#2d3748] bg-[#161a22] overflow-hidden">
-              {textLoading ? (
-                <div className="m-auto flex flex-col items-center gap-2 text-slate-400">
-                  <RefreshCw className="h-6 w-6 animate-spin text-[#0082c9]" />
-                  <span className="text-xs">Dosya içeriği okunuyor...</span>
-                </div>
-              ) : (
-                <div className="flex-1 overflow-auto p-4 font-mono text-xs text-slate-200 leading-relaxed select-text">
-                  <pre className="whitespace-pre-wrap break-all font-mono">
-                    {textContent?.split("\n").map((line, idx) => (
-                      <div key={idx} className="table-row hover:bg-white/5">
-                        <span className="table-cell pr-4 text-right select-none text-slate-500 font-mono text-[11px] w-12 border-r border-[#2d3748]/50">
-                          {idx + 1}
-                        </span>
-                        <span className="table-cell pl-4">{line}</span>
-                      </div>
-                    ))}
-                  </pre>
-                </div>
-              )}
-            </div>
-          )}
+          {isCodeOrText && (() => {
+            const MAX_PREVIEW_LINES = 2000;
+            const allLines = textContent ? textContent.split("\n") : [];
+            const isTruncated = allLines.length > MAX_PREVIEW_LINES;
+            const displayLines = isTruncated ? allLines.slice(0, MAX_PREVIEW_LINES) : allLines;
+
+            return (
+              <div className="w-full h-full flex flex-col rounded-xl border border-[#2d3748] bg-[#161a22] overflow-hidden">
+                {isTruncated && (
+                  <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-amber-300 text-xs flex items-center justify-between shrink-0">
+                    <span>
+                      ⚠️ Dosya çok büyük ({allLines.length.toLocaleString()} satır). Tarayıcı performansını korumak için ilk {MAX_PREVIEW_LINES.toLocaleString()} satır gösteriliyor.
+                    </span>
+                    <a href={downloadUrl} download={file.name} className="underline hover:text-white font-bold ml-2">
+                      Tamamını İndir
+                    </a>
+                  </div>
+                )}
+                {textLoading ? (
+                  <div className="m-auto flex flex-col items-center gap-2 text-slate-400">
+                    <RefreshCw className="h-6 w-6 animate-spin text-[#0082c9]" />
+                    <span className="text-xs">Dosya içeriği okunuyor...</span>
+                  </div>
+                ) : (
+                  <div className="flex-1 overflow-auto p-4 font-mono text-xs text-slate-200 leading-relaxed select-text">
+                    <pre className="whitespace-pre-wrap break-all font-mono">
+                      {displayLines.map((line, idx) => (
+                        <div key={idx} className="table-row hover:bg-white/5">
+                          <span className="table-cell pr-4 text-right select-none text-slate-500 font-mono text-[11px] w-12 border-r border-[#2d3748]/50">
+                            {idx + 1}
+                          </span>
+                          <span className="table-cell pl-4">{line}</span>
+                        </div>
+                      ))}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* 6. Desteklenmeyen / Genel Dosya Kartı */}
           {!isImage && !isVideo && !isAudio && !isPdf && !isCodeOrText && (

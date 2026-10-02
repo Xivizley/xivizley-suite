@@ -6,6 +6,7 @@
 const CACHE_NAME = "xivizley-pwa-v1";
 const STATIC_ASSETS = [
   "/",
+  "/login",
   "/manifest.json",
   "/icon.svg",
   "/icon-192.png",
@@ -64,7 +65,7 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(event.request).catch(async () => {
         const cache = await caches.open(CACHE_NAME);
-        const cached = await cache.match("/");
+        const cached = (await cache.match(event.request)) || (await cache.match("/")) || (await cache.match("/login"));
         if (cached) return cached;
         return new Response(
           "<!DOCTYPE html><html><head><meta charset='utf-8'><title>XIVIZLEY Çevrimdışı</title><meta name='viewport' content='width=device-width, initial-scale=1'><style>body{background:#181e24;color:#f1f5f9;font-family:system-ui;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;padding:1rem;}h1{color:#0082c9;margin-bottom:0.5rem;}p{color:#94a3b8;font-size:0.9rem;}button{margin-top:1rem;background:#0082c9;color:#fff;border:none;padding:0.6rem 1.2rem;border-radius:0.5rem;font-weight:bold;cursor:pointer;}</style></head><body><h1>XIVIZLEY Cloud</h1><p>Şu anda internet bağlantınız ulaşılamıyor. Lütfen ağınızı kontrol edip tekrar deneyin.</p><button onclick='location.reload()'>Tekrar Dene</button></body></html>",

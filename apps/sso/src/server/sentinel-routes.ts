@@ -19,9 +19,15 @@ interface TestTelegramBody {
 
 export const sentinelRoutes: FastifyPluginAsync = async (fastify) => {
   // ─── 1. GET /api/sentinel/status ──────────────────────────────
-  fastify.get("/api/sentinel/status", async (_request, reply) => {
+  fastify.get("/api/sentinel/status", async (request, reply) => {
     try {
-      const status = await getSentinelStatus();
+      const cookies = (request.cookies || {}) as Record<string, string | undefined>;
+      const isAuthed = Boolean(
+        cookies["xivizley_access_token"] ||
+        cookies["xivizley_refresh_token"] ||
+        request.headers?.authorization
+      );
+      const status = await getSentinelStatus(isAuthed);
       return reply.send({ ok: true, data: status });
     } catch (err: any) {
       return reply.status(500).send({

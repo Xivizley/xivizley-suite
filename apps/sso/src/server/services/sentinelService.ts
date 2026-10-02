@@ -94,7 +94,7 @@ function getDocker(): Docker {
 }
 
 /**
- * Sends a rich Markdown alert to Telegram
+ * Sends a rich Markdown alert to Telegram with resilient plain-text fallback
  */
 export async function sendTelegramNotification(
   text: string,
@@ -107,7 +107,7 @@ export async function sendTelegramNotification(
   }
 
   try {
-    const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    let res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -117,6 +117,19 @@ export async function sendTelegramNotification(
       }),
       signal: AbortSignal.timeout(6000),
     });
+
+    if (!res.ok) {
+      // Markdown entity parse hatası durumunda düz metin olarak yeniden dene
+      res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: text.replace(/[*`_]/g, ""),
+        }),
+        signal: AbortSignal.timeout(6000),
+      });
+    }
 
     return res.ok;
   } catch (err) {
@@ -160,7 +173,7 @@ function getDiskStats(): { totalBytes: number; usedBytes: number; freeBytes: num
   try {
     const stat = fs.statfsSync("/");
     const totalBytes = Number(stat.bsize) * Number(stat.blocks);
-    const freeBytes = Number(stat.bsize) * Number(stat.bfree);
+    const freeBytes = Number(stat.bsize) * Number((stat as any).bavail || stat.bfree);
     const usedBytes = Math.max(0, totalBytes - freeBytes);
     const usagePercent = totalBytes > 0 ? Math.round((usedBytes / totalBytes) * 100) : 0;
     return { totalBytes, usedBytes, freeBytes, usagePercent };
@@ -224,7 +237,7 @@ export async function getContainersHealth(): Promise<ContainerStatus[]> {
 /**
  * Gathers complete Sentinel status snapshot
  */
-export async function getSentinelStatus(): Promise<SentinelStatus> {
+export async function getSentinelStatus(isAuthenticated = true): Promise<SentinelStatus> {
   const cpus = os.cpus();
   const coreCount = cpus.length || 1;
   const loadAvg = os.loadavg();
@@ -274,7 +287,7 @@ export async function getSentinelStatus(): Promise<SentinelStatus> {
     containers,
     thresholds: { ...thresholds },
     telegramConfigured: Boolean(DEFAULT_BOT_TOKEN && activeChatId),
-    telegramChatId: activeChatId,
+    telegramChatId: isAuthenticated ? activeChatId : (activeChatId ? "***" : null),
     lastAlerts: [...recentAlertsLog],
   };
 }
@@ -353,7 +366,7 @@ export async function runSentinelCheck(): Promise<void> {
         const msg =
           `🚨 *XIVIZLEY VDS ALARMI: KONTEYNER ÇÖKTÜ!*\n\n` +
           `📦 *Konteyner:* \`${c.name}\`\n` +
-          `❌ *Durum:* ${c.status.toUpperCase()}\n` +
+          `❌ *Durum:* \`${c.status.toUpperCase()}\`\n` +
           `🖥️ *Host:* \`${status.host.hostname}\`\n` +
           `🕐 *Zaman:* ${nowStr}\n\n` +
           `_Konteyner beklenmedik şekilde durdu. Yeniden başlatılıyor olabilir._`;
