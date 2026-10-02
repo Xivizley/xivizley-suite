@@ -214,7 +214,7 @@ export function NextcloudHeader({
         </a>
 
         {/* Nextcloud Yatay Uygulama Çubuğu */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-0.5 shrink-0">
           {APPS_LIST.map((app) => {
             const isActive =
               activeApp === app.id ||
@@ -225,7 +225,7 @@ export function NextcloudHeader({
                 key={app.id}
                 href={app.href}
                 className={clsx(
-                  "flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all",
+                  "flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium transition-all shrink-0",
                   isActive
                     ? "bg-white/20 text-white font-semibold shadow-inner"
                     : "text-white/80 hover:text-white hover:bg-white/10"
@@ -233,7 +233,7 @@ export function NextcloudHeader({
                 title={app.name}
               >
                 {app.icon(isActive)}
-                <span>{app.name}</span>
+                <span className={clsx("hidden", isActive ? "inline-block" : "2xl:inline-block")}>{app.name}</span>
               </a>
             );
           })}
@@ -254,7 +254,7 @@ export function NextcloudHeader({
       </div>
 
       {/* ─── ORTA ALAN: Nextcloud Tarzı Arama Çubuğu ─────────── */}
-      <div className="flex-1 max-w-xs sm:max-w-md mx-2 sm:mx-4">
+      <div className="flex-1 min-w-[100px] max-w-xs md:max-w-sm mx-2 sm:mx-4 shrink">
         <div className="relative flex items-center w-full">
           <svg
             className="w-3.5 h-3.5 absolute left-3 text-white/60 pointer-events-none"
