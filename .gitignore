@@ -32,4 +32,7 @@ drizzle/migrations/
 
 # Local VDS Backups
 vds_backup_*/
+backups/
+apps/sso/backups/
+*.tar.gz
 

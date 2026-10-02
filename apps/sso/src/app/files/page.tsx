@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Button, Input, Modal, NextcloudHeader, Spinner, useToast } from "@xivizley/aurora-ui";
+import { DriveQuickLookModal } from "@/components/DriveQuickLookModal";
 
 interface DriveFolder {
   id: string;
@@ -38,6 +39,7 @@ export default function DrivePage() {
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [selectedFileForOffice, setSelectedFileForOffice] = useState<DriveItemFile | null>(null);
+  const [quickLookFile, setQuickLookFile] = useState<DriveItemFile | null>(null);
   const [selectedItem, setSelectedItem] = useState<{ type: "file" | "folder"; data: DriveItemFile | DriveFolder } | null>(null);
   const [activeNav, setActiveNav] = useState<"all" | "recent" | "favorites" | "shares" | "trash">("all");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
@@ -107,6 +109,20 @@ export default function DrivePage() {
       window.removeEventListener("drop", handlePreventBrowserDrop);
     };
   }, []);
+
+  // macOS / Nextcloud Tarzı Boşluk (Space) Tuşuyla Hızlı Önizleme (Quick Look)
+  useEffect(() => {
+    const handleSpaceQuickLook = (e: KeyboardEvent) => {
+      if (e.code === "Space" && selectedItem?.type === "file") {
+        const activeTag = (document.activeElement?.tagName || "").toLowerCase();
+        if (activeTag === "input" || activeTag === "textarea") return;
+        e.preventDefault();
+        setQuickLookFile((prev) => (prev ? null : (selectedItem.data as DriveItemFile)));
+      }
+    };
+    window.addEventListener("keydown", handleSpaceQuickLook);
+    return () => window.removeEventListener("keydown", handleSpaceQuickLook);
+  }, [selectedItem]);
 
   // Çoklu Dosya Yükleme Pipeline'ı (Fastify Stream)
   const uploadFiles = async (fileList: File[]) => {
@@ -1013,6 +1029,7 @@ export default function DrivePage() {
                         <tr
                           key={file.id}
                           onClick={() => setSelectedItem({ type: "file", data: file })}
+                          onDoubleClick={() => setQuickLookFile(file)}
                           className={`hover:bg-[#2b3442] cursor-pointer transition-colors group ${
                             selectedItem?.data.id === file.id ? "bg-[#0082c9]/15" : ""
                           }`}
@@ -1077,6 +1094,16 @@ export default function DrivePage() {
                               </>
                             ) : (
                               <>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setQuickLookFile(file);
+                                  }}
+                                  className="text-emerald-400 hover:text-emerald-300 text-xs font-medium"
+                                  title="Hızlı Önizle (Space / Çift Tık)"
+                                >
+                                  Önizle
+                                </button>
                                 <button
                                   onClick={(e) => handleOpenShareModal(file, e)}
                                   className="text-sky-400 hover:text-sky-300 text-xs font-medium"
@@ -1159,6 +1186,7 @@ export default function DrivePage() {
                           <div
                             key={file.id}
                             onClick={() => setSelectedItem({ type: "file", data: file })}
+                            onDoubleClick={() => setQuickLookFile(file)}
                             className={`p-3.5 rounded-xl border border-[#2d3748] bg-[#222933] hover:border-[#0082c9]/50 hover:bg-[#2b3442] cursor-pointer transition-all flex flex-col justify-between h-32 select-none relative ${
                               selectedItem?.data.id === file.id ? "ring-2 ring-[#0082c9] border-transparent" : ""
                             }`}
@@ -1296,6 +1324,16 @@ export default function DrivePage() {
                           Office'te Düzenle
                         </Button>
                       )}
+
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        fullWidth
+                        onClick={() => setQuickLookFile(selectedItem.data as DriveItemFile)}
+                        className="bg-white/10 hover:bg-white/15 text-white border-transparent"
+                      >
+                        👁️ Hızlı Önizleme (Space)
+                      </Button>
 
                       <a
                         href={`/api/download/${(selectedItem.data as DriveItemFile).id}`}
@@ -1478,6 +1516,16 @@ export default function DrivePage() {
           ) : null}
         </div>
       </Modal>
+
+      {/* ─── macOS / Nextcloud Tarzı Hızlı Önizleme (Quick Look) ──── */}
+      <DriveQuickLookModal
+        file={quickLookFile}
+        onClose={() => setQuickLookFile(null)}
+        onShare={(f) => {
+          setShareModalFile(f as any);
+          setQuickLookFile(null);
+        }}
+      />
     </div>
   );
 }

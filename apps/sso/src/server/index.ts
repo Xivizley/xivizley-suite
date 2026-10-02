@@ -11,6 +11,10 @@ import { notesRoutes } from "./notes-routes.js";
 import { photosRoutes } from "./photos-routes.js";
 import { gamePanelRoutes } from "./game-routes.js";
 import { passRoutes } from "./pass-routes.js";
+import { sentinelRoutes } from "./sentinel-routes.js";
+import { gameBackupRoutes } from "./game-backup-routes.js";
+import { gamePluginRoutes } from "./game-plugin-routes.js";
+import { startSentinelDaemon } from "./services/sentinelService.js";
 import { verifyAccessToken, hashToken, generateAccessToken } from "./tokens.js";
 import { startLogTailer } from "./engine/logTailer.js";
 
@@ -27,6 +31,9 @@ function isPublicRoute(method: string, urlPath: string): boolean {
     urlPath === "/favicon.ico" ||
     urlPath === "/icon.svg" ||
     urlPath === "/manifest.json" ||
+    urlPath === "/sw.js" ||
+    urlPath === "/icon-192.png" ||
+    urlPath === "/icon-512.png" ||
     urlPath === "/robots.txt"
   ) {
     return true;
@@ -203,13 +210,22 @@ async function bootstrap() {
   await fastify.register(notesRoutes);
   await fastify.register(photosRoutes);
   await fastify.register(gamePanelRoutes, { governor });
+  await fastify.register(gameBackupRoutes);
+  await fastify.register(gamePluginRoutes);
   await fastify.register(passRoutes);
+  await fastify.register(sentinelRoutes);
 
-  // Shield Log Tailer'ı başlat (arka planda)
+  // Shield Log Tailer ve VDS Sentinel Bekçisini başlat (arka planda)
   try {
     startLogTailer();
   } catch (err) {
     console.warn("Log tailer başlatılamadı:", err);
+  }
+
+  try {
+    startSentinelDaemon(60);
+  } catch (err) {
+    console.warn("Sentinel daemon başlatılamadı:", err);
   }
 
   // Next.js SSR ve App Router sayfaları için catch-all yönlendirme

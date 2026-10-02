@@ -76,6 +76,49 @@ export const passRoutes: FastifyPluginAsync = async (fastify) => {
     }
   });
 
+  // ─── 2b. POST /api/vault/import (Toplu Kasa İçe Aktarma) ───────
+  fastify.post<{ Body: { items: VaultBody[] } }>("/api/vault/import", async (request, reply) => {
+    try {
+      const incoming = request.body?.items || [];
+      if (!Array.isArray(incoming) || incoming.length === 0) {
+        return reply.status(400).send({ ok: false, error: "İçe aktarılacak öğe bulunamadı." });
+      }
+
+      const importedItems = [];
+      for (const item of incoming) {
+        if (!item.title || !item.title.trim()) continue;
+        try {
+          const created = await createVaultItem({
+            type: item.type || "login",
+            title: item.title.trim(),
+            username: item.username || "",
+            password: item.password || "",
+            url: item.url || "",
+            totpSecret: item.totpSecret || "",
+            notes: item.notes || "",
+            folder: item.folder || "İçe Aktarılanlar",
+            isFavorite: Boolean(item.isFavorite),
+          });
+          importedItems.push(created);
+        } catch (innerErr) {
+          console.warn("[Pass Import] Öğe atlandı:", innerErr);
+        }
+      }
+
+      return reply.send({
+        ok: true,
+        message: `${importedItems.length} parola/öğe başarıyla kasanıza aktarıldı.`,
+        importedCount: importedItems.length,
+        items: importedItems,
+      });
+    } catch (err: any) {
+      return reply.status(500).send({
+        ok: false,
+        error: err?.message || "İçe aktarma işlemi başarısız.",
+      });
+    }
+  });
+
   // ─── 3. GET /api/vault/:id ─────────────────────────────────────
   fastify.get<{ Params: VaultParams }>("/api/vault/:id", async (request, reply) => {
     try {
