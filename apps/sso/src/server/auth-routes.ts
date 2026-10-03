@@ -95,7 +95,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
       path: "/",
       ...(cookieDomain ? { domain: cookieDomain } : {}),
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.COOKIE_SECURE === "true" || (process.env.NODE_ENV === "production" && (request.protocol === "https" || request.headers["x-forwarded-proto"] === "https")),
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60, // 7 gün
     });
@@ -104,7 +104,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
       path: "/",
       ...(cookieDomain ? { domain: cookieDomain } : {}),
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.COOKIE_SECURE === "true" || (process.env.NODE_ENV === "production" && (request.protocol === "https" || request.headers["x-forwarded-proto"] === "https")),
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60, // 30 gün
     });
@@ -235,7 +235,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
       path: "/",
       ...(cookieDomain ? { domain: cookieDomain } : {}),
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.COOKIE_SECURE === "true" || (process.env.NODE_ENV === "production" && (request.protocol === "https" || request.headers["x-forwarded-proto"] === "https")),
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60,
     });
@@ -244,7 +244,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
       path: "/",
       ...(cookieDomain ? { domain: cookieDomain } : {}),
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.COOKIE_SECURE === "true" || (process.env.NODE_ENV === "production" && (request.protocol === "https" || request.headers["x-forwarded-proto"] === "https")),
       sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60,
     });
@@ -332,7 +332,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
               path: "/",
               ...(cookieDomain ? { domain: cookieDomain } : {}),
               httpOnly: true,
-              secure: process.env.NODE_ENV === "production",
+              secure: process.env.COOKIE_SECURE === "true" || (process.env.NODE_ENV === "production" && (request.protocol === "https" || request.headers["x-forwarded-proto"] === "https")),
               sameSite: "lax",
               maxAge: 7 * 24 * 60 * 60,
             });
