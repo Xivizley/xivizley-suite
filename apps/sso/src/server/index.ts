@@ -253,7 +253,7 @@ async function bootstrap() {
     } else {
       reply.status(200).send({
         ok: true,
-        service: "XIVIZLEY Nextcloud Unified Hub",
+        service: "XIVIZLEY Unified Hub",
         status: "API operational",
       });
     }
@@ -262,7 +262,7 @@ async function bootstrap() {
   // Sunucuyu başlat
   try {
     await fastify.listen({ port, host });
-    console.log(`🚀 XIVIZLEY Nextcloud Unified Hub çalışıyor: http://${host}:${port}`);
+    console.log(`🚀 XIVIZLEY Unified Hub çalışıyor: http://${host}:${port}`);
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

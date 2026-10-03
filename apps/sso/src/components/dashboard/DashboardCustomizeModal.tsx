@@ -36,7 +36,7 @@ const AVAILABLE_WIDGETS = [
 
 const THEMES = [
   { id: "system", label: "Sistem Varsayılanı (Otomatik)", desc: "Tarayıcı ve işletim sistemi tercihini takip eder" },
-  { id: "nextcloud", label: "Nextcloud Mavi (#0082c9)", desc: "Klasik Nextcloud Hub homelab imza mavisi" },
+  { id: "aurora", label: "XIVIZLEY Mavi (#0082c9)", desc: "XIVIZLEY homelab imza mavisi" },
   { id: "dark", label: "Koyu Homelab (#181e24)", desc: "Düşük ışıklı ortamlara uygun koyu homelab arayüzü" },
 ];
 
