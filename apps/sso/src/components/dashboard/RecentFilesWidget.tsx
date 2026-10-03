@@ -163,6 +163,7 @@ export function RecentFilesWidget() {
               disabled={isUploading}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#2b3442] transition-colors"
               title="Hızlı Dosya Yükle"
+              aria-label="Hızlı Dosya Yükle"
             >
               <Upload className={`w-3.5 h-3.5 ${isUploading ? "animate-bounce text-[#0082c9]" : ""}`} />
             </button>
@@ -171,6 +172,7 @@ export function RecentFilesWidget() {
               onClick={fetchRecentFiles}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#2b3442] transition-colors"
               title="Yenile"
+              aria-label="Dosya Listesini Yenile"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
             </button>

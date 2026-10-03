@@ -179,6 +179,7 @@ export function VaultQuickWidget() {
                       onClick={() => copyToClipboard(item.password!, `pass-${item.id}`)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#181e24] transition-colors"
                       title="Parolayı Kopyala"
+                      aria-label="Parolayı Kopyala"
                     >
                       {copiedKey === `pass-${item.id}` ? (
                         <Check className="w-3.5 h-3.5 text-emerald-400" />
