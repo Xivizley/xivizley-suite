@@ -412,6 +412,7 @@ export function NextcloudHeader({
           href="/pulse"
           className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors relative"
           title="Sistem Bildirimleri"
+          aria-label="Sistem Bildirimleri"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -426,6 +427,7 @@ export function NextcloudHeader({
             onClick={() => setIsUserMenuOpen((p) => !p)}
             className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white text-xs font-bold flex items-center justify-center border border-white/40 transition-colors shadow-sm focus:outline-none"
             title={currentUser ? `Kullanıcı Menüsü (${currentUser.displayName})` : "Kullanıcı Menüsü"}
+            aria-label={currentUser ? `Kullanıcı Menüsü (${currentUser.displayName})` : "Kullanıcı Menüsü"}
           >
             {initials}
           </button>

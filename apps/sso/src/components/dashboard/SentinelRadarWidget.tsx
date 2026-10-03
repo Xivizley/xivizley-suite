@@ -97,6 +97,7 @@ export function SentinelRadarWidget() {
             onClick={fetchSentinel}
             className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#2b3442] transition-colors"
             title="Yenile"
+            aria-label="Telemetriyi Yenile"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
           </button>
