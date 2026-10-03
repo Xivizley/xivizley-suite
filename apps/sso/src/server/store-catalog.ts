@@ -439,7 +439,7 @@ export const STORE_CATALOG: StoreApp[] = [
         "label": "Cache"
       },
       {
-        "hostPath": "/opt/xivizley-apps/jellyfin//mnt/media",
+        "hostPath": "/opt/xivizley-apps/jellyfin/media",
         "containerPath": "/media",
         "label": "Media Library"
       }
@@ -858,7 +858,7 @@ export const STORE_CATALOG: StoreApp[] = [
         "label": "WireGuard Config"
       },
       {
-        "hostPath": "/opt/xivizley-apps/wireguard//lib/modules",
+        "hostPath": "/opt/xivizley-apps/wireguard/modules",
         "containerPath": "/lib/modules",
         "label": "Kernel Modules"
       }
@@ -900,7 +900,7 @@ export const STORE_CATALOG: StoreApp[] = [
         "label": "Tailscale Data"
       },
       {
-        "hostPath": "/opt/xivizley-apps/tailscale//dev/net/tun",
+        "hostPath": "/opt/xivizley-apps/tailscale/tun",
         "containerPath": "/dev/net/tun",
         "label": "TUN Device"
       }
@@ -942,7 +942,7 @@ export const STORE_CATALOG: StoreApp[] = [
     "environment": [],
     "volumes": [
       {
-        "hostPath": "/opt/xivizley-apps/portainer//var/run/docker.sock",
+        "hostPath": "/opt/xivizley-apps/portainer/docker.sock",
         "containerPath": "/var/run/docker.sock",
         "label": "Docker Socket"
       },
@@ -1029,7 +1029,7 @@ export const STORE_CATALOG: StoreApp[] = [
         "label": "Transcode Directory"
       },
       {
-        "hostPath": "/opt/xivizley-apps/plex//mnt/media",
+        "hostPath": "/opt/xivizley-apps/plex/media",
         "containerPath": "/data",
         "label": "Media Library"
       }
@@ -1268,7 +1268,7 @@ export const STORE_CATALOG: StoreApp[] = [
         "label": "Local Backups"
       },
       {
-        "hostPath": "/opt/xivizley-apps/duplicati//source",
+        "hostPath": "/opt/xivizley-apps/duplicati/source",
         "containerPath": "/source",
         "label": "Source Files (to backup)"
       }
@@ -1539,12 +1539,12 @@ export const STORE_CATALOG: StoreApp[] = [
     ],
     "volumes": [
       {
-        "hostPath": "/opt/xivizley-apps/glances//var/run/docker.sock",
+        "hostPath": "/opt/xivizley-apps/glances/docker.sock",
         "containerPath": "/var/run/docker.sock:ro",
         "label": "Docker Socket"
       },
       {
-        "hostPath": "/opt/xivizley-apps/glances//",
+        "hostPath": "/opt/xivizley-apps/glances/data",
         "containerPath": "/host:ro",
         "label": "Host Root"
       }
@@ -2011,7 +2011,7 @@ export const STORE_CATALOG: StoreApp[] = [
     "environment": [],
     "volumes": [
       {
-        "hostPath": "/opt/xivizley-apps/filebrowser//root",
+        "hostPath": "/opt/xivizley-apps/filebrowser/root",
         "containerPath": "/srv",
         "label": "Sunucu Dosyaları"
       },
@@ -2241,7 +2241,7 @@ export const STORE_CATALOG: StoreApp[] = [
     ],
     "volumes": [
       {
-        "hostPath": "/opt/xivizley-apps/watchtower//var/run/docker.sock",
+        "hostPath": "/opt/xivizley-apps/watchtower/docker.sock",
         "containerPath": "/var/run/docker.sock",
         "label": "Docker Socket"
       }
@@ -2794,7 +2794,7 @@ export const STORE_CATALOG: StoreApp[] = [
         "label": "Gitea Verileri"
       },
       {
-        "hostPath": "/opt/xivizley-apps/gitea//etc/timezone",
+        "hostPath": "/opt/xivizley-apps/gitea/timezone",
         "containerPath": "/etc/timezone",
         "label": "Zaman Dilimi"
       }
@@ -3029,7 +3029,7 @@ export const STORE_CATALOG: StoreApp[] = [
         "label": "Konfigürasyon"
       },
       {
-        "hostPath": "/opt/xivizley-apps/home-assistant//etc/localtime",
+        "hostPath": "/opt/xivizley-apps/home-assistant/localtime",
         "containerPath": "/etc/localtime",
         "label": "Zaman Dilimi"
       }
@@ -3608,7 +3608,7 @@ export const STORE_CATALOG: StoreApp[] = [
     ],
     "volumes": [
       {
-        "hostPath": "/opt/xivizley-apps/searxng/searxng",
+        "hostPath": "/opt/xivizley-apps/searxng/data",
         "containerPath": "/etc/searxng",
         "label": "SearXNG Konfigürasyon"
       }
@@ -4418,7 +4418,7 @@ export const STORE_CATALOG: StoreApp[] = [
     "environment": [],
     "volumes": [
       {
-        "hostPath": "/opt/xivizley-apps/dozzle//var/run/docker.sock",
+        "hostPath": "/opt/xivizley-apps/dozzle/docker.sock",
         "containerPath": "/var/run/docker.sock",
         "label": "Docker Socket"
       }
@@ -4453,17 +4453,17 @@ export const STORE_CATALOG: StoreApp[] = [
     "environment": [],
     "volumes": [
       {
-        "hostPath": "/opt/xivizley-apps/netdata//proc",
+        "hostPath": "/opt/xivizley-apps/netdata/proc",
         "containerPath": "/host/proc",
         "label": "Sistem Süreçleri"
       },
       {
-        "hostPath": "/opt/xivizley-apps/netdata//sys",
+        "hostPath": "/opt/xivizley-apps/netdata/sys",
         "containerPath": "/host/sys",
         "label": "Sistem Donanımı"
       },
       {
-        "hostPath": "/opt/xivizley-apps/netdata//var/run/docker.sock",
+        "hostPath": "/opt/xivizley-apps/netdata/docker.sock",
         "containerPath": "/var/run/docker.sock",
         "label": "Docker Socket"
       }
@@ -4601,7 +4601,7 @@ export const STORE_CATALOG: StoreApp[] = [
     "environment": [],
     "volumes": [
       {
-        "hostPath": "/opt/xivizley-apps/traefik//var/run/docker.sock",
+        "hostPath": "/opt/xivizley-apps/traefik/docker.sock",
         "containerPath": "/var/run/docker.sock",
         "label": "Docker Socket"
       },
@@ -5472,7 +5472,7 @@ export const STORE_CATALOG: StoreApp[] = [
         "label": "Konfigürasyon"
       },
       {
-        "hostPath": "/opt/xivizley-apps/crowdsec//var/log",
+        "hostPath": "/opt/xivizley-apps/crowdsec/log",
         "containerPath": "/var/log",
         "label": "Sunucu Logları"
       }
@@ -5500,7 +5500,7 @@ export const STORE_CATALOG: StoreApp[] = [
     "environment": [],
     "volumes": [
       {
-        "hostPath": "/opt/xivizley-apps/fail2ban//var/log",
+        "hostPath": "/opt/xivizley-apps/fail2ban/log",
         "containerPath": "/var/log",
         "label": "Sistem Logları"
       }
@@ -5959,7 +5959,7 @@ export const STORE_CATALOG: StoreApp[] = [
     "environment": [],
     "volumes": [
       {
-        "hostPath": "/opt/xivizley-apps/whoami//opt/xivizley-apps/whoami/data",
+        "hostPath": "/opt/xivizley-apps/whoami/data",
         "containerPath": "/data",
         "label": "Data"
       }

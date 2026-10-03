@@ -338,6 +338,24 @@ export const storeRoutes: FastifyPluginAsync = async (fastify) => {
         .map((e) => `${e.key}=${e.defaultValue}`);
 
       const containerName = `xivizley-app-${app.id}`;
+      const fullImage = `${app.dockerImage}:${app.defaultTag || "latest"}`;
+
+      // İmajın varlığını kontrol et, yoksa Docker Hub'dan çek
+      try {
+        await docker.getImage(fullImage).inspect();
+      } catch (err: any) {
+        if (err.statusCode === 404) {
+          await new Promise<void>((resolve, reject) => {
+            docker.pull(fullImage, (pullErr: any, stream: any) => {
+              if (pullErr) return reject(pullErr);
+              docker.modem.followProgress(stream, (progressErr: any) => {
+                if (progressErr) reject(progressErr);
+                else resolve();
+              });
+            });
+          });
+        }
+      }
 
       // Eski durmuş konteyner varsa temizle
       try {
@@ -349,7 +367,7 @@ export const storeRoutes: FastifyPluginAsync = async (fastify) => {
 
       // Konteyneri oluştur
       const container = await docker.createContainer({
-        Image: `${app.dockerImage}:${app.defaultTag || "latest"}`,
+        Image: fullImage,
         name: containerName,
         ExposedPorts: exposedPorts,
         HostConfig: {
