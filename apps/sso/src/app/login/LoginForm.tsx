@@ -27,10 +27,42 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isDemoPending, setIsDemoPending] = useState(false);
 
   const targetApp = clientNameMap[clientId] ?? {
     name: clientId === "suite" ? "XIVIZLEY Suite" : clientId,
     variant: "cyan" as const,
+  };
+
+  const handleDemoLogin = async () => {
+    setError(null);
+    setIsDemoPending(true);
+    try {
+      const res = await fetch("/api/auth/demo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          client_id: clientId,
+          redirect_uri: redirectUri,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        setError(data.message || "Canlı demo oturumu başlatılamadı.");
+        setIsDemoPending(false);
+        return;
+      }
+
+      if (data.redirectUrl) {
+        window.location.href = data.redirectUrl;
+      } else {
+        window.location.href = redirectUri || "/";
+      }
+    } catch {
+      setError("Sunucuya bağlanırken bir hata oluştu.");
+      setIsDemoPending(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -154,6 +186,37 @@ export function LoginForm() {
             {isPending ? "Doğrulanıyor..." : "Giriş Yap"}
           </Button>
         </form>
+
+        {/* Nextcloud Stili Ayırıcı Bölüm */}
+        <div className="relative my-5 flex items-center justify-center">
+          <div className="w-full border-t border-slate-700/60" />
+          <span className="absolute bg-[#222933] px-3 text-[11px] font-medium uppercase tracking-wider text-slate-400">
+            veya
+          </span>
+        </div>
+
+        {/* Canlı Demo Keşif Butonu */}
+        <button
+          type="button"
+          onClick={handleDemoLogin}
+          disabled={isPending || isDemoPending}
+          className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-sm font-medium text-slate-200 bg-[#2d3748]/50 hover:bg-[#0082c9]/15 border border-[#0082c9]/40 hover:border-[#0082c9] transition-all duration-200 shadow-sm hover:shadow-[#0082c9]/10 focus:outline-none focus:ring-2 focus:ring-[#0082c9] focus:ring-offset-2 focus:ring-offset-[#222933] disabled:opacity-50 disabled:cursor-not-allowed group"
+        >
+          {isDemoPending ? (
+            <>
+              <svg className="animate-spin h-4 w-4 text-[#0082c9]" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+              <span>Demo Başlatılıyor...</span>
+            </>
+          ) : (
+            <>
+              <span className="text-base group-hover:scale-110 transition-transform">👁️</span>
+              <span>Canlı Demo Olarak Keşfet (Şifresiz)</span>
+            </>
+          )}
+        </button>
       </Card>
 
       {/* Footer / Telif */}

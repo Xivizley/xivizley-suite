@@ -28,38 +28,57 @@ export interface VaultItem {
   updatedAt: string;
 }
 
-// In-Memory Güvenli Örnek Şablon Verileri (Yeni Kurulum Başlangıç Öğeleri)
-const inMemoryVault: VaultItem[] = [
+export const DEMO_USER_ID = "d0000000-0000-0000-0000-000000000001";
+
+// Canlı Demo Misafir Kullanıcıya Özel İnceltilmiş Güvenli & Zararsız Örnek Veriler
+export const demoVaultItems: VaultItem[] = [
   {
-    id: 'vault-sample-ssh',
-    type: 'server_ssh',
-    title: '🖥️ Ana Homelab Sunucusu (Örnek SSH)',
-    username: 'root',
-    password: 'change_me_ssh_password',
-    url: '127.0.0.1:22',
-    notes: 'Kendi sunucu SSH bilgilerinizi buraya kaydedebilirsiniz.',
-    folder: 'Sunucular & Altyapı',
+    id: "vault-demo-ssh",
+    type: "server_ssh",
+    title: "🖥️ Demo Homelab SSH Sunucusu",
+    username: "demo-user",
+    password: "demo_ssh_pass_123",
+    url: "demo.xivizley.com.tr:22",
+    notes: "Canlı demo homelab test sunucusu örnek SSH bağlantı kaydı.",
+    folder: "Sunucular & Altyapı",
     isFavorite: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: 'vault-sample-admin',
-    type: 'login',
-    title: '📬 Yönetici E-Posta Hesabı (Örnek)',
-    username: 'admin@example.com',
-    password: 'change_me_mail_password',
-    url: 'https://mail.example.com',
-    totpSecret: 'JBSWY3DPEHPK3PXP',
-    notes: '2FA (TOTP) destekli örnek kurumsal hesap kaydı.',
-    folder: 'E-Posta & İletişim',
+    id: "vault-demo-2fa",
+    type: "login",
+    title: "🔒 Örnek 2FA Giriş Kaydı (Demo)",
+    username: "demo@xivizley.com.tr",
+    password: "demo_secure_pass_456",
+    url: "https://demo.xivizley.com.tr",
+    totpSecret: "JBSWY3DPEHPK3PXP",
+    notes: "2FA (TOTP) doğrulama kodlu örnek servis kaydı.",
+    folder: "E-Posta & İletişim",
     isFavorite: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: "vault-demo-note",
+    type: "secure_note",
+    title: "📝 Demo Güvenli Not",
+    notes: "Canlı demo modunda tüm kasalar izole durumdadır. Salt-okunur moddasınız.",
+    folder: "Genel",
+    isFavorite: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 ];
 
-export async function getAllVaultItems(folder?: string): Promise<VaultItem[]> {
+// In-Memory Güvenli Örnek Şablon Verileri (Yeni Kurulum Başlangıç Öğeleri)
+const inMemoryVault: VaultItem[] = [...demoVaultItems];
+
+export async function getAllVaultItems(folder?: string, isGuest: boolean = false): Promise<VaultItem[]> {
+  if (isGuest) {
+    return folder ? demoVaultItems.filter((i) => i.folder === folder) : [...demoVaultItems];
+  }
+
   try {
     const db = getDb();
     const rows = await db.select().from(vaultItems).orderBy(desc(vaultItems.createdAt));
@@ -86,7 +105,7 @@ export async function getAllVaultItems(folder?: string): Promise<VaultItem[]> {
         url: r.url || undefined,
         totpSecret: r.totpSecret || undefined,
         notes: r.notes || undefined,
-        folder: r.folder || 'Genel',
+        folder: r.folder || "Genel",
         isFavorite: r.isFavorite,
         lastUsedAt: r.lastUsedAt ? r.lastUsedAt.toISOString() : undefined,
         createdAt: r.createdAt.toISOString(),
@@ -100,8 +119,8 @@ export async function getAllVaultItems(folder?: string): Promise<VaultItem[]> {
   }
 }
 
-export async function getVaultItemById(id: string): Promise<VaultItem | null> {
-  const all = await getAllVaultItems();
+export async function getVaultItemById(id: string, isGuest: boolean = false): Promise<VaultItem | null> {
+  const all = await getAllVaultItems(undefined, isGuest);
   return all.find((i) => i.id === id) || null;
 }
 

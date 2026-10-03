@@ -12,8 +12,12 @@ import { getDb, files, folders, shares } from "@xivizley/db";
 
 const UPLOAD_DIR = process.env["DRIVE_STORAGE_PATH"] || path.resolve(process.cwd(), ".storage/drive");
 const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000001";
+const DEMO_USER_ID = "d0000000-0000-0000-0000-000000000001";
 
 function resolveUserId(request: any): string {
+  if (request.user?.role === "guest" || request.user?.id === DEMO_USER_ID) {
+    return DEMO_USER_ID;
+  }
   return request.user?.id || DEFAULT_USER_ID;
 }
 
@@ -46,63 +50,67 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
     let userFolders: any[] = [];
     let userFiles: any[] = [];
 
-    if (filter === "trash") {
-      // Çöp kutusu: çöp kutusundaki dosyalar
-      userFiles = await db
-        .select()
-        .from(files)
-        .where(and(eq(files.userId, userId), eq(files.isTrashed, true)))
-        .orderBy(desc(files.trashedAt));
-      userFolders = [];
-    } else if (filter === "favorites") {
-      // Favoriler: favorilenmiş ve silinmemiş dosya & klasörler
-      userFolders = await db
-        .select()
-        .from(folders)
-        .where(and(eq(folders.userId, userId), eq(folders.isFavorite, true)));
+    try {
+      if (filter === "trash") {
+        // Çöp kutusu: çöp kutusundaki dosyalar
+        userFiles = await db
+          .select()
+          .from(files)
+          .where(and(eq(files.userId, userId), eq(files.isTrashed, true)))
+          .orderBy(desc(files.trashedAt));
+        userFolders = [];
+      } else if (filter === "favorites") {
+        // Favoriler: favorilenmiş ve silinmemiş dosya & klasörler
+        userFolders = await db
+          .select()
+          .from(folders)
+          .where(and(eq(folders.userId, userId), eq(folders.isFavorite, true)));
 
-      userFiles = await db
-        .select()
-        .from(files)
-        .where(and(eq(files.userId, userId), eq(files.isFavorite, true), eq(files.isTrashed, false)))
-        .orderBy(desc(files.createdAt));
-    } else if (filter === "recent") {
-      // Son kullanılanlar
-      userFiles = await db
-        .select()
-        .from(files)
-        .where(and(eq(files.userId, userId), eq(files.isTrashed, false)))
-        .orderBy(desc(files.updatedAt))
-        .limit(50);
-      userFolders = [];
-    } else if (filter === "shares") {
-      // Paylaşılanlar
-      userFiles = await db
-        .select()
-        .from(files)
-        .where(and(eq(files.userId, userId), eq(files.isTrashed, false)))
-        .limit(50);
-      userFolders = [];
-    } else {
-      // "all" - Normal dizin hiyerarşisi
-      userFolders = await db
-        .select()
-        .from(folders)
-        .where(
-          folderId
-            ? and(eq(folders.userId, userId), eq(folders.parentId, folderId))
-            : and(eq(folders.userId, userId), isNull(folders.parentId)),
-        );
+        userFiles = await db
+          .select()
+          .from(files)
+          .where(and(eq(files.userId, userId), eq(files.isFavorite, true), eq(files.isTrashed, false)))
+          .orderBy(desc(files.createdAt));
+      } else if (filter === "recent") {
+        // Son kullanılanlar
+        userFiles = await db
+          .select()
+          .from(files)
+          .where(and(eq(files.userId, userId), eq(files.isTrashed, false)))
+          .orderBy(desc(files.updatedAt))
+          .limit(50);
+        userFolders = [];
+      } else if (filter === "shares") {
+        // Paylaşılanlar
+        userFiles = await db
+          .select()
+          .from(files)
+          .where(and(eq(files.userId, userId), eq(files.isTrashed, false)))
+          .limit(50);
+        userFolders = [];
+      } else {
+        // "all" - Normal dizin hiyerarşisi
+        userFolders = await db
+          .select()
+          .from(folders)
+          .where(
+            folderId
+              ? and(eq(folders.userId, userId), eq(folders.parentId, folderId))
+              : and(eq(folders.userId, userId), isNull(folders.parentId)),
+          );
 
-      userFiles = await db
-        .select()
-        .from(files)
-        .where(
-          folderId
-            ? and(eq(files.userId, userId), eq(files.folderId, folderId), eq(files.isTrashed, false))
-            : and(eq(files.userId, userId), isNull(files.folderId), eq(files.isTrashed, false)),
-        )
-        .orderBy(desc(files.createdAt));
+        userFiles = await db
+          .select()
+          .from(files)
+          .where(
+            folderId
+              ? and(eq(files.userId, userId), eq(files.folderId, folderId), eq(files.isTrashed, false))
+              : and(eq(files.userId, userId), isNull(files.folderId), eq(files.isTrashed, false)),
+          )
+          .orderBy(desc(files.createdAt));
+      }
+    } catch {
+      // In-memory or database disconnected fallback
     }
 
     // Gerçek Disk ve Kullanıcı Depolama Taraması

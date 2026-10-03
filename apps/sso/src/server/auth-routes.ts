@@ -24,8 +24,146 @@ interface RefreshBody {
   client_id?: string;
 }
 
+const DEMO_USER_ID = "d0000000-0000-0000-0000-000000000001";
+const DEMO_EMAIL = "demo@xivizley.com.tr";
+const DEMO_NAME = "Misafir Kullanıcı (Demo)";
+const DEMO_ROLE = "guest";
+
 export const authRoutes: FastifyPluginAsync = async (fastify) => {
   const db = getDb();
+
+  // ─── 0. POST /api/auth/demo (Canlı Demo Misafir Girişi) ───────
+  fastify.post<{
+    Body: { redirect_uri?: string; client_id?: string };
+    Querystring: { redirect_uri?: string };
+  }>("/api/auth/demo", async (request, reply) => {
+    const redirect_uri = (request.body as any)?.redirect_uri || (request.query as any)?.redirect_uri;
+    const client_id = (request.body as any)?.client_id || "suite";
+
+    // 1. Demo kullanıcısını kontrol et veya oluştur
+    let demoUser: any = null;
+    try {
+      const [existingById] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, DEMO_USER_ID))
+        .limit(1);
+
+      if (existingById) {
+        demoUser = existingById;
+      } else {
+        const [existingByEmail] = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, DEMO_EMAIL))
+          .limit(1);
+
+        if (existingByEmail) {
+          demoUser = existingByEmail;
+        } else {
+          const [inserted] = await db
+            .insert(users)
+            .values({
+              id: DEMO_USER_ID,
+              email: DEMO_EMAIL,
+              displayName: DEMO_NAME,
+              role: DEMO_ROLE,
+              passwordHash: "argon2_demo_guest_disabled",
+            })
+            .returning();
+          demoUser = inserted;
+        }
+      }
+    } catch (dbErr) {
+      console.warn("[Auth Demo] Veritabanı sorgusu fallback moduna geçti:", dbErr);
+    }
+
+    if (!demoUser) {
+      demoUser = {
+        id: DEMO_USER_ID,
+        email: DEMO_EMAIL,
+        displayName: DEMO_NAME,
+        role: DEMO_ROLE,
+        passwordHash: "argon2_demo_guest_disabled",
+        avatarUrl: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    }
+
+    // 2. RS256 JWT Access Token üret
+    const accessToken = await generateAccessToken(demoUser);
+
+    // 3. Refresh Token üret ve kaydet
+    const { rawToken, tokenHash } = generateRefreshToken();
+    const familyId = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    try {
+      await db.insert(refreshTokens).values({
+        userId: demoUser.id,
+        tokenHash,
+        clientId: client_id,
+        familyId,
+        expiresAt,
+      });
+    } catch {
+      // In-memory / mock fallback
+    }
+
+    // 4. Çerezleri set et
+    const cookieDomain = getCookieDomain(request.headers.host);
+    const isProd = process.env.NODE_ENV === "production";
+    const isSecure =
+      process.env.COOKIE_SECURE === "true" ||
+      (isProd && (request.protocol === "https" || request.headers["x-forwarded-proto"] === "https"));
+
+    reply.setCookie("xivizley_access_token", accessToken, {
+      path: "/",
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
+      httpOnly: true,
+      secure: isSecure,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60,
+    });
+
+    reply.setCookie("xivizley_refresh_token", rawToken, {
+      path: "/",
+      ...(cookieDomain ? { domain: cookieDomain } : {}),
+      httpOnly: true,
+      secure: isSecure,
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60,
+    });
+
+    // 5. Yönlendirme URL'si oluştur
+    let finalRedirectUrl = "/";
+    if (redirect_uri && redirect_uri !== "/") {
+      try {
+        const parsedUrl = new URL(redirect_uri, `http://${request.headers.host || "localhost"}`);
+        parsedUrl.searchParams.set("access_token", accessToken);
+        finalRedirectUrl = parsedUrl.toString();
+      } catch {
+        finalRedirectUrl = redirect_uri;
+      }
+    }
+
+    return reply.status(200).send({
+      ok: true,
+      redirectUrl: finalRedirectUrl,
+      data: {
+        accessToken,
+        refreshToken: rawToken,
+        expiresIn: 604800,
+        user: {
+          id: demoUser.id,
+          email: demoUser.email,
+          displayName: demoUser.displayName,
+          role: demoUser.role,
+        },
+      },
+    });
+  });
 
   // ─── 1. POST /api/auth/login ───────────────────────────────
   fastify.post<{ Body: LoginBody }>("/api/auth/login", async (request, reply) => {
@@ -284,11 +422,17 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
       try {
         const payload = await verifyAccessToken(token);
         const userId = payload.sub as string;
-        const [user] = await db
-          .select()
-          .from(users)
-          .where(eq(users.id, userId))
-          .limit(1);
+        let user: any = null;
+        try {
+          const [found] = await db
+            .select()
+            .from(users)
+            .where(eq(users.id, userId))
+            .limit(1);
+          user = found;
+        } catch {
+          // DB down fallback
+        }
 
         if (user) {
           return reply.status(200).send({
@@ -299,6 +443,19 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
               displayName: user.displayName,
               role: user.role,
               avatarUrl: user.avatarUrl,
+            },
+          });
+        }
+
+        if (userId === DEMO_USER_ID || (payload["role"] as string) === "guest") {
+          return reply.status(200).send({
+            ok: true,
+            data: {
+              id: DEMO_USER_ID,
+              email: (payload["email"] as string) || DEMO_EMAIL,
+              displayName: (payload["displayName"] as string) || DEMO_NAME,
+              role: "guest",
+              avatarUrl: null,
             },
           });
         }

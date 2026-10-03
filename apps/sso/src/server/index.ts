@@ -97,7 +97,17 @@ async function isAuthenticatedRequest(request: any, reply: any): Promise<boolean
   if (token) {
     try {
       const payload = await verifyAccessToken(token);
-      if (payload?.sub) return true;
+      if (payload?.sub) {
+        request.user = {
+          id: payload.sub as string,
+          email: (payload["email"] as string) || "",
+          role: (payload["role"] as string) || "guest",
+          displayName: (payload["displayName"] as string) || "Misafir Kullanıcı (Demo)",
+          avatarUrl: (payload["avatarUrl"] as string) || undefined,
+          ...payload,
+        };
+        return true;
+      }
     } catch {
       // Refresh token kontrolüne geç
     }
@@ -132,6 +142,13 @@ async function isAuthenticatedRequest(request: any, reply: any): Promise<boolean
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60,
           });
+          request.user = {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            displayName: user.displayName,
+            avatarUrl: user.avatarUrl ?? undefined,
+          };
           return true;
         }
       }
@@ -190,11 +207,12 @@ async function bootstrap() {
     const rawUrl = request.url || "/";
     const pathname = rawUrl.split("?")[0] || "/";
 
+    const authed = await isAuthenticatedRequest(request, reply);
+
     if (isPublicRoute(request.method, pathname)) {
       return;
     }
 
-    const authed = await isAuthenticatedRequest(request, reply);
     if (!authed) {
       if (pathname.startsWith("/api/")) {
         return reply.status(401).send({
@@ -204,6 +222,31 @@ async function bootstrap() {
         });
       }
       return reply.redirect(`/login?redirect_uri=${encodeURIComponent(rawUrl)}`);
+    }
+  });
+
+  // ─── GLOBAL DEMO MUTATION GUARD (Security P0) ───
+  fastify.addHook("preHandler", async (request, reply) => {
+    let user = (request as any).user;
+    if (!user) {
+      await isAuthenticatedRequest(request, reply);
+      user = (request as any).user;
+    }
+
+    if (user?.role === "guest") {
+      const method = request.method.toUpperCase();
+      const pathname = (request.url || "/").split("?")[0] || "/";
+
+      if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+        if (pathname === "/api/auth/demo" || pathname === "/api/auth/logout") {
+          return;
+        }
+        return reply.status(403).send({
+          ok: false,
+          code: "DEMO_READ_ONLY",
+          message: "Canlı demo modunda değişiklik yapılamaz. Tüm özellikler salt-okunur (read-only) durumdadır.",
+        });
+      }
     }
   });
 
