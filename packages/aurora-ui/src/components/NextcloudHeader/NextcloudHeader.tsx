@@ -12,8 +12,9 @@ export type NextcloudAppId =
   | "pass"
   | "pulse"
   | "shield"
-  | "game"
-  | "sso";
+  | "sso"
+  | "store"
+  | "game";
 
 export interface NextcloudHeaderProps {
   /** Aktif uygulama ID'si (uygulama ikonunu pill ile vurgular) */
@@ -50,6 +51,18 @@ const APPS_LIST: AppNavDef[] = [
         <rect x="14" y="3" width="7" height="7" />
         <rect x="14" y="14" width="7" height="7" />
         <rect x="3" y="14" width="7" height="7" />
+      </svg>
+    ),
+  },
+  {
+    id: "store",
+    name: "Mağaza",
+    href: "/store",
+    icon: (active) => (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 0 1-8 0" />
       </svg>
     ),
   },
@@ -165,6 +178,102 @@ export function NextcloudHeader({
       .catch(() => {});
   }, []);
 
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [globalQuery, setGlobalQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<{
+    files: Array<{ id: string; name: string; size?: number; type?: string }>;
+    notes: Array<{ id: string; title: string; category?: string }>;
+    vault: Array<{ id: string; title: string; username?: string }>;
+    apps: Array<{ id: string; name: string; category: string; description: string }>;
+  }>({ files: [], notes: [], vault: [], apps: [] });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Global Cmd+K / Ctrl+K dinleyicisi
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsSearchModalOpen((prev) => !prev);
+      }
+      if (e.key === "Escape" && isSearchModalOpen) {
+        setIsSearchModalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isSearchModalOpen]);
+
+  // Global arama sorgulama motoru
+  useEffect(() => {
+    if (!isSearchModalOpen || !globalQuery.trim()) {
+      setSearchResults({ files: [], notes: [], vault: [], apps: [] });
+      setIsSearching(false);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearching(true);
+      const q = encodeURIComponent(globalQuery.trim());
+      try {
+        const [filesRes, notesRes, vaultRes, appsRes] = await Promise.allSettled([
+          fetch(`/api/files?filter=recent`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
+          fetch(`/api/notes?search=${q}`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
+          fetch(`/api/vault`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
+          fetch(`/api/store/apps?search=${q}`, { credentials: "include" }).then((r) => (r.ok ? r.json() : null)),
+        ]);
+
+        const rawFiles = filesRes.status === "fulfilled" && filesRes.value?.data ? filesRes.value.data : [];
+        const rawNotes = notesRes.status === "fulfilled" && notesRes.value?.data ? notesRes.value.data : [];
+        const rawVault = vaultRes.status === "fulfilled" && vaultRes.value?.data ? vaultRes.value.data : [];
+        const rawApps = appsRes.status === "fulfilled" && appsRes.value?.data ? appsRes.value.data : [];
+
+        const lowerQ = globalQuery.toLowerCase();
+
+        setSearchResults({
+          files: rawFiles
+            .filter((f: any) => f.name && f.name.toLowerCase().includes(lowerQ))
+            .slice(0, 4)
+            .map((f: any) => ({ id: f.id, name: f.name, size: f.size, type: f.mimeType })),
+          notes: rawNotes.slice(0, 4).map((n: any) => ({ id: n.id, title: n.title, category: n.category })),
+          vault: rawVault
+            .filter((v: any) => v.title && v.title.toLowerCase().includes(lowerQ))
+            .slice(0, 4)
+            .map((v: any) => ({ id: v.id, title: v.title, username: v.username })),
+          apps: rawApps.slice(0, 4).map((a: any) => ({ id: a.id, name: a.name, category: a.category, description: a.description })),
+        });
+        setSelectedIndex(0);
+      } catch {
+        // Sessiz hata toleransı
+      } finally {
+        setIsSearching(false);
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [globalQuery, isSearchModalOpen]);
+
+  // Düzleştirilmiş sonuç listesi ve klavye gezintisi
+  const flattenedResults = [
+    ...searchResults.apps.map((a) => ({ ...a, kind: "app", link: `/store?id=${a.id}` })),
+    ...searchResults.files.map((f) => ({ ...f, kind: "file", link: `/files` })),
+    ...searchResults.notes.map((n) => ({ ...n, kind: "note", link: `/notes` })),
+    ...searchResults.vault.map((v) => ({ ...v, kind: "vault", link: `/pass` })),
+  ];
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev + 1) % (flattenedResults.length || 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev - 1 + (flattenedResults.length || 1)) % (flattenedResults.length || 1));
+    } else if (e.key === "Enter" && flattenedResults[selectedIndex]) {
+      e.preventDefault();
+      window.location.href = flattenedResults[selectedIndex].link;
+    }
+  };
+
   // Menü dışına tıklanınca kapat
   useEffect(() => {
     const handleOutside = (e: MouseEvent) => {
@@ -253,11 +362,14 @@ export function NextcloudHeader({
         </button>
       </div>
 
-      {/* ─── ORTA ALAN: Nextcloud Tarzı Arama Çubuğu ─────────── */}
+      {/* ─── ORTA ALAN: Nextcloud Tarzı Arama Çubuğu & Cmd+K ─────────── */}
       <div className="flex-1 min-w-[100px] max-w-xs md:max-w-sm mx-2 sm:mx-4 shrink">
-        <div className="relative flex items-center w-full">
+        <div
+          onClick={() => setIsSearchModalOpen(true)}
+          className="relative flex items-center w-full cursor-pointer group"
+        >
           <svg
-            className="w-3.5 h-3.5 absolute left-3 text-white/60 pointer-events-none"
+            className="w-3.5 h-3.5 absolute left-3 text-white/60 pointer-events-none group-hover:text-white"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -270,11 +382,14 @@ export function NextcloudHeader({
           </svg>
           <input
             type="text"
-            value={searchQuery ?? ""}
-            onChange={(e) => onSearchChange?.(e.target.value)}
-            placeholder={searchPlaceholder}
-            className="w-full h-8 pl-8 pr-3 rounded-full bg-black/15 hover:bg-black/20 focus:bg-white focus:text-slate-900 focus:placeholder-slate-400 text-xs text-white placeholder-white/60 border border-white/20 focus:border-white focus:outline-none transition-all"
+            readOnly
+            value={searchQuery || ""}
+            placeholder="Dosya, not, parola veya mağazada ara..."
+            className="w-full h-8 pl-8 pr-12 rounded-full bg-black/15 hover:bg-black/25 text-xs text-white placeholder-white/70 border border-white/20 hover:border-white/40 focus:outline-none transition-all cursor-pointer"
           />
+          <kbd className="absolute right-2.5 hidden sm:inline-flex items-center text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/20 text-white/90 border border-white/20 pointer-events-none">
+            ⌘K
+          </kbd>
         </div>
       </div>
 
@@ -343,6 +458,35 @@ export function NextcloudHeader({
                   <span>XIVIZLEY Suite Paneli</span>
                 </a>
                 <a
+                  href="/store"
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#2b3442] hover:text-white transition-colors"
+                >
+                  <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 0 1-8 0" />
+                  </svg>
+                  <span>Uygulama Mağazası</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsUserMenuOpen(false);
+                    if (window.location.pathname === "/") {
+                      window.dispatchEvent(new CustomEvent("xivizley:open-customize"));
+                    } else {
+                      window.location.href = "/?customize=true";
+                    }
+                  }}
+                  className="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#2b3442] hover:text-white transition-colors text-left"
+                >
+                  <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                  </svg>
+                  <span>Paneli Özelleştir</span>
+                </button>
+                <a
                   href="/pass"
                   className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#2b3442] hover:text-white transition-colors"
                 >
@@ -401,24 +545,196 @@ export function NextcloudHeader({
         </div>
       </div>
 
-      {/* ─── MOBİL AÇILIR UYGULAMA MENÜSÜ ──────────────────── */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-12 left-0 right-0 bg-[#222933] border-b border-[#2d3748] p-3 shadow-xl z-50 text-xs grid grid-cols-2 gap-2">
-          {APPS_LIST.map((app) => (
-            <a
-              key={app.id}
-              href={app.href}
-              className={clsx(
-                "flex items-center gap-2 p-2.5 rounded-lg border",
-                activeApp === app.id
-                  ? "bg-[#0082c9] text-white border-[#006aa3] font-semibold"
-                  : "bg-[#181e24] text-slate-200 border-[#2d3748] hover:bg-[#2b3442]"
+      {/* ─── GLOBAL CMD+K SEARCH MODAL OVERLAY ────────────────── */}
+      {isSearchModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center p-4 pt-16 sm:pt-24 animate-in fade-in duration-150"
+          onClick={() => setIsSearchModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-2xl bg-[#1e2530] border border-[#2d3748] rounded-xl shadow-2xl overflow-hidden flex flex-col text-slate-200 animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={handleSearchKeyDown}
+          >
+            {/* Search Input Bar */}
+            <div className="p-3 border-b border-[#2d3748] flex items-center gap-3 bg-[#181e24]">
+              <svg className="w-5 h-5 text-[#0082c9] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input
+                type="text"
+                autoFocus
+                value={globalQuery}
+                onChange={(e) => setGlobalQuery(e.target.value)}
+                placeholder="Dosya, not, kasa parolası veya mağaza uygulaması ara..."
+                className="flex-1 bg-transparent border-none text-sm text-white placeholder-slate-400 focus:outline-none"
+              />
+              {isSearching && (
+                <div className="w-4 h-4 border-2 border-[#0082c9] border-t-transparent rounded-full animate-spin shrink-0" />
               )}
-            >
-              {app.icon(activeApp === app.id)}
-              <span>{app.name}</span>
-            </a>
-          ))}
+              <button
+                type="button"
+                onClick={() => setIsSearchModalOpen(false)}
+                className="text-xs px-2 py-1 rounded bg-[#2b3442] hover:bg-[#343e4f] text-slate-300 font-mono"
+              >
+                ESC
+              </button>
+            </div>
+
+            {/* Results Body */}
+            <div className="max-h-[60vh] overflow-y-auto p-2 space-y-3">
+              {!globalQuery.trim() ? (
+                <div className="p-6 text-center text-slate-400 text-xs">
+                  <p className="font-medium text-slate-300">Tüm Homelab Ekosisteminde Arayın</p>
+                  <p className="mt-1 text-[11px] text-slate-500">
+                    Drive dosyaları, Notlar, 2FA parolaları ve 115+ Mağaza uygulaması içinde canlı arama yapabilirsiniz.
+                  </p>
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                    <span className="px-2 py-1 rounded bg-[#222933] border border-[#2d3748] text-[11px]">📁 Dosyalar</span>
+                    <span className="px-2 py-1 rounded bg-[#222933] border border-[#2d3748] text-[11px]">📝 Notlar</span>
+                    <span className="px-2 py-1 rounded bg-[#222933] border border-[#2d3748] text-[11px]">🔑 Parola Kasası</span>
+                    <span className="px-2 py-1 rounded bg-[#222933] border border-[#2d3748] text-[11px]">📦 115+ Docker Uygulaması</span>
+                  </div>
+                </div>
+              ) : flattenedResults.length === 0 && !isSearching ? (
+                <div className="p-8 text-center text-slate-400 text-xs">
+                  <p className="text-slate-300 font-medium">&ldquo;{globalQuery}&rdquo; ile eşleşen sonuç bulunamadı.</p>
+                  <p className="mt-1 text-slate-500 text-[11px]">Farklı bir arama terimi deneyin.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Mağaza Uygulamaları */}
+                  {searchResults.apps.length > 0 && (
+                    <div>
+                      <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#38bdf8] flex items-center gap-1.5">
+                        <span>📦</span>
+                        <span>Uygulama Mağazası ({searchResults.apps.length})</span>
+                      </p>
+                      <div className="space-y-1 mt-1">
+                        {searchResults.apps.map((app) => (
+                          <a
+                            key={app.id}
+                            href={`/store?id=${app.id}`}
+                            className="flex items-center justify-between p-2 rounded-lg hover:bg-[#2b3442] transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 rounded bg-[#222933] border border-[#2d3748] flex items-center justify-center text-[#0082c9]">
+                                📦
+                              </div>
+                              <div>
+                                <p className="text-xs font-semibold text-slate-100 group-hover:text-white">{app.name}</p>
+                                <p className="text-[10px] text-slate-400 truncate max-w-sm">{app.description}</p>
+                              </div>
+                            </div>
+                            <span className="text-[10px] px-2 py-0.5 rounded bg-[#0082c9]/20 text-[#38bdf8] border border-[#0082c9]/30">
+                              Kur / İncele →
+                            </span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Dosyalar */}
+                  {searchResults.files.length > 0 && (
+                    <div>
+                      <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                        <span>📁</span>
+                        <span>Drive Dosyaları ({searchResults.files.length})</span>
+                      </p>
+                      <div className="space-y-1 mt-1">
+                        {searchResults.files.map((file) => (
+                          <a
+                            key={file.id}
+                            href="/files"
+                            className="flex items-center justify-between p-2 rounded-lg hover:bg-[#2b3442] transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-base">📄</span>
+                              <div>
+                                <p className="text-xs font-semibold text-slate-100 group-hover:text-white">{file.name}</p>
+                                <p className="text-[10px] text-slate-400 font-mono">
+                                  {file.size ? `${Math.round(file.size / 1024)} KB` : "Dosya"}
+                                </p>
+                              </div>
+                            </div>
+                            <span className="text-[10px] text-slate-400 group-hover:text-emerald-400">Dosyaya Git →</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Notlar */}
+                  {searchResults.notes.length > 0 && (
+                    <div>
+                      <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                        <span>📝</span>
+                        <span>Notlar ({searchResults.notes.length})</span>
+                      </p>
+                      <div className="space-y-1 mt-1">
+                        {searchResults.notes.map((note) => (
+                          <a
+                            key={note.id}
+                            href="/notes"
+                            className="flex items-center justify-between p-2 rounded-lg hover:bg-[#2b3442] transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-base">📌</span>
+                              <div>
+                                <p className="text-xs font-semibold text-slate-100 group-hover:text-white">{note.title}</p>
+                                <p className="text-[10px] text-slate-400">{note.category || "Genel"}</p>
+                              </div>
+                            </div>
+                            <span className="text-[10px] text-slate-400 group-hover:text-amber-400">Notu Aç →</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Parola Kasası */}
+                  {searchResults.vault.length > 0 && (
+                    <div>
+                      <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                        <span>🔑</span>
+                        <span>Parola Kasası ({searchResults.vault.length})</span>
+                      </p>
+                      <div className="space-y-1 mt-1">
+                        {searchResults.vault.map((item) => (
+                          <a
+                            key={item.id}
+                            href="/pass"
+                            className="flex items-center justify-between p-2 rounded-lg hover:bg-[#2b3442] transition-colors group"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-base">🔐</span>
+                              <div>
+                                <p className="text-xs font-semibold text-slate-100 group-hover:text-white">{item.title}</p>
+                                <p className="text-[10px] text-slate-400">{item.username || "Kasa Öğesi"}</p>
+                              </div>
+                            </div>
+                            <span className="text-[10px] text-slate-400 group-hover:text-rose-400">Kasada Gör →</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Footer hints */}
+            <div className="p-2.5 px-4 bg-[#141a22] border-t border-[#2d3748] flex items-center justify-between text-[11px] text-slate-400">
+              <div className="flex items-center gap-3">
+                <span><kbd className="px-1 py-0.5 bg-[#222933] border border-[#2d3748] rounded text-[10px]">↑</kbd> <kbd className="px-1 py-0.5 bg-[#222933] border border-[#2d3748] rounded text-[10px]">↓</kbd> Gezin</span>
+                <span><kbd className="px-1 py-0.5 bg-[#222933] border border-[#2d3748] rounded text-[10px]">↵</kbd> Seç</span>
+                <span><kbd className="px-1 py-0.5 bg-[#222933] border border-[#2d3748] rounded text-[10px]">ESC</kbd> Kapat</span>
+              </div>
+              <span className="text-slate-500">XIVIZLEY Universal Search</span>
+            </div>
+          </div>
         </div>
       )}
     </header>

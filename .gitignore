@@ -36,3 +36,6 @@ backups/
 apps/sso/backups/
 *.tar.gz
 
+.agents/
+
+
