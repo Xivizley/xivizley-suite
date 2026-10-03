@@ -317,7 +317,7 @@ export function NextcloudHeader({
             <span>XIVIZLEY</span>
             <span className="font-normal text-white/80 text-xs">{title ? `• ${title}` : "Hub"}</span>
             <span className="ml-1 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded bg-amber-400/20 text-amber-200 border border-amber-300/30">
-              v0.1 Açık Beta
+              v0.2 Açık Beta
             </span>
           </span>
         </a>
