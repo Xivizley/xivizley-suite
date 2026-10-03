@@ -72,3 +72,19 @@ export type NewOAuthClient = typeof oauthClients.$inferInsert;
 
 export type RefreshToken = typeof refreshTokens.$inferSelect;
 export type NewRefreshToken = typeof refreshTokens.$inferInsert;
+
+// ─── sso.hub_preferences ──────────────────────────────────────
+export const hubPreferences = sso.table("hub_preferences", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  widgets: text("widgets").notNull().default('[]'),
+  theme: varchar("theme", { length: 50 }).notNull().default('system'),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export type HubPreference = typeof hubPreferences.$inferSelect;
+export type NewHubPreference = typeof hubPreferences.$inferInsert;
