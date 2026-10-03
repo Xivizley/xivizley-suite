@@ -1,7 +1,7 @@
 {
   "name": "xivizley-suite",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "XIVIZLEY Native Suite — 12-app monorepo",
   "author": "Alperen <alperencelal16@gmail.com>",
   "license": "UNLICENSED",
