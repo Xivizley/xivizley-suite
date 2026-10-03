@@ -4,8 +4,12 @@ import { getDb, notes } from "@xivizley/db";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
 
 const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000001";
+const DEMO_USER_ID = "d0000000-0000-0000-0000-000000000001";
 
 function resolveUserId(request: any): string {
+  if (request.user?.role === "guest" || request.user?.id === DEMO_USER_ID) {
+    return DEMO_USER_ID;
+  }
   return request.user?.id || DEFAULT_USER_ID;
 }
 
@@ -22,15 +26,34 @@ export const notesRoutes: FastifyPluginAsync = async (fastify) => {
     const userId = resolveUserId(request);
     const { search, category, favorite } = request.query;
 
-    let query = db.select().from(notes).where(eq(notes.userId, userId));
-
-    const allNotes = await db
-      .select()
-      .from(notes)
-      .where(eq(notes.userId, userId))
-      .orderBy(desc(notes.isPinned), desc(notes.updatedAt));
+    let allNotes: any[] = [];
+    try {
+      allNotes = await db
+        .select()
+        .from(notes)
+        .where(eq(notes.userId, userId))
+        .orderBy(desc(notes.isPinned), desc(notes.updatedAt));
+    } catch {
+      // In-memory / disconnected fallback
+    }
 
     let filtered = allNotes;
+    if (filtered.length === 0 && (request.user?.role === "guest" || userId === DEMO_USER_ID)) {
+      filtered = [
+        {
+          id: "demo-note-welcome",
+          userId: DEMO_USER_ID,
+          title: "👋 XIVIZLEY Suite Canlı Demo Modu",
+          content: "XIVIZLEY ekosistemine hoş geldiniz! Canlı demo modunda tüm verileriniz izole ve salt-okunur durumdadır.",
+          category: "Genel",
+          isFavorite: true,
+          isPinned: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        } as any,
+      ];
+    }
+
     if (search) {
       const q = search.toLowerCase();
       filtered = filtered.filter(
@@ -73,6 +96,23 @@ export const notesRoutes: FastifyPluginAsync = async (fastify) => {
   }>("/api/notes/:id", async (request, reply) => {
     const userId = resolveUserId(request);
     const { id } = request.params;
+
+    if (id === "demo-note-welcome" && (request.user?.role === "guest" || userId === DEMO_USER_ID)) {
+      return reply.send({
+        ok: true,
+        data: {
+          id: "demo-note-welcome",
+          userId: DEMO_USER_ID,
+          title: "👋 XIVIZLEY Suite Canlı Demo Modu",
+          content: "XIVIZLEY ekosistemine hoş geldiniz! Canlı demo modunda tüm verileriniz izole ve salt-okunur durumdadır.",
+          category: "Genel",
+          isFavorite: true,
+          isPinned: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+    }
 
     const [note] = await db
       .select()

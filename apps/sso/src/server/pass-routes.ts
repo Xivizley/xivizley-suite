@@ -6,6 +6,7 @@ import {
   updateVaultItem,
   deleteVaultItemById,
   toggleVaultFavorite,
+  DEMO_USER_ID,
   type VaultItem,
 } from "./services/passService.js";
 import { generateTotp } from "./crypto/vaultCrypto.js";
@@ -34,7 +35,9 @@ export const passRoutes: FastifyPluginAsync = async (fastify) => {
   // ─── 1. GET /api/vault ─────────────────────────────────────────
   fastify.get<{ Querystring: VaultQuery }>("/api/vault", async (request, reply) => {
     try {
-      const items = await getAllVaultItems(request.query.folder);
+      const user = (request as any).user;
+      const isGuest = user?.role === "guest" || user?.id === DEMO_USER_ID;
+      const items = await getAllVaultItems(request.query.folder, isGuest);
       return reply.send({ ok: true, data: items });
     } catch (err: any) {
       return reply.status(500).send({
@@ -122,7 +125,9 @@ export const passRoutes: FastifyPluginAsync = async (fastify) => {
   // ─── 3. GET /api/vault/:id ─────────────────────────────────────
   fastify.get<{ Params: VaultParams }>("/api/vault/:id", async (request, reply) => {
     try {
-      const item = await getVaultItemById(request.params.id);
+      const user = (request as any).user;
+      const isGuest = user?.role === "guest" || user?.id === DEMO_USER_ID;
+      const item = await getVaultItemById(request.params.id, isGuest);
       if (!item) {
         return reply.status(404).send({ ok: false, error: "Öğe bulunamadı" });
       }
@@ -166,7 +171,9 @@ export const passRoutes: FastifyPluginAsync = async (fastify) => {
   // ─── 6. GET /api/vault/:id/totp ────────────────────────────────
   fastify.get<{ Params: VaultParams }>("/api/vault/:id/totp", async (request, reply) => {
     try {
-      const item = await getVaultItemById(request.params.id);
+      const user = (request as any).user;
+      const isGuest = user?.role === "guest" || user?.id === DEMO_USER_ID;
+      const item = await getVaultItemById(request.params.id, isGuest);
       if (!item || !item.totpSecret) {
         return reply.status(404).send({
           ok: false,
