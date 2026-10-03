@@ -116,7 +116,7 @@ async function isAuthenticatedRequest(request: any, reply: any): Promise<boolean
             path: "/",
             domain: process.env.COOKIE_DOMAIN || (reqHost.endsWith(".xivizley.com.tr") ? ".xivizley.com.tr" : undefined),
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
+            secure: process.env.COOKIE_SECURE === "true" || (process.env.NODE_ENV === "production" && (request.protocol === "https" || request.headers["x-forwarded-proto"] === "https")),
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60,
           });
