@@ -8,7 +8,6 @@ import type { FastifyPluginAsync } from "fastify";
 import fs from "node:fs";
 import path from "node:path";
 import Docker from "dockerode";
-import yaml from "js-yaml";
 import { STORE_CATALOG, STORE_CATEGORIES, type StoreApp } from "./store-catalog.js";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
 
@@ -132,28 +131,26 @@ export function generateAppComposeYaml(app: StoreApp, hostPortOverride?: number)
     return `${hostDir}:${v.containerPath}`;
   });
 
-  const environment: Record<string, string> = {};
+  const envLines: string[] = [];
   for (const env of app.environment) {
     if (env.defaultValue) {
-      environment[env.key] = env.defaultValue;
+      envLines.push(`      - ${env.key}=${env.defaultValue}`);
     }
   }
 
-  const composeObj = {
-    version: "3.8",
-    services: {
-      [app.id]: {
-        image: `${app.dockerImage}:${app.defaultTag || "latest"}`,
-        container_name: `xivizley-app-${app.id}`,
-        restart: "unless-stopped",
-        ...(ports.length > 0 ? { ports } : {}),
-        ...(volumes.length > 0 ? { volumes } : {}),
-        ...(Object.keys(environment).length > 0 ? { environment } : {}),
-      },
-    },
-  };
+  let yamlText = `services:\n  ${app.id}:\n    image: ${app.dockerImage}:${app.defaultTag || "latest"}\n    container_name: xivizley-app-${app.id}\n    restart: unless-stopped\n`;
 
-  return yaml.dump(composeObj, { indent: 2, lineWidth: -1 });
+  if (ports.length > 0) {
+    yamlText += `    ports:\n${ports.map((p) => `      - "${p}"`).join("\n")}\n`;
+  }
+  if (volumes.length > 0) {
+    yamlText += `    volumes:\n${volumes.map((v) => `      - ${v}`).join("\n")}\n`;
+  }
+  if (envLines.length > 0) {
+    yamlText += `    environment:\n${envLines.join("\n")}\n`;
+  }
+
+  return yamlText;
 }
 
 export const storeRoutes: FastifyPluginAsync = async (fastify) => {
