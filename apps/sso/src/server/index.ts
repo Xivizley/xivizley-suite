@@ -92,7 +92,9 @@ async function isAuthenticatedRequest(request: any, reply: any): Promise<boolean
   const cookies = (request.cookies || {}) as Record<string, string | undefined>;
   const token =
     cookies["xivizley_access_token"] ||
-    request.headers?.authorization?.replace(/^Bearer\s+/i, "");
+    request.headers?.authorization?.replace(/^Bearer\s+/i, "") ||
+    (request.query as any)?.access_token ||
+    (request.query as any)?.token;
 
   if (token) {
     try {
@@ -235,10 +237,16 @@ async function bootstrap() {
 
     if (user?.role === "guest") {
       const method = request.method.toUpperCase();
-      const pathname = (request.url || "/").split("?")[0] || "/";
+      const rawPath = (request.url || "/").split("?")[0] || "/";
+      const normalizedPath = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath;
 
       if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-        if (pathname === "/api/auth/demo" || pathname === "/api/auth/logout") {
+        if (
+          normalizedPath === "/api/auth/demo" ||
+          normalizedPath === "/api/auth/logout" ||
+          normalizedPath === "/api/auth/login" ||
+          normalizedPath === "/api/auth/refresh"
+        ) {
           return;
         }
         return reply.status(403).send({

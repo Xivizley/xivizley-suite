@@ -113,6 +113,41 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       // In-memory or database disconnected fallback
     }
 
+    if (
+      userFolders.length === 0 &&
+      userFiles.length === 0 &&
+      (request.user?.role === "guest" || userId === DEMO_USER_ID) &&
+      !folderId &&
+      filter === "all"
+    ) {
+      userFolders = [
+        {
+          id: "demo-folder-docs",
+          userId: DEMO_USER_ID,
+          name: "Belgeler & Şablonlar",
+          parentId: null,
+          color: "#0082c9",
+          isFavorite: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+      userFiles = [
+        {
+          id: "demo-file-welcome",
+          userId: DEMO_USER_ID,
+          folderId: null,
+          name: "XIVIZLEY_Demo_Rehberi.pdf",
+          sizeBytes: 245760,
+          mimeType: "application/pdf",
+          isFavorite: true,
+          isTrashed: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+    }
+
     // Gerçek Disk ve Kullanıcı Depolama Taraması
     let totalDiskBytes = 80 * 1024 * 1024 * 1024;
     let freeDiskBytes = 70 * 1024 * 1024 * 1024;

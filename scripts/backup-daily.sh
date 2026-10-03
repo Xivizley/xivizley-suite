@@ -6,7 +6,7 @@ set -euo pipefail
 # Executes pg_dumpall strictly inside xivizley-postgres container
 # ============================================================
 
-BACKUP_DIR="/var/backups/xivizley"
+BACKUP_DIR="${BACKUP_DIR:-/var/backups/xivizley}"
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 BACKUP_FILE="${BACKUP_DIR}/db_${TIMESTAMP}.sql.gz"
 

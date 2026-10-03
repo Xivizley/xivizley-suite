@@ -140,7 +140,7 @@ export const authRoutes: FastifyPluginAsync = async (fastify) => {
     let finalRedirectUrl = "/";
     if (redirect_uri && redirect_uri !== "/") {
       try {
-        const parsedUrl = new URL(redirect_uri, `http://${request.headers.host || "localhost"}`);
+        const parsedUrl = new URL(redirect_uri);
         parsedUrl.searchParams.set("access_token", accessToken);
         finalRedirectUrl = parsedUrl.toString();
       } catch {
