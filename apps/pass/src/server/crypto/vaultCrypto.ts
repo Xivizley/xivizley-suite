@@ -36,22 +36,41 @@ export function generateSecurePassword(options: PasswordGeneratorOptions = {}): 
   const numberChars = '23456789';
   const symbolChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
 
-  if (uppercase) charset += upperChars;
-  if (lowercase) charset += lowerChars;
-  if (numbers) charset += numberChars;
-  if (symbols) charset += symbolChars;
+  const requiredPools: string[] = [];
+  if (uppercase) { charset += upperChars; requiredPools.push(upperChars); }
+  if (lowercase) { charset += lowerChars; requiredPools.push(lowerChars); }
+  if (numbers) { charset += numberChars; requiredPools.push(numberChars); }
+  if (symbols) { charset += symbolChars; requiredPools.push(symbolChars); }
 
-  if (!charset) charset = lowerChars + numberChars;
+  if (!charset) {
+    charset = lowerChars + numberChars;
+    requiredPools.push(lowerChars, numberChars);
+  }
 
-  const bytes = crypto.randomBytes(length);
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    const byte = bytes[i];
-    if (byte !== undefined) {
-      result += charset[byte % charset.length] || '';
+  const chars: string[] = [];
+  for (const pool of requiredPools) {
+    const randByte = crypto.randomBytes(1)[0] ?? 0;
+    chars.push(pool[randByte % pool.length] ?? '');
+  }
+
+  const remaining = Math.max(0, length - chars.length);
+  if (remaining > 0) {
+    const bytes = crypto.randomBytes(remaining);
+    for (let i = 0; i < remaining; i++) {
+      const byte = bytes[i] ?? 0;
+      chars.push(charset[byte % charset.length] ?? '');
     }
   }
-  return result;
+
+  for (let i = chars.length - 1; i > 0; i--) {
+    const randByte = crypto.randomBytes(1)[0] ?? 0;
+    const j = randByte % (i + 1);
+    const temp = chars[i]!;
+    chars[i] = chars[j]!;
+    chars[j] = temp;
+  }
+
+  return chars.slice(0, length).join('');
 }
 
 export function calculatePasswordStrength(password: string): PasswordStrength {

@@ -5,8 +5,12 @@ import { getDb, files } from "@xivizley/db";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
 
 const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000001";
+const DEMO_USER_ID = "d0000000-0000-0000-0000-000000000001";
 
 function resolveUserId(request: any): string {
+  if (request.user?.role === "guest" || request.user?.id === DEMO_USER_ID) {
+    return DEMO_USER_ID;
+  }
   return request.user?.id || DEFAULT_USER_ID;
 }
 
