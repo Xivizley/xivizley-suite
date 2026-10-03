@@ -122,7 +122,7 @@ export function DashboardClient({
             <div>
               <p className="font-medium text-slate-200">XIVIZLEY Enterprise Homelab Engine</p>
               <p className="text-slate-400 text-[11px]">
-                OWEB TR 10 Gbps NVMe • Docker Engine Native • Nextcloud Hub 9 Standartları
+                OWEB TR 10 Gbps NVMe • Docker Engine Native • XIVIZLEY Hub Standartları
               </p>
             </div>
           </div>

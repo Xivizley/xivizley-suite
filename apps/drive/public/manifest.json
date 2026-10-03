@@ -1,7 +1,7 @@
 {
   "name": "XIVIZLEY Drive",
   "short_name": "Drive",
-  "description": "Nextcloud Tasarımlı Hızlı & Güvenli NVMe Bulut Depolama",
+  "description": "XIVIZLEY Hızlı & Güvenli NVMe Bulut Depolama",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#181e24",

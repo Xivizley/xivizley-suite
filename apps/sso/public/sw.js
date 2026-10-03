@@ -3,7 +3,7 @@
 // Offline App Shell Caching & Resilient Connectivity
 // ============================================================
 
-const CACHE_NAME = "xivizley-pwa-v1";
+const CACHE_NAME = "xivizley-pwa-v2";
 const STATIC_ASSETS = [
   "/",
   "/login",

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { NextcloudHeader } from "@xivizley/aurora-ui";
+import { ContainerManagerDrawer } from "@/components/ContainerManagerDrawer";
 import {
   Search,
   Package,
@@ -56,6 +57,7 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
   const [filterInstalled, setFilterInstalled] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedApp, setSelectedApp] = useState<StoreApp | null>(null);
+  const [drawerApp, setDrawerApp] = useState<StoreApp | null>(null);
   const [appDetails, setAppDetails] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState<"docker" | "cli" | "yaml">("docker");
   const [installingAppId, setInstallingAppId] = useState<string | null>(null);
@@ -410,14 +412,25 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                     </button>
 
                     {app.isInstalled ? (
-                      <button
-                        type="button"
-                        onClick={() => openAppModal(app)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600/40 text-emerald-300 text-xs font-semibold border border-emerald-500/40 transition-colors"
-                      >
-                        <Check className="w-3.5 h-3.5" />
-                        <span>Yüklendi</span>
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setDrawerApp(app)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#0082c9]/20 hover:bg-[#0082c9]/30 text-[#38bdf8] text-xs font-semibold border border-[#0082c9]/40 transition-colors"
+                          title="Canlı Loglar & Konteyner Yönetimi"
+                        >
+                          <Terminal className="w-3.5 h-3.5" />
+                          <span>Yönet / Log</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => openAppModal(app)}
+                          className="p-1.5 rounded-lg bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30 transition-colors"
+                          title="Konteyner Aktif"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     ) : (
                       <button
                         type="button"
@@ -607,6 +620,17 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                             </span>
                             <button
                               type="button"
+                              onClick={() => {
+                                setDrawerApp(selectedApp);
+                                setSelectedApp(null);
+                              }}
+                              className="px-3.5 py-2 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold shadow transition-colors flex items-center gap-1.5"
+                            >
+                              <Terminal className="w-3.5 h-3.5" />
+                              <span>Canlı Yönetim & Loglar</span>
+                            </button>
+                            <button
+                              type="button"
                               disabled={uninstallingAppId === selectedApp.id}
                               onClick={() => handleUninstallApp(selectedApp.id)}
                               className="px-3.5 py-2 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-xs font-medium border border-rose-500/40 transition-colors flex items-center gap-1.5 disabled:opacity-50"
@@ -708,6 +732,14 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
             </div>
           </div>
         )}
+
+        {/* ─── CONTAINER MANAGEMENT DRAWER ─────────────────────── */}
+        <ContainerManagerDrawer
+          isOpen={!!drawerApp}
+          onClose={() => setDrawerApp(null)}
+          app={drawerApp}
+          onAppUpdated={fetchApps}
+        />
       </main>
     </div>
   );
