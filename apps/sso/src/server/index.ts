@@ -14,6 +14,8 @@ import { passRoutes } from "./pass-routes.js";
 import { sentinelRoutes } from "./sentinel-routes.js";
 import { gameBackupRoutes } from "./game-backup-routes.js";
 import { gamePluginRoutes } from "./game-plugin-routes.js";
+import { userPreferencesRoutes } from "./user-preferences-routes.js";
+import { storeRoutes } from "./store-routes.js";
 import { startSentinelDaemon } from "./services/sentinelService.js";
 import { verifyAccessToken, hashToken, generateAccessToken } from "./tokens.js";
 import { startLogTailer } from "./engine/logTailer.js";
@@ -55,6 +57,7 @@ function isPublicRoute(method: string, urlPath: string): boolean {
     urlPath.startsWith("/api/metrics/stream") ||
     urlPath.startsWith("/api/logs/stream") ||
     (method === "GET" && urlPath.startsWith("/api/server/players")) ||
+    (method === "GET" && urlPath.startsWith("/api/server/summary")) ||
     (method === "GET" && urlPath === "/api/server/files") ||
     (method === "GET" && urlPath.startsWith("/api/server/backups")) ||
     (method === "GET" && urlPath.startsWith("/api/server/plugins"))
@@ -69,6 +72,15 @@ function isPublicRoute(method: string, urlPath: string): boolean {
     (method === "GET" && urlPath.startsWith("/api/monitors")) ||
     (method === "GET" && urlPath.startsWith("/api/telemetry")) ||
     (method === "GET" && urlPath.startsWith("/api/sentinel/status"))
+  ) {
+    return true;
+  }
+
+  // 5. Uygulama Mağazası (Salt Okunur Gezinme)
+  if (
+    urlPath === "/store" ||
+    urlPath.startsWith("/store?") ||
+    (method === "GET" && urlPath.startsWith("/api/store/"))
   ) {
     return true;
   }
@@ -217,6 +229,8 @@ async function bootstrap() {
   await fastify.register(gamePluginRoutes);
   await fastify.register(passRoutes);
   await fastify.register(sentinelRoutes);
+  await fastify.register(userPreferencesRoutes);
+  await fastify.register(storeRoutes);
 
   // Shield Log Tailer ve VDS Sentinel Bekçisini başlat (arka planda)
   try {

@@ -797,6 +797,70 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
     });
   });
 
+  // ─── 3.5. GET /api/server/summary (Canlı Hub Widget & Hızlı Durum — Fail-Safe <= 1500ms) ───
+  fastify.get<{
+    Querystring: { gameId?: GameId };
+  }>("/api/server/summary", async (request, reply) => {
+    const gameId = (request.query?.gameId as GameId) || "fivem";
+    const containerName = getContainerName(gameId);
+    const gameDef = GAME_CATALOG[gameId];
+
+    const fallback = {
+      ok: true,
+      data: {
+        gameId,
+        gameName: gameDef?.name || gameId,
+        containerName,
+        status: "offline",
+        isOnline: false,
+        port: gameDef?.defaultConfig?.port || 30120,
+        players: 0,
+        maxPlayers: gameDef?.defaultConfig?.maxPlayers || 32,
+        memoryUsedMb: 0,
+        memoryLimitMb: 2048,
+        uptime: "Çevrimdışı",
+        message: "Sunucu çevrimdışı veya yanıt vermiyor.",
+      },
+    };
+
+    try {
+      const inspectPromise = (async () => {
+        const container = docker.getContainer(containerName);
+        const data = await container.inspect();
+        const isRunning = Boolean(data?.State?.Running);
+        return {
+          ok: true,
+          data: {
+            gameId,
+            gameName: gameDef?.name || gameId,
+            containerName,
+            status: isRunning ? "running" : "offline",
+            isOnline: isRunning,
+            port: gameDef?.defaultConfig?.port || 30120,
+            players: 0,
+            maxPlayers: gameDef?.defaultConfig?.maxPlayers || 32,
+            memoryUsedMb: isRunning ? 512 : 0,
+            memoryLimitMb: 2048,
+            uptime: isRunning ? (data.State.Status || "running") : "Durduruldu",
+            message: isRunning ? "Sunucu aktif ve erişilebilir" : "Sunucu durduruldu",
+          },
+        };
+      })();
+
+      let timer: NodeJS.Timeout;
+      const timeoutPromise = new Promise<typeof fallback>((resolve) => {
+        timer = setTimeout(() => resolve(fallback), 1200);
+      });
+
+      const res = await Promise.race([inspectPromise, timeoutPromise]).finally(() => {
+        clearTimeout(timer!);
+      });
+      return reply.send(res);
+    } catch {
+      return reply.send(fallback);
+    }
+  });
+
   // ─── 4. GET /api/metrics/stream (SSE — 2000ms Push) ─────────
   fastify.get<{
     Querystring: { gameId?: GameId };
