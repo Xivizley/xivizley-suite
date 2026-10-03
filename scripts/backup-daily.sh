@@ -16,7 +16,11 @@ mkdir -p "${BACKUP_DIR}"
 echo "[$(date -Iseconds)] [BACKUP] Konteyner içi PostgreSQL yedeği alınıyor: ${BACKUP_FILE}..."
 
 # 2. Dump işlemini host binary'sine bağımlı olmadan doğrudan konteyner üzerinden boru hattıyla al
-docker exec -t xivizley-postgres pg_dumpall -U postgres | gzip > "${BACKUP_FILE}"
+PG_USER="${PG_USER:-xivizley}"
+if ! docker exec -i xivizley-postgres pg_dumpall -U "${PG_USER}" | gzip > "${BACKUP_FILE}" 2>/dev/null; then
+  PG_USER="postgres"
+  docker exec -i xivizley-postgres pg_dumpall -U "${PG_USER}" | gzip > "${BACKUP_FILE}"
+fi
 
 # 3. Dosya boyutunu doğrula
 if [ -s "${BACKUP_FILE}" ]; then

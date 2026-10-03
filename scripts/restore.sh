@@ -28,5 +28,9 @@ if [ -t 0 ] && [ "${FORCE:-false}" != "true" ]; then
 fi
 
 echo "[$(date -Iseconds)] [RESTORE] Veritabanı '${BACKUP_FILE}' arşivinden geri yükleniyor..."
-gunzip -c "${BACKUP_FILE}" | docker exec -i xivizley-postgres psql -U postgres
+PG_USER="${PG_USER:-xivizley}"
+if ! gunzip -c "${BACKUP_FILE}" | docker exec -i xivizley-postgres psql -U "${PG_USER}" 2>/dev/null; then
+  PG_USER="postgres"
+  gunzip -c "${BACKUP_FILE}" | docker exec -i xivizley-postgres psql -U "${PG_USER}"
+fi
 echo "[$(date -Iseconds)] [SUCCESS] Veritabanı başarıyla geri yüklendi."
