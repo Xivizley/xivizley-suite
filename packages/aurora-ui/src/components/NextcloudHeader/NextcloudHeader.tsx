@@ -14,7 +14,9 @@ export type NextcloudAppId =
   | "shield"
   | "sso"
   | "store"
-  | "game";
+  | "game"
+  | "terminal"
+  | "status";
 
 export interface NextcloudHeaderProps {
   /** Aktif uygulama ID'si (uygulama ikonunu pill ile vurgular) */
@@ -144,6 +146,17 @@ const APPS_LIST: AppNavDef[] = [
         <line x1="15" y1="13" x2="15.01" y2="13" />
         <line x1="18" y1="11" x2="18.01" y2="11" />
         <rect x="2" y="6" width="20" height="12" rx="2" />
+      </svg>
+    ),
+  },
+  {
+    id: "terminal",
+    name: "Terminal",
+    href: "/terminal",
+    icon: (active) => (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="4 17 10 11 4 5" />
+        <line x1="12" y1="19" x2="20" y2="19" />
       </svg>
     ),
   },
@@ -398,14 +411,19 @@ export function NextcloudHeader({
         {/* Özel Uygulama Butonları (+ Yeni vb.) */}
         {rightActions && <div className="hidden sm:flex items-center gap-1.5">{rightActions}</div>}
 
-        {/* Canlı Sunucu Durumu */}
-        <div
-          className="hidden md:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/15 text-[11px] text-white/90 font-mono"
-          title="Homelab Durumu: Çevrimiçi"
+        {/* Canlı Küme Düğüm Değiştirici */}
+        <button
+          type="button"
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("xivizley:open-cluster-modal"));
+          }}
+          className="hidden md:flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/20 hover:bg-black/35 border border-white/20 text-[11px] text-white/90 font-mono transition-colors cursor-pointer group"
+          title="Çoklu Düğüm Küme Yöneticisi (Bursa PenDC / Test VDS / Yerel)"
         >
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          <span className="w-2 h-2 rounded-full bg-emerald-400 group-hover:scale-125 transition-transform" />
           <span>Homelab VDS</span>
-        </div>
+          <span className="text-[10px] text-white/60 group-hover:text-white">▾</span>
+        </button>
 
         {/* Bildirim Çanı */}
         <a

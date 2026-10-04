@@ -4,18 +4,26 @@ import type { User } from "@xivizley/db";
 
 let cachedPrivateKey: CryptoKey | null = null;
 
+let devKeyPair: { privateKey: string; publicKey: string } | null = null;
+function getDevKeyPair() {
+  if (!devKeyPair) {
+    const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+      modulusLength: 2048,
+      publicKeyEncoding: { type: "spki", format: "pem" },
+      privateKeyEncoding: { type: "pkcs8", format: "pem" },
+    });
+    devKeyPair = { privateKey, publicKey };
+  }
+  return devKeyPair;
+}
+
 /**
  * RS256 Private Key nesnesini getirir (cache destekli).
  */
 export async function getPrivateKey(): Promise<CryptoKey> {
   if (cachedPrivateKey) return cachedPrivateKey;
 
-  let rawKey = process.env["JWT_PRIVATE_KEY"] || "";
-  if (!rawKey) {
-    throw new Error(
-      "[@xivizley/sso] JWT_PRIVATE_KEY ortam değişkeni bulunamadı. Lütfen .env dosyanızı kontrol edin.",
-    );
-  }
+  let rawKey = process.env["JWT_PRIVATE_KEY"] || getDevKeyPair().privateKey;
 
   if (!rawKey.includes("-----BEGIN PRIVATE KEY-----")) {
     try {
@@ -74,12 +82,7 @@ let cachedPublicKey: CryptoKey | null = null;
 export async function getPublicKey(): Promise<CryptoKey> {
   if (cachedPublicKey) return cachedPublicKey;
 
-  let rawKey = process.env["JWT_PUBLIC_KEY"] || "";
-  if (!rawKey) {
-    throw new Error(
-      "[@xivizley/sso] JWT_PUBLIC_KEY ortam değişkeni bulunamadı. Lütfen .env dosyanızı kontrol edin.",
-    );
-  }
+  let rawKey = process.env["JWT_PUBLIC_KEY"] || getDevKeyPair().publicKey;
 
   if (!rawKey.includes("-----BEGIN PUBLIC KEY-----")) {
     try {

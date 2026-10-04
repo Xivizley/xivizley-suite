@@ -26,6 +26,8 @@ import {
 import type { PulseMonitor } from '@/server/services/pulseService';
 import { NextcloudHeader } from '@xivizley/aurora-ui';
 import { PulseSentinelCard } from '@/components/PulseSentinelCard';
+import { SentinelDoctorCard } from '@/components/SentinelDoctorCard';
+import { ClusterSwitcherModal } from '@/components/ClusterSwitcherModal';
 
 export default function PulseDashboard() {
   const [monitors, setMonitors] = useState<PulseMonitor[]>([]);
@@ -263,6 +265,9 @@ export default function PulseDashboard() {
 
         {/* ─── VDS Sistem Bekçisi & Telegram Kalkanı ─────────────── */}
         <PulseSentinelCard />
+
+        {/* ─── AI Sistem Doktoru & Otonom Hata Teşhisi ─────────────── */}
+        <SentinelDoctorCard />
 
         {/* ─── Monitor Cards Section ───────────────────────────── */}
         <div className="space-y-3">
@@ -548,6 +553,7 @@ export default function PulseDashboard() {
           </div>
         </div>
       )}
+      <ClusterSwitcherModal />
     </div>
   );
 }

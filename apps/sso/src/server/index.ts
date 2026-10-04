@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
+import websocket from "@fastify/websocket";
 import next from "next";
 import { eq, and, isNull } from "drizzle-orm";
 import { getDb, users, refreshTokens } from "@xivizley/db";
@@ -16,6 +17,10 @@ import { gameBackupRoutes } from "./game-backup-routes.js";
 import { gamePluginRoutes } from "./game-plugin-routes.js";
 import { userPreferencesRoutes } from "./user-preferences-routes.js";
 import { storeRoutes } from "./store-routes.js";
+import { terminalRoutes } from "./terminal-routes.js";
+import { doctorRoutes } from "./doctor-routes.js";
+import { clusterRoutes } from "./cluster-routes.js";
+import { statusRoutes } from "./status-routes.js";
 import { startSentinelDaemon } from "./services/sentinelService.js";
 import { verifyAccessToken, hashToken, generateAccessToken } from "./tokens.js";
 import { startLogTailer } from "./engine/logTailer.js";
@@ -81,6 +86,32 @@ function isPublicRoute(method: string, urlPath: string): boolean {
     urlPath === "/store" ||
     urlPath.startsWith("/store?") ||
     (method === "GET" && urlPath.startsWith("/api/store/"))
+  ) {
+    return true;
+  }
+
+  // 6. Halka Açık Uptime Durum Sayfası (/status)
+  if (
+    urlPath === "/status" ||
+    urlPath.startsWith("/status?") ||
+    (method === "GET" && urlPath.startsWith("/api/status/"))
+  ) {
+    return true;
+  }
+
+  // 7. Web Terminal (Sandbox & WebSocket)
+  if (
+    urlPath === "/terminal" ||
+    urlPath.startsWith("/terminal?") ||
+    urlPath.startsWith("/api/terminal")
+  ) {
+    return true;
+  }
+
+  // 8. Küme & Doktor Genel Bilgileri (Salt Okunur)
+  if (
+    (method === "GET" && urlPath.startsWith("/api/cluster/nodes")) ||
+    (method === "GET" && urlPath.startsWith("/api/doctor/diagnostics"))
   ) {
     return true;
   }
@@ -181,17 +212,9 @@ async function bootstrap() {
 
   // 3. Fastify başlat
   const fastify = Fastify({
-    logger: dev
-      ? {
-          transport: {
-            target: "pino-pretty",
-            options: {
-              translateTime: "HH:MM:ss Z",
-              ignore: "pid,hostname",
-            },
-          },
-        }
-      : true,
+    logger: {
+      level: dev ? "info" : "warn",
+    },
   });
 
   // Middleware eklentileri
@@ -203,6 +226,8 @@ async function bootstrap() {
   await fastify.register(cookie, {
     secret: process.env.COOKIE_SECRET || "xivizley_cookie_secret_key_32_chars_min",
   });
+
+  await fastify.register(websocket);
 
   // ─── MERKEZİ GÜVENLİK DUVARI (Kişisel Bulut, Kasa, Dosyalar, Notlar, Fotoğraflar Koruması) ───
   fastify.addHook("onRequest", async (request, reply) => {
@@ -282,6 +307,10 @@ async function bootstrap() {
   await fastify.register(sentinelRoutes);
   await fastify.register(userPreferencesRoutes);
   await fastify.register(storeRoutes);
+  await fastify.register(terminalRoutes);
+  await fastify.register(doctorRoutes);
+  await fastify.register(clusterRoutes);
+  await fastify.register(statusRoutes);
 
   // Shield Log Tailer ve VDS Sentinel Bekçisini başlat (arka planda)
   try {

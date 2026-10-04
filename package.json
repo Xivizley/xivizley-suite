@@ -20,6 +20,7 @@
     "db:generate": "turbo run db:generate",
     "db:migrate": "turbo run db:migrate",
     "db:studio": "pnpm --filter @xivizley/db db:studio",
+    "test:e2e": "pnpm --filter @xivizley/sso test:e2e",
     "audit:live": "node scripts/master_audit.mjs",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\" --ignore-path .gitignore"
   },

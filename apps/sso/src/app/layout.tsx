@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { ToastProvider } from "@xivizley/aurora-ui";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import { ClusterSwitcherModal } from "@/components/ClusterSwitcherModal";
 import "../styles/globals.css";
 
 export const viewport: Viewport = {
@@ -56,6 +57,7 @@ export default function RootLayout({
         <ToastProvider>
           {children}
           <PwaInstallPrompt />
+          <ClusterSwitcherModal />
         </ToastProvider>
       </body>
     </html>
