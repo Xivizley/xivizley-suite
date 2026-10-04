@@ -36,6 +36,9 @@ export function WebTerminalClient() {
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [isDemoUser, setIsDemoUser] = useState<boolean>(false);
 
+  const [terminalReady, setTerminalReady] = useState<boolean>(false);
+  const [reconnectKey, setReconnectKey] = useState<number>(0);
+
   // 1. Hedef Listesini Çek
   useEffect(() => {
     fetch("/api/terminal/targets")
@@ -57,20 +60,13 @@ export function WebTerminalClient() {
       .catch(() => {});
   }, []);
 
-  // 2. Terminal & WebSocket Oturumu Başlat
-  const connectTerminal = (target: string) => {
-    if (!terminalRef.current) return;
+  // 2. Terminal Nesnesini Tek Seferlik Başlat (Mount Zamanında)
+  useEffect(() => {
+    const container = terminalRef.current;
+    if (!container) return;
 
-    // Önceki soketi ve terminali temizle
-    if (socketRef.current) {
-      socketRef.current.close();
-      socketRef.current = null;
-    }
-    if (termInstanceRef.current) {
-      termInstanceRef.current.dispose();
-      termInstanceRef.current = null;
-    }
-    terminalRef.current.innerHTML = "";
+    let isDisposed = false;
+    container.innerHTML = "";
 
     const term = new Terminal({
       theme: {
@@ -93,25 +89,76 @@ export function WebTerminalClient() {
       lineHeight: 1.3,
       cursorBlink: true,
       convertEol: true,
+      scrollback: 1000,
     });
 
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
-    term.open(terminalRef.current);
-
-    try {
-      fitAddon.fit();
-    } catch {}
+    term.open(container);
 
     termInstanceRef.current = term;
     fitAddonRef.current = fitAddon;
+    setTerminalReady(true);
 
-    // WebSocket Bağlantısı
+    const safeFit = () => {
+      if (
+        !isDisposed &&
+        container &&
+        container.clientWidth > 0 &&
+        container.clientHeight > 0
+      ) {
+        try {
+          fitAddon.fit();
+        } catch {}
+      }
+    };
+
+    // İlk render sonrası layout oturunca fit et
+    const timer = setTimeout(safeFit, 150);
+
+    const resizeObserver = new ResizeObserver(() => {
+      safeFit();
+    });
+    resizeObserver.observe(container);
+
+    const handleWindowResize = () => {
+      safeFit();
+    };
+    window.addEventListener("resize", handleWindowResize);
+
+    return () => {
+      isDisposed = true;
+      clearTimeout(timer);
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", handleWindowResize);
+      setTerminalReady(false);
+      try {
+        term.dispose();
+      } catch {}
+      termInstanceRef.current = null;
+      fitAddonRef.current = null;
+    };
+  }, []);
+
+  // 3. WebSocket Bağlantısını Yönet (Hedef Değiştiğinde veya Yeniden Bağlanıldığında)
+  useEffect(() => {
+    if (!terminalReady || !termInstanceRef.current) return;
+
+    const term = termInstanceRef.current;
+    const fitAddon = fitAddonRef.current;
+
+    // Önceki soketi kapat
+    if (socketRef.current) {
+      socketRef.current.close();
+      socketRef.current = null;
+    }
+
+    term.reset();
+    term.writeln(`\x1b[36m[XIVIZLEY]\x1b[0m Web terminal sunucusuna bağlanıyor (${selectedTarget})...`);
+
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const host = window.location.host;
-    const wsUrl = `${protocol}//${host}/api/terminal/ws?target=${encodeURIComponent(target)}`;
-
-    term.writeln(`\x1b[36m[XIVIZLEY]\x1b[0m Web terminal sunucusuna bağlanıyor (${target})...`);
+    const wsUrl = `${protocol}//${host}/api/terminal/ws?target=${encodeURIComponent(selectedTarget)}`;
 
     const ws = new WebSocket(wsUrl);
     socketRef.current = ws;
@@ -120,7 +167,9 @@ export function WebTerminalClient() {
       setIsConnected(true);
       term.focus();
       try {
-        fitAddon.fit();
+        if (terminalRef.current && terminalRef.current.clientWidth > 0) {
+          fitAddon?.fit();
+        }
       } catch {}
     };
 
@@ -138,29 +187,31 @@ export function WebTerminalClient() {
       setIsConnected(false);
     };
 
-    term.onData((data) => {
+    const dataDisposable = term.onData((data) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(data);
       }
     });
-  };
-
-  useEffect(() => {
-    connectTerminal(selectedTarget);
-
-    const handleResize = () => {
-      try {
-        fitAddonRef.current?.fit();
-      } catch {}
-    };
-    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-      socketRef.current?.close();
-      termInstanceRef.current?.dispose();
+      dataDisposable.dispose();
+      ws.close();
+      setIsConnected(false);
     };
-  }, [selectedTarget]);
+  }, [terminalReady, selectedTarget, reconnectKey]);
+
+  // Tam ekran değiştiğinde fit et
+  useEffect(() => {
+    if (!terminalReady || !fitAddonRef.current) return;
+    const timer = setTimeout(() => {
+      try {
+        if (terminalRef.current && terminalRef.current.clientWidth > 0) {
+          fitAddonRef.current?.fit();
+        }
+      } catch {}
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [isFullscreen, terminalReady]);
 
   const handleSendCommand = (cmd: string) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -175,7 +226,7 @@ export function WebTerminalClient() {
   };
 
   const handleReconnect = () => {
-    connectTerminal(selectedTarget);
+    setReconnectKey((k) => k + 1);
   };
 
   return (

@@ -3,7 +3,6 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { NextcloudHeader } from "@xivizley/aurora-ui";
-import { ClusterSwitcherModal } from "@/components/ClusterSwitcherModal";
 
 const WebTerminalClient = dynamic(
   () => import("@/components/WebTerminalClient").then((mod) => mod.WebTerminalClient),
@@ -25,7 +24,6 @@ export default function TerminalPage() {
       <main className="flex-1 p-2 sm:p-4">
         <WebTerminalClient />
       </main>
-      <ClusterSwitcherModal />
     </div>
   );
 }
