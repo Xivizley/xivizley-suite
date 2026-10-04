@@ -113,6 +113,19 @@ xivizley-suite/
 
 ---
 
+## 📚 Resmi Dokümantasyon Kütüphanesi
+
+Dış geliştiriciler ve homelab topluluğu için hazırlanmış resmi kılavuzlar:
+
+* 🏛️ [**Sistem Mimarisi Kılavuzu**](docs/architecture.md): Fastify mikroservisleri, Next.js 15, RS256 JWT SSO ve Docker Socket yönetimi.
+* 🏬 [**115-Uygulama Mağaza Kataloğu**](docs/app-store-catalog.md): 10 kategoride port, Docker imaj ve minimum RAM gereksinimleri.
+* 💾 [**Yedekleme ve Felaket Kurtarma**](docs/backup-and-disaster-recovery.md): Sıcak PostgreSQL yedekleme boru hattı ve kurtarma runbook'u.
+* ⌨️ [**XIVIZLEY CLI Kılavuzu**](docs/cli-guide.md): `npx xivizley` interaktif TUI ve terminal komut referansı.
+* 🇧🇷 [**Guia de Implantação (Português do Brasil)**](docs/pt-br-guide.md): Brezilya homelab ve VDS topluluğu için yerel kurulum kılavuzu.
+* 🚀 [**Topluluk Lansman Belgeleri**](docs/launch/): Reddit (r/homelab, r/CodingTR, r/selfhosted), Hacker News ve Product Hunt gönderi şablonları.
+
+---
+
 ## 🌐 Canlı Demolar
 
 * 📐 **Mimari Tuval & Şartname:** [https://xivizley.com.tr](https://xivizley.com.tr)
