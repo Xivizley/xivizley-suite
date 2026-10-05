@@ -22,11 +22,15 @@ function buildInitialConfigPerGame(): Record<GameId, ActiveServerConfig> {
 }
 
 /** Dinamik RAM Hesaplayıcı: minRam + overhead + JVM + Modpaketleri + (Plugin × 64MB) */
-export function calculateEstimatedRamMb(gameId: GameId, config: ActiveServerConfig): number {
+export function calculateEstimatedRamMb(
+  gameId: GameId,
+  config: ActiveServerConfig,
+): number {
   const meta = GAME_CATALOG[gameId];
   if (!meta) return 2048;
 
-  const engine = meta.engines.find((e) => e.id === config.engineId) || meta.engines[0];
+  const engine =
+    meta.engines.find((e) => e.id === config.engineId) || meta.engines[0];
   const engineOverhead = engine ? engine.overheadMb : 256;
   const jvmOverhead = engine?.jvmOverheadMb || 0; // Minecraft Java JVM payı
 
@@ -101,7 +105,11 @@ export interface GameCockpitStore {
   toggleModPack: (gameId: GameId, packId: string) => void;
   togglePlugin: (gameId: GameId, pluginId: string) => void;
   setActiveServer: (server: GameCockpitStore["activeServer"]) => void;
-  setActionStatus: (isStarting: boolean, isStopping: boolean, message?: string | null) => void;
+  setActionStatus: (
+    isStarting: boolean,
+    isStopping: boolean,
+    message?: string | null,
+  ) => void;
   getEstimatedRam: (gameId: GameId) => number;
   canStartActiveGame: () => { allowed: boolean; reason?: string | undefined };
   checkAdminAuth: () => Promise<void>;
@@ -150,7 +158,8 @@ export const useGameStore = create<GameCockpitStore>()(
 
       updateConfig: (gameId: GameId, patch: Partial<ActiveServerConfig>) => {
         set((state) => {
-          const currentConfig = state.configPerGame[gameId] || GAME_CATALOG[gameId].defaultConfig;
+          const currentConfig =
+            state.configPerGame[gameId] || GAME_CATALOG[gameId].defaultConfig;
           return {
             configPerGame: {
               ...state.configPerGame,
@@ -162,7 +171,8 @@ export const useGameStore = create<GameCockpitStore>()(
 
       toggleModPack: (gameId: GameId, packId: string) => {
         set((state) => {
-          const current = state.configPerGame[gameId] || GAME_CATALOG[gameId].defaultConfig;
+          const current =
+            state.configPerGame[gameId] || GAME_CATALOG[gameId].defaultConfig;
           const catalog = GAME_CATALOG[gameId];
           const targetPack = catalog?.modPacks?.find((p) => p.id === packId);
 
@@ -176,10 +186,19 @@ export const useGameStore = create<GameCockpitStore>()(
             if (targetPack?.mutuallyExclusiveGroup) {
               const otherGroupPackIds = new Set(
                 (catalog?.modPacks || [])
-                  .filter((p) => p.mutuallyExclusiveGroup === targetPack.mutuallyExclusiveGroup && p.id !== packId)
-                  .map((p) => p.id)
+                  .filter(
+                    (p) =>
+                      p.mutuallyExclusiveGroup ===
+                        targetPack.mutuallyExclusiveGroup && p.id !== packId,
+                  )
+                  .map((p) => p.id),
               );
-              next = [...current.selectedPackIds.filter((id) => !otherGroupPackIds.has(id)), packId];
+              next = [
+                ...current.selectedPackIds.filter(
+                  (id) => !otherGroupPackIds.has(id),
+                ),
+                packId,
+              ];
             } else {
               next = [...current.selectedPackIds, packId];
             }
@@ -211,8 +230,11 @@ export const useGameStore = create<GameCockpitStore>()(
 
       togglePlugin: (gameId: GameId, pluginId: string) => {
         set((state) => {
-          const current = state.configPerGame[gameId] || GAME_CATALOG[gameId].defaultConfig;
-          const plugin = GAME_CATALOG[gameId]?.plugins.find((p) => p.id === pluginId);
+          const current =
+            state.configPerGame[gameId] || GAME_CATALOG[gameId].defaultConfig;
+          const plugin = GAME_CATALOG[gameId]?.plugins.find(
+            (p) => p.id === pluginId,
+          );
           // Zorunlu eklenti kapatılamaz
           if (plugin?.isRequired) return state;
 
@@ -238,7 +260,8 @@ export const useGameStore = create<GameCockpitStore>()(
       },
 
       getEstimatedRam: (gameId: GameId) => {
-        const config = get().configPerGame[gameId] || GAME_CATALOG[gameId].defaultConfig;
+        const config =
+          get().configPerGame[gameId] || GAME_CATALOG[gameId].defaultConfig;
         return calculateEstimatedRamMb(gameId, config);
       },
 
@@ -248,9 +271,13 @@ export const useGameStore = create<GameCockpitStore>()(
         const targetId = state.activeGameId;
 
         // Kural: Aynı anda sadece 1 oyun çalışabilir (Claude Tavsiyesi)
-        if (active && (active.status === "running" || active.status === "starting")) {
+        if (
+          active &&
+          (active.status === "running" || active.status === "starting")
+        ) {
           if (active.gameId !== targetId) {
-            const runningGame = GAME_CATALOG[active.gameId]?.name || active.gameId;
+            const runningGame =
+              GAME_CATALOG[active.gameId]?.name || active.gameId;
             return {
               allowed: false,
               reason: `Şu anda arka planda ${runningGame} çalışıyor. VDS kaynaklarını korumak için önce çalışan sunucuyu durdurmalısınız.`,
@@ -275,6 +302,6 @@ export const useGameStore = create<GameCockpitStore>()(
         activeGameId: state.activeGameId,
         configPerGame: state.configPerGame,
       }),
-    }
-  )
+    },
+  ),
 );

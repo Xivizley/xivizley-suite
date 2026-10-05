@@ -43,10 +43,49 @@ export const notificationRoutes: FastifyPluginAsync = async (fastify) => {
     async (request, reply) => {
       try {
         const body = request.body || {};
+
+        if (
+          body.discordWebhookUrl &&
+          typeof body.discordWebhookUrl === "string"
+        ) {
+          const trimmed = body.discordWebhookUrl.trim();
+          if (trimmed) {
+            try {
+              const parsed = new URL(trimmed);
+              if (!["https:", "http:"].includes(parsed.protocol)) {
+                return reply.status(400).send({
+                  ok: false,
+                  message:
+                    "Geçersiz Discord webhook URL protokolü. 'https://' ile başlamalıdır.",
+                });
+              }
+            } catch {
+              return reply.status(400).send({
+                ok: false,
+                message: "Geçersiz Discord webhook URL formatı.",
+              });
+            }
+          }
+        }
+
+        if (body.debounceMinutes !== undefined) {
+          const parsedMins = Number(body.debounceMinutes);
+          if (Number.isNaN(parsedMins) || parsedMins < 1 || parsedMins > 1440) {
+            return reply.status(400).send({
+              ok: false,
+              message:
+                "Cooldown süresi 1 ile 1440 dakika arasında geçerli bir sayı olmalıdır.",
+            });
+          }
+        }
+
         const updated = updateNotificationConfig({
           discordWebhookUrl: body.discordWebhookUrl,
           discordEnabled: body.discordEnabled,
-          debounceMinutes: body.debounceMinutes,
+          debounceMinutes:
+            body.debounceMinutes !== undefined
+              ? Number(body.debounceMinutes)
+              : undefined,
         });
 
         return reply.send({
@@ -65,7 +104,7 @@ export const notificationRoutes: FastifyPluginAsync = async (fastify) => {
           message: err?.message || "Bildirim ayarları güncellenemedi.",
         });
       }
-    }
+    },
   );
 
   // ─── 3. POST /api/notifications/test-discord ──────────────────
@@ -82,6 +121,6 @@ export const notificationRoutes: FastifyPluginAsync = async (fastify) => {
           message: err?.message || "Discord test uyarısı gönderilemedi.",
         });
       }
-    }
+    },
   );
 };

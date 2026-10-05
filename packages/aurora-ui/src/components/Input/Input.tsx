@@ -7,7 +7,10 @@ import { clsx } from "clsx";
 
 export type InputSize = "sm" | "md" | "lg";
 
-export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
+export interface InputProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
   /** Boyut */
   size?: InputSize;
   /** Etiket */
@@ -34,104 +37,115 @@ const wrapperSizeStyles: Record<InputSize, string> = {
 
 // ─── Input Bileşeni ─────────────────────────────────────────
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
-  function Input(
-    {
-      size = "md",
-      label,
-      hint,
-      error,
-      leftIcon,
-      rightIcon,
-      fullWidth = false,
-      className,
-      id: externalId,
-      disabled,
-      ...rest
-    },
-    ref,
-  ) {
-    const autoId = useId();
-    const inputId = externalId ?? autoId;
-    const hintId = hint ? `${inputId}-hint` : undefined;
-    const errorId = error ? `${inputId}-error` : undefined;
-    const hasError = !!error;
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    size = "md",
+    label,
+    hint,
+    error,
+    leftIcon,
+    rightIcon,
+    fullWidth = false,
+    className,
+    id: externalId,
+    disabled,
+    ...rest
+  },
+  ref,
+) {
+  const autoId = useId();
+  const inputId = externalId ?? autoId;
+  const hintId = hint ? `${inputId}-hint` : undefined;
+  const errorId = error ? `${inputId}-error` : undefined;
+  const hasError = !!error;
 
-    return (
-      <div className={clsx("flex flex-col gap-1.5", fullWidth && "w-full")}>
-        {/* Label */}
-        {label && (
-          <label
-            htmlFor={inputId}
-            className="text-aurora-text-secondary text-[var(--aurora-text-sm)] font-medium"
-          >
-            {label}
-          </label>
-        )}
-
-        {/* Input Wrapper — Glassmorphism */}
-        <div
-          className={clsx(
-            "relative flex items-center",
-            "bg-[#181e24] rounded-lg",
-            "border transition-all",
-            wrapperSizeStyles[size],
-            hasError
-              ? "border-rose-500 shadow-sm"
-              : "border-[#2d3748] hover:border-slate-500 focus-within:border-[#0082c9] focus-within:ring-1 focus-within:ring-[#0082c9]/30",
-            disabled && "opacity-50 cursor-not-allowed",
-            className,
-          )}
+  return (
+    <div className={clsx("flex flex-col gap-1.5", fullWidth && "w-full")}>
+      {/* Label */}
+      {label && (
+        <label
+          htmlFor={inputId}
+          className="text-aurora-text-secondary text-[var(--aurora-text-sm)] font-medium"
         >
-          {/* Sol ikon */}
-          {leftIcon && (
-            <span className="pl-3 text-aurora-text-muted shrink-0" aria-hidden="true">
-              {leftIcon}
-            </span>
-          )}
+          {label}
+        </label>
+      )}
 
-          {/* Input */}
-          <input
-            ref={ref}
-            id={inputId}
-            className={clsx(
-              "w-full h-full bg-transparent px-3",
-              "text-aurora-text-primary placeholder:text-aurora-text-muted",
-              "outline-none",
-              "disabled:cursor-not-allowed",
-              leftIcon && "pl-1.5",
-              rightIcon && "pr-1.5",
-            )}
-            disabled={disabled}
-            aria-invalid={hasError || undefined}
-            aria-describedby={
-              [hintId, errorId].filter(Boolean).join(" ") || undefined
-            }
-            {...rest}
-          />
-
-          {/* Sağ ikon */}
-          {rightIcon && (
-            <span className="pr-3 text-aurora-text-muted shrink-0" aria-hidden="true">
-              {rightIcon}
-            </span>
-          )}
-        </div>
-
-        {/* Hata mesajı */}
-        {error && (
-          <p id={errorId} className="text-aurora-rose text-[var(--aurora-text-xs)]" role="alert">
-            {error}
-          </p>
+      {/* Input Wrapper — Glassmorphism */}
+      <div
+        className={clsx(
+          "relative flex items-center",
+          "bg-[#181e24] rounded-lg",
+          "border transition-all",
+          wrapperSizeStyles[size],
+          hasError
+            ? "border-rose-500 shadow-sm"
+            : "border-[#2d3748] hover:border-slate-500 focus-within:border-[#0082c9] focus-within:ring-1 focus-within:ring-[#0082c9]/30",
+          disabled && "opacity-50 cursor-not-allowed",
+          className,
+        )}
+      >
+        {/* Sol ikon */}
+        {leftIcon && (
+          <span
+            className="pl-3 text-aurora-text-muted shrink-0"
+            aria-hidden="true"
+          >
+            {leftIcon}
+          </span>
         )}
 
-        {/* İpucu */}
-        {!error && hint && (
-          <p id={hintId} className="text-aurora-text-muted text-[var(--aurora-text-xs)]">
-            {hint}
-          </p>
+        {/* Input */}
+        <input
+          ref={ref}
+          id={inputId}
+          className={clsx(
+            "w-full h-full bg-transparent px-3",
+            "text-aurora-text-primary placeholder:text-aurora-text-muted",
+            "outline-none",
+            "disabled:cursor-not-allowed",
+            leftIcon && "pl-1.5",
+            rightIcon && "pr-1.5",
+          )}
+          disabled={disabled}
+          aria-invalid={hasError || undefined}
+          aria-describedby={
+            [hintId, errorId].filter(Boolean).join(" ") || undefined
+          }
+          {...rest}
+        />
+
+        {/* Sağ ikon */}
+        {rightIcon && (
+          <span
+            className="pr-3 text-aurora-text-muted shrink-0"
+            aria-hidden="true"
+          >
+            {rightIcon}
+          </span>
         )}
       </div>
-    );
-  },
-);
+
+      {/* Hata mesajı */}
+      {error && (
+        <p
+          id={errorId}
+          className="text-aurora-rose text-[var(--aurora-text-xs)]"
+          role="alert"
+        >
+          {error}
+        </p>
+      )}
+
+      {/* İpucu */}
+      {!error && hint && (
+        <p
+          id={hintId}
+          className="text-aurora-text-muted text-[var(--aurora-text-xs)]"
+        >
+          {hint}
+        </p>
+      )}
+    </div>
+  );
+});

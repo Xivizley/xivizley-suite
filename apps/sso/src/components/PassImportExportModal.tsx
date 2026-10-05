@@ -56,7 +56,9 @@ export function PassImportExportModal({
   }, [isOpen, initialTab]);
 
   // Export State
-  const [exportFormat, setExportFormat] = useState<"bitwarden_json" | "csv">("bitwarden_json");
+  const [exportFormat, setExportFormat] = useState<"bitwarden_json" | "csv">(
+    "bitwarden_json",
+  );
 
   // Import State
   const [dragActive, setDragActive] = useState(false);
@@ -87,10 +89,12 @@ export function PassImportExportModal({
           }
         });
 
-        const bwFolders = Array.from(foldersMap.entries()).map(([name, id]) => ({
-          id,
-          name,
-        }));
+        const bwFolders = Array.from(foldersMap.entries()).map(
+          ([name, id]) => ({
+            id,
+            name,
+          }),
+        );
 
         const bwItems = items.map((item) => {
           let bwType = 1; // Login
@@ -121,7 +125,7 @@ export function PassImportExportModal({
             items: bwItems,
           },
           null,
-          2
+          2,
         );
         filename = `xivizley-vault-bitwarden-${timestamp}.json`;
         mimeType = "application/json";
@@ -178,7 +182,9 @@ export function PassImportExportModal({
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast.success(`${items.length} parola başarıyla dışa aktarıldı (${filename})`);
+      toast.success(
+        `${items.length} parola başarıyla dışa aktarıldı (${filename})`,
+      );
     } catch (err: any) {
       toast.error(err.message || "Dışa aktarma başarısız.");
     }
@@ -202,11 +208,11 @@ export function PassImportExportModal({
         } else {
           inQuotes = !inQuotes;
         }
-      } else if (char === ',' && !inQuotes) {
+      } else if (char === "," && !inQuotes) {
         currentRow.push(currentField.trim());
         currentField = "";
-      } else if ((char === '\r' || char === '\n') && !inQuotes) {
-        if (char === '\r' && nextChar === '\n') {
+      } else if ((char === "\r" || char === "\n") && !inQuotes) {
+        if (char === "\r" && nextChar === "\n") {
           i++;
         }
         currentRow.push(currentField.trim());
@@ -232,13 +238,17 @@ export function PassImportExportModal({
     const header = rows[0]!.map((h) => h.toLowerCase().trim());
     const titleIdx = header.findIndex((h) => h === "name" || h === "title");
     const userIdx = header.findIndex(
-      (h) => h === "login_username" || h === "username" || h === "user" || h === "email"
+      (h) =>
+        h === "login_username" ||
+        h === "username" ||
+        h === "user" ||
+        h === "email",
     );
     const passIdx = header.findIndex(
-      (h) => h === "login_password" || h === "password" || h === "pass"
+      (h) => h === "login_password" || h === "password" || h === "pass",
     );
     const urlIdx = header.findIndex(
-      (h) => h === "login_uri" || h === "url" || h === "uri" || h === "website"
+      (h) => h === "login_uri" || h === "url" || h === "uri" || h === "website",
     );
     const totpIdx = header.findIndex(
       (h) =>
@@ -247,10 +257,14 @@ export function PassImportExportModal({
         h === "otp" ||
         h === "one-time password" ||
         h.includes("totp") ||
-        h.includes("one-time")
+        h.includes("one-time"),
     );
-    const notesIdx = header.findIndex((h) => h === "notes" || h === "note" || h === "comments");
-    const folderIdx = header.findIndex((h) => h === "folder" || h === "category");
+    const notesIdx = header.findIndex(
+      (h) => h === "notes" || h === "note" || h === "comments",
+    );
+    const folderIdx = header.findIndex(
+      (h) => h === "folder" || h === "category",
+    );
     const favIdx = header.findIndex((h) => h === "favorite");
 
     const parsed: ParsedItem[] = [];
@@ -268,8 +282,12 @@ export function PassImportExportModal({
         url: (urlIdx !== -1 ? parts[urlIdx] : "") || "",
         totpSecret: (totpIdx !== -1 ? parts[totpIdx] : "") || "",
         notes: (notesIdx !== -1 ? parts[notesIdx] : "") || "",
-        folder: (folderIdx !== -1 ? parts[folderIdx] : "") || "İçe Aktarılanlar",
-        isFavorite: favIdx !== -1 ? parts[favIdx] === "1" || parts[favIdx]?.toLowerCase() === "true" : false,
+        folder:
+          (folderIdx !== -1 ? parts[folderIdx] : "") || "İçe Aktarılanlar",
+        isFavorite:
+          favIdx !== -1
+            ? parts[favIdx] === "1" || parts[favIdx]?.toLowerCase() === "true"
+            : false,
       });
     }
 
@@ -321,7 +339,9 @@ export function PassImportExportModal({
       }));
     }
 
-    throw new Error("Desteklenmeyen JSON yapısı. Lütfen geçerli bir Bitwarden veya XIVIZLEY yedeği seçin.");
+    throw new Error(
+      "Desteklenmeyen JSON yapısı. Lütfen geçerli bir Bitwarden veya XIVIZLEY yedeği seçin.",
+    );
   };
 
   // ─── Dosya Okuma Pipeline'ı ─────────────────────────────────
@@ -349,7 +369,9 @@ export function PassImportExportModal({
         }
 
         if (itemsResult.length === 0) {
-          setParseError("Dosya içerisinde aktarılacak parola veya kayıt bulunamadı.");
+          setParseError(
+            "Dosya içerisinde aktarılacak parola veya kayıt bulunamadı.",
+          );
         } else {
           setParsedItems(itemsResult);
         }
@@ -386,7 +408,9 @@ export function PassImportExportModal({
       });
       const data = await res.json();
       if (data.ok) {
-        toast.success(`${data.importedCount || parsedItems.length} parola kasanıza aktarıldı!`);
+        toast.success(
+          `${data.importedCount || parsedItems.length} parola kasanıza aktarıldı!`,
+        );
         onImportSuccess();
         onClose();
       } else {
@@ -450,11 +474,16 @@ export function PassImportExportModal({
         {activeTab === "export" && (
           <div className="space-y-4 text-xs">
             <p className="text-slate-300">
-              Kasanızdaki toplam <strong className="text-white font-mono">{items.length}</strong> parolayı başka bir şifre yöneticisine veya yerel yedek olarak dışa aktarabilirsiniz.
+              Kasanızdaki toplam{" "}
+              <strong className="text-white font-mono">{items.length}</strong>{" "}
+              parolayı başka bir şifre yöneticisine veya yerel yedek olarak dışa
+              aktarabilirsiniz.
             </p>
 
             <div className="space-y-2">
-              <label className="font-semibold text-slate-300">Format Seçimi</label>
+              <label className="font-semibold text-slate-300">
+                Format Seçimi
+              </label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -500,7 +529,9 @@ export function PassImportExportModal({
                 <span>Güvenlik Hatırlatması</span>
               </div>
               <p className="text-[11px] text-amber-300/80">
-                Dışa aktarılan dosya parolalarınızı düz metin olarak barındırır. İndirdikten sonra dosyayı güvenli bir yerde saklayınız veya USB depolamaya taşıyınız.
+                Dışa aktarılan dosya parolalarınızı düz metin olarak barındırır.
+                İndirdikten sonra dosyayı güvenli bir yerde saklayınız veya USB
+                depolamaya taşıyınız.
               </p>
             </div>
 
@@ -528,7 +559,8 @@ export function PassImportExportModal({
         {activeTab === "import" && (
           <div className="space-y-4 text-xs">
             <p className="text-slate-300">
-              Bitwarden, 1Password, LastPass veya Chrome'dan dışa aktardığınız `.json` ya da `.csv` dosyasını yükleyin.
+              Bitwarden, 1Password, LastPass veya Chrome'dan dışa aktardığınız
+              `.json` ya da `.csv` dosyasını yükleyin.
             </p>
 
             {/* Dosya Yükleme / Sürükle Bırak Alanı */}
@@ -560,13 +592,16 @@ export function PassImportExportModal({
               <Upload className="h-8 w-8 text-[#0082c9] opacity-80" />
               <div className="font-semibold text-slate-200">
                 {importFileName ? (
-                  <span className="text-[#0082c9] font-mono">{importFileName}</span>
+                  <span className="text-[#0082c9] font-mono">
+                    {importFileName}
+                  </span>
                 ) : (
                   <span>Dosyayı buraya sürükleyin veya tıklayarak seçin</span>
                 )}
               </div>
               <span className="text-[11px] text-slate-400">
-                Desteklenen formatlar: Bitwarden JSON, Bitwarden CSV, 1Password CSV
+                Desteklenen formatlar: Bitwarden JSON, Bitwarden CSV, 1Password
+                CSV
               </span>
             </div>
 
@@ -591,11 +626,15 @@ export function PassImportExportModal({
 
                 <div className="max-h-40 overflow-y-auto rounded-xl border border-[#2d3748] bg-[#141920] divide-y divide-[#2d3748]">
                   {parsedItems.slice(0, 5).map((item, idx) => (
-                    <div key={idx} className="p-2.5 flex items-center justify-between">
+                    <div
+                      key={idx}
+                      className="p-2.5 flex items-center justify-between"
+                    >
                       <div>
                         <p className="font-bold text-slate-200">{item.title}</p>
                         <span className="text-[11px] text-slate-400 font-mono">
-                          {item.username || "Kullanıcı adı yok"} {item.url ? `• ${item.url}` : ""}
+                          {item.username || "Kullanıcı adı yok"}{" "}
+                          {item.url ? `• ${item.url}` : ""}
                         </span>
                       </div>
                       <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 text-slate-300 font-mono">

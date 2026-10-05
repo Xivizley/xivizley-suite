@@ -23,7 +23,9 @@ export default function NotesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<"edit" | "preview" | "split">("edit");
+  const [viewMode, setViewMode] = useState<"edit" | "preview" | "split">(
+    "edit",
+  );
 
   // Aktif not alanları
   const [title, setTitle] = useState<string>("");
@@ -62,7 +64,11 @@ export default function NotesPage() {
   };
 
   // Otomatik kaydetme (Debounced Auto-save)
-  const triggerAutoSave = (newTitle: string, newContent: string, newCategory: string) => {
+  const triggerAutoSave = (
+    newTitle: string,
+    newContent: string,
+    newCategory: string,
+  ) => {
     if (!activeNoteId) return;
     setIsSaving(true);
 
@@ -84,7 +90,7 @@ export default function NotesPage() {
         const json = await res.json();
         if (json.ok && json.data) {
           setNotes((prev) =>
-            prev.map((n) => (n.id === activeNoteId ? json.data : n))
+            prev.map((n) => (n.id === activeNoteId ? json.data : n)),
           );
         }
       } catch (err) {
@@ -118,7 +124,8 @@ export default function NotesPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: "Başlıksız Not",
-          content: "# Yeni Not\n\nBuraya notlarınızı Markdown formatında yazabilirsiniz...",
+          content:
+            "# Yeni Not\n\nBuraya notlarınızı Markdown formatında yazabilirsiniz...",
           category: selectedCategory === "Tümü" ? "Genel" : selectedCategory,
         }),
       });
@@ -158,7 +165,9 @@ export default function NotesPage() {
       const json = await res.json();
       if (json.ok && json.data) {
         setNotes((prev) =>
-          prev.map((n) => (n.id === id ? { ...n, isFavorite: json.data.isFavorite } : n))
+          prev.map((n) =>
+            n.id === id ? { ...n, isFavorite: json.data.isFavorite } : n,
+          ),
         );
       }
     } catch (err) {}
@@ -169,7 +178,8 @@ export default function NotesPage() {
     const matchesSearch =
       n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       n.content.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCat = selectedCategory === "Tümü" || n.category === selectedCategory;
+    const matchesCat =
+      selectedCategory === "Tümü" || n.category === selectedCategory;
     return matchesSearch && matchesCat;
   });
 
@@ -191,21 +201,35 @@ export default function NotesPage() {
           {/* Başlık & Yeni Butonu */}
           <div className="p-3 border-b border-[#2d3748] flex items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
-              <svg className="w-4 h-4 text-[#0082c9]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                className="w-4 h-4 text-[#0082c9]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z" />
                 <path d="M15 3v5h5" />
                 <path d="M9 13h6" />
                 <path d="M9 17h4" />
               </svg>
               <span>Notlarım</span>
-              <span className="text-xs text-slate-500 font-normal">({filteredNotes.length})</span>
+              <span className="text-xs text-slate-500 font-normal">
+                ({filteredNotes.length})
+              </span>
             </h2>
 
             <button
               onClick={handleCreateNote}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold shadow-sm transition-colors"
             >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
@@ -233,7 +257,9 @@ export default function NotesPage() {
           {/* Notlar Listesi */}
           <div className="flex-1 overflow-y-auto divide-y divide-[#2d3748]/50">
             {isLoading ? (
-              <div className="p-6 text-center text-xs text-slate-500">Notlar yükleniyor...</div>
+              <div className="p-6 text-center text-xs text-slate-500">
+                Notlar yükleniyor...
+              </div>
             ) : filteredNotes.length === 0 ? (
               <div className="p-6 text-center text-xs text-slate-500">
                 Hiç not bulunamadı. "+ Yeni Not" ile başlayın.
@@ -260,13 +286,17 @@ export default function NotesPage() {
                       )}
                     </div>
                     <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
-                      {n.content ? n.content.replace(/[#*`_]/g, "") : "Boş not..."}
+                      {n.content
+                        ? n.content.replace(/[#*`_]/g, "")
+                        : "Boş not..."}
                     </p>
                     <div className="flex items-center justify-between text-[10px] text-slate-500 mt-2">
                       <span className="px-1.5 py-0.5 rounded bg-black/20 text-slate-400">
                         {n.category}
                       </span>
-                      <span>{new Date(n.updatedAt).toLocaleDateString("tr-TR")}</span>
+                      <span>
+                        {new Date(n.updatedAt).toLocaleDateString("tr-TR")}
+                      </span>
                     </div>
                   </div>
                 );
@@ -305,7 +335,9 @@ export default function NotesPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   {/* Kaydedildi Durumu */}
                   <span className="text-[11px] text-slate-400 hidden sm:inline">
-                    {isSaving ? "Kaydediliyor..." : "Tüm değişiklikler kaydedildi"}
+                    {isSaving
+                      ? "Kaydediliyor..."
+                      : "Tüm değişiklikler kaydedildi"}
                   </span>
 
                   {/* Görünüm Modu */}
@@ -337,7 +369,9 @@ export default function NotesPage() {
                   <button
                     onClick={() => handleToggleFavorite(activeNote.id)}
                     className={`p-1.5 rounded-lg border border-[#2d3748] hover:bg-white/10 ${
-                      activeNote.isFavorite ? "text-amber-400" : "text-slate-400"
+                      activeNote.isFavorite
+                        ? "text-amber-400"
+                        : "text-slate-400"
                     }`}
                     title="Favorilere Ekle"
                   >
@@ -350,7 +384,13 @@ export default function NotesPage() {
                     className="p-1.5 rounded-lg border border-[#2d3748] text-rose-400 hover:bg-rose-500/10"
                     title="Notu Sil"
                   >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
                       <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                     </svg>
                   </button>
@@ -360,7 +400,9 @@ export default function NotesPage() {
               {/* Editör & Önizleme Alanı */}
               <div className="flex-1 flex overflow-hidden">
                 {(viewMode === "edit" || viewMode === "split") && (
-                  <div className={`flex-1 flex flex-col p-4 overflow-y-auto ${viewMode === "split" ? "border-r border-[#2d3748]" : ""}`}>
+                  <div
+                    className={`flex-1 flex flex-col p-4 overflow-y-auto ${viewMode === "split" ? "border-r border-[#2d3748]" : ""}`}
+                  >
                     <textarea
                       value={content}
                       onChange={(e) => handleContentChange(e.target.value)}
@@ -373,7 +415,11 @@ export default function NotesPage() {
                 {(viewMode === "preview" || viewMode === "split") && (
                   <div className="flex-1 p-6 overflow-y-auto prose prose-invert max-w-none text-slate-200">
                     <div className="whitespace-pre-wrap font-sans leading-relaxed">
-                      {content || <span className="text-slate-500 italic">Önizlenecek metin yok...</span>}
+                      {content || (
+                        <span className="text-slate-500 italic">
+                          Önizlenecek metin yok...
+                        </span>
+                      )}
                     </div>
                   </div>
                 )}
@@ -381,14 +427,24 @@ export default function NotesPage() {
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center text-slate-500">
-              <svg className="w-12 h-12 text-slate-600 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg
+                className="w-12 h-12 text-slate-600 mb-3"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
                 <path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z" />
                 <path d="M15 3v5h5" />
                 <path d="M9 13h6" />
                 <path d="M9 17h4" />
               </svg>
-              <p className="text-sm font-medium text-slate-400">Hiçbir not seçilmedi</p>
-              <p className="text-xs text-slate-500 mt-1">Sol menüden bir not seçin veya yeni bir tane oluşturun.</p>
+              <p className="text-sm font-medium text-slate-400">
+                Hiçbir not seçilmedi
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                Sol menüden bir not seçin veya yeni bir tane oluşturun.
+              </p>
               <button
                 onClick={handleCreateNote}
                 className="mt-4 px-4 py-2 rounded-lg bg-[#0082c9] text-white text-xs font-semibold hover:bg-[#006aa3] transition-colors"

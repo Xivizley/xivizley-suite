@@ -29,9 +29,13 @@ export const monitors = pulse.table("monitors", {
   status: varchar("status", { length: 16 }).notNull().default("pending"), // 'up' | 'down' | 'pending'
   lastCheckAt: timestamp("last_check_at", { withTimezone: true }),
   lastLatencyMs: integer("last_latency_ms"),
-  uptimePercentage: doublePrecision("uptime_percentage").notNull().default(100.0),
+  uptimePercentage: doublePrecision("uptime_percentage")
+    .notNull()
+    .default(100.0),
   isPaused: boolean("is_paused").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow()
@@ -48,7 +52,9 @@ export const heartbeats = pulse.table("heartbeats", {
   latencyMs: integer("latency_ms").notNull().default(0),
   statusCode: integer("status_code"), // HTTP 200, 502 veya TCP null
   errorMessage: text("error_message"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 // ─── pulse.incidents (Çökme & Olay Kayıtları) ─────────────────
@@ -59,7 +65,9 @@ export const incidents = pulse.table("incidents", {
     .references(() => monitors.id, { onDelete: "cascade" }),
   status: varchar("status", { length: 16 }).notNull().default("ongoing"), // 'ongoing' | 'resolved'
   cause: text("cause"),
-  startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+  startedAt: timestamp("started_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   resolvedAt: timestamp("resolved_at", { withTimezone: true }),
   durationSeconds: integer("duration_seconds"),
 });

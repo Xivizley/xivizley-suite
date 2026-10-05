@@ -8,10 +8,25 @@ export default defineConfig({
   schema: "./src/schemas/**/*.ts",
   out: "./drizzle/migrations",
   dbCredentials: {
-    url: process.env["DATABASE_URL"] ?? "postgresql://xivizley:xivizley@localhost:5432/xivizley_suite",
+    url:
+      process.env["DATABASE_URL"] ??
+      "postgresql://xivizley:xivizley@localhost:5432/xivizley_suite",
   },
   // Multi-schema: her uygulama kendi schema namespace'inde çalışır
-  schemaFilter: ["sso", "game_panel", "drive", "cinema", "vault", "pulse", "sound", "docs", "shield", "fortress", "brain", "pass"],
+  schemaFilter: [
+    "sso",
+    "game_panel",
+    "drive",
+    "cinema",
+    "vault",
+    "pulse",
+    "sound",
+    "docs",
+    "shield",
+    "fortress",
+    "brain",
+    "pass",
+  ],
   verbose: true,
   strict: true,
 });

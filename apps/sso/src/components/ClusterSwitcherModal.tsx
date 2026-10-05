@@ -1,7 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Server, Activity, ArrowUpRight, X, RefreshCw, CheckCircle2, ShieldCheck, Globe } from "lucide-react";
+import {
+  Server,
+  Activity,
+  ArrowUpRight,
+  X,
+  RefreshCw,
+  CheckCircle2,
+  ShieldCheck,
+  Globe,
+} from "lucide-react";
 
 export interface ClusterNode {
   id: string;
@@ -27,7 +36,8 @@ export function ClusterSwitcherModal() {
   useEffect(() => {
     const handleOpen = () => setIsOpen(true);
     window.addEventListener("xivizley:open-cluster-modal", handleOpen);
-    return () => window.removeEventListener("xivizley:open-cluster-modal", handleOpen);
+    return () =>
+      window.removeEventListener("xivizley:open-cluster-modal", handleOpen);
   }, []);
 
   useEffect(() => {
@@ -78,8 +88,12 @@ export function ClusterSwitcherModal() {
               <Globe className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white">Çoklu Düğüm Küme Yöneticisi</h2>
-              <p className="text-[11px] text-slate-400">XIVIZLEY Sovereign Cloud Düğüm ve VDS Dağıtımı</p>
+              <h2 className="text-sm font-bold text-white">
+                Çoklu Düğüm Küme Yöneticisi
+              </h2>
+              <p className="text-[11px] text-slate-400">
+                XIVIZLEY Sovereign Cloud Düğüm ve VDS Dağıtımı
+              </p>
             </div>
           </div>
 
@@ -90,7 +104,9 @@ export function ClusterSwitcherModal() {
               className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#2b3442] transition-colors"
               title="Ping Yenile"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
+              />
             </button>
             <button
               onClick={() => setIsOpen(false)}
@@ -105,7 +121,9 @@ export function ClusterSwitcherModal() {
         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
           <div className="grid grid-cols-1 gap-3">
             {nodes.length === 0 && !isLoading ? (
-              <p className="text-center text-xs text-slate-400 py-6">Düğüm bilgisi yükleniyor...</p>
+              <p className="text-center text-xs text-slate-400 py-6">
+                Düğüm bilgisi yükleniyor...
+              </p>
             ) : (
               nodes.map((node) => (
                 <div
@@ -123,22 +141,26 @@ export function ClusterSwitcherModal() {
                           node.role === "production"
                             ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                             : node.role === "staging"
-                            ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
-                            : "bg-blue-500/15 text-blue-400 border border-blue-500/30"
+                              ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                              : "bg-blue-500/15 text-blue-400 border border-blue-500/30"
                         }`}
                       >
                         <Server className="w-4 h-4" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-white">{node.name}</span>
+                          <span className="text-xs font-bold text-white">
+                            {node.name}
+                          </span>
                           {node.isCurrent && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-mono border border-emerald-500/30">
                               Şu Anki Düğüm
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-400 font-mono mt-0.5">{node.ip} • {node.location}</p>
+                        <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                          {node.ip} • {node.location}
+                        </p>
                       </div>
                     </div>
 
@@ -153,17 +175,29 @@ export function ClusterSwitcherModal() {
                   {/* Resource Badges */}
                   <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-[#2d3748] text-[11px] font-mono text-slate-300">
                     <div className="bg-[#12161c] p-2 rounded-lg border border-[#2d3748]">
-                      <span className="text-[10px] text-slate-500 block">Konteyner</span>
-                      <span className="font-bold text-white">{node.activeContainers} Aktif</span>
+                      <span className="text-[10px] text-slate-500 block">
+                        Konteyner
+                      </span>
+                      <span className="font-bold text-white">
+                        {node.activeContainers} Aktif
+                      </span>
                     </div>
                     <div className="bg-[#12161c] p-2 rounded-lg border border-[#2d3748]">
-                      <span className="text-[10px] text-slate-500 block">Ağ Altyapısı</span>
-                      <span className="font-semibold text-slate-200 truncate block">{node.networkSpec}</span>
+                      <span className="text-[10px] text-slate-500 block">
+                        Ağ Altyapısı
+                      </span>
+                      <span className="font-semibold text-slate-200 truncate block">
+                        {node.networkSpec}
+                      </span>
                     </div>
                     <div className="bg-[#12161c] p-2 rounded-lg border border-[#2d3748] flex items-center justify-between">
                       <div>
-                        <span className="text-[10px] text-slate-500 block">Bellek</span>
-                        <span className="font-bold text-[#38bdf8]">{node.memoryUsage.split("/")[0]}</span>
+                        <span className="text-[10px] text-slate-500 block">
+                          Bellek
+                        </span>
+                        <span className="font-bold text-[#38bdf8]">
+                          {node.memoryUsage.split("/")[0]}
+                        </span>
                       </div>
                       {!node.isCurrent && (
                         <a

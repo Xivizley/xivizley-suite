@@ -30,7 +30,10 @@ import {
   Layers,
   X,
 } from "lucide-react";
-import type { SentinelStatus, ContainerStatus } from "@/server/services/sentinelService";
+import type {
+  SentinelStatus,
+  ContainerStatus,
+} from "@/server/services/sentinelService";
 
 interface TopologyNode {
   id: string;
@@ -51,7 +54,9 @@ export function NetworkTopologyMap() {
   const [sentinel, setSentinel] = useState<SentinelStatus | null>(null);
   const [selectedNode, setSelectedNode] = useState<TopologyNode | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<"all" | "core" | "homelab">("all");
+  const [activeFilter, setActiveFilter] = useState<"all" | "core" | "homelab">(
+    "all",
+  );
 
   const fetchTopologyData = async () => {
     setIsLoading(true);
@@ -74,14 +79,17 @@ export function NetworkTopologyMap() {
     return () => clearInterval(interval);
   }, []);
 
-  const getContainerState = (containerName: string): "running" | "warning" | "stopped" => {
+  const getContainerState = (
+    containerName: string,
+  ): "running" | "warning" | "stopped" => {
     if (!sentinel?.containers) return "running";
     const found = sentinel.containers.find(
-      (c) => c.name === containerName || c.name.includes(containerName)
+      (c) => c.name === containerName || c.name.includes(containerName),
     );
     if (!found) return "running";
     if (found.status === "running") return "running";
-    if (found.status === "restarting" || found.status === "paused") return "warning";
+    if (found.status === "restarting" || found.status === "paused")
+      return "warning";
     return "stopped";
   };
 
@@ -96,9 +104,13 @@ export function NetworkTopologyMap() {
       internalIp: "178.210.168.163",
       image: "Bursa PenDC Tier-3 Fiber (10 Gbps)",
       status: "running",
-      cpuUsage: Math.min(100, Math.round((sentinel?.host.cpu.usagePercent || 15) * 0.4)),
+      cpuUsage: Math.min(
+        100,
+        Math.round((sentinel?.host.cpu.usagePercent || 15) * 0.4),
+      ),
       ramUsage: 12,
-      description: "İstemcilerden gelen HTTPS ve HTTP isteklerinin VDS sunucusuna girdiği halka açık uç nokta.",
+      description:
+        "İstemcilerden gelen HTTPS ve HTTP isteklerinin VDS sunucusuna girdiği halka açık uç nokta.",
       restartPolicy: "N/A",
     },
     {
@@ -112,7 +124,8 @@ export function NetworkTopologyMap() {
       status: getContainerState("xivizley-caddy"),
       cpuUsage: 4,
       ramUsage: 35,
-      description: "Otomatik Let's Encrypt TLS 1.3 sonlandırma, HTTP/2 yönlendirme ve rate-limiting ters vekil.",
+      description:
+        "Otomatik Let's Encrypt TLS 1.3 sonlandırma, HTTP/2 yönlendirme ve rate-limiting ters vekil.",
       restartPolicy: "unless-stopped",
     },
     {
@@ -126,7 +139,8 @@ export function NetworkTopologyMap() {
       status: "running",
       cpuUsage: 2,
       ramUsage: 8,
-      description: "Konteynerler arası izole, yüksek hızlı yerel ağ köprüsü (Software-Defined Bridge).",
+      description:
+        "Konteynerler arası izole, yüksek hızlı yerel ağ köprüsü (Software-Defined Bridge).",
       restartPolicy: "host-managed",
     },
     {
@@ -140,7 +154,8 @@ export function NetworkTopologyMap() {
       status: getContainerState("xivizley-hub"),
       cpuUsage: sentinel?.host.cpu.usagePercent || 18,
       ramUsage: sentinel?.host.ram.usagePercent || 42,
-      description: "RS256 JWT Single Sign-On, Fastify API ve Next.js merkezi kullanıcı arayüzü motoru.",
+      description:
+        "RS256 JWT Single Sign-On, Fastify API ve Next.js merkezi kullanıcı arayüzü motoru.",
       restartPolicy: "unless-stopped",
     },
     {
@@ -154,7 +169,8 @@ export function NetworkTopologyMap() {
       status: getContainerState("xivizley-postgres"),
       cpuUsage: 5,
       ramUsage: 28,
-      description: "ACID uyumlu ilişkisel veritabanı, oturum anahtarları ve şifreli veri saklama alanı.",
+      description:
+        "ACID uyumlu ilişkisel veritabanı, oturum anahtarları ve şifreli veri saklama alanı.",
       restartPolicy: "unless-stopped",
     },
     {
@@ -168,7 +184,8 @@ export function NetworkTopologyMap() {
       status: getContainerState("fivem-server"),
       cpuUsage: 24,
       ramUsage: 68,
-      description: "Bursa PenDC üzerinde çalışan düşük gecikmeli GTA V Roleplay oyun sunucusu çekirdeği.",
+      description:
+        "Bursa PenDC üzerinde çalışan düşük gecikmeli GTA V Roleplay oyun sunucusu çekirdeği.",
       restartPolicy: "always",
     },
     {
@@ -182,7 +199,8 @@ export function NetworkTopologyMap() {
       status: getContainerState("qbittorrent"),
       cpuUsage: 6,
       ramUsage: 32,
-      description: "Otomatik dosya transferi ve Web UI arayüzü ile bağımsız torrent istemcisi.",
+      description:
+        "Otomatik dosya transferi ve Web UI arayüzü ile bağımsız torrent istemcisi.",
       restartPolicy: "unless-stopped",
     },
     {
@@ -196,7 +214,8 @@ export function NetworkTopologyMap() {
       status: getContainerState("jellyfin"),
       cpuUsage: 12,
       ramUsage: 45,
-      description: "Donanım hızlandırmalı video & ses akış sunucusu ve yerel sinema merkezi.",
+      description:
+        "Donanım hızlandırmalı video & ses akış sunucusu ve yerel sinema merkezi.",
       restartPolicy: "unless-stopped",
     },
     {
@@ -210,14 +229,17 @@ export function NetworkTopologyMap() {
       status: getContainerState("filebrowser"),
       cpuUsage: 2,
       ramUsage: 15,
-      description: "VDS disk dizinlerini doğrudan tarayıcı üzerinden yönetme arayüzü.",
+      description:
+        "VDS disk dizinlerini doğrudan tarayıcı üzerinden yönetme arayüzü.",
       restartPolicy: "unless-stopped",
     },
   ];
 
   const filteredNodes = nodes.filter((n) => {
-    if (activeFilter === "core") return ["wan", "proxy", "bridge", "core"].includes(n.category);
-    if (activeFilter === "homelab") return ["wan", "proxy", "bridge", "game", "homelab"].includes(n.category);
+    if (activeFilter === "core")
+      return ["wan", "proxy", "bridge", "core"].includes(n.category);
+    if (activeFilter === "homelab")
+      return ["wan", "proxy", "bridge", "game", "homelab"].includes(n.category);
     return true;
   });
 
@@ -263,15 +285,19 @@ export function NetworkTopologyMap() {
       case "game":
         return <Gamepad2 className="w-5 h-5 text-rose-400" />;
       case "homelab":
-        if (id === "jellyfin") return <Film className="w-5 h-5 text-purple-400" />;
-        if (id === "qbittorrent") return <Download className="w-5 h-5 text-amber-400" />;
+        if (id === "jellyfin")
+          return <Film className="w-5 h-5 text-purple-400" />;
+        if (id === "qbittorrent")
+          return <Download className="w-5 h-5 text-amber-400" />;
         return <FolderTree className="w-5 h-5 text-sky-400" />;
       default:
         return <Layers className="w-5 h-5 text-slate-300" />;
     }
   };
 
-  const containerNodes = filteredNodes.filter((n) => !["wan", "proxy", "bridge"].includes(n.category));
+  const containerNodes = filteredNodes.filter(
+    (n) => !["wan", "proxy", "bridge"].includes(n.category),
+  );
   const runningCount = nodes.filter((n) => n.status === "running").length;
 
   return (
@@ -338,7 +364,9 @@ export function NetworkTopologyMap() {
             className="p-2 rounded-xl bg-[#181e24] border border-[#2d3748] text-slate-300 hover:text-white transition-colors"
             title="Topolojiyi Yenile"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+            />
           </button>
         </div>
       </div>
@@ -390,22 +418,41 @@ export function NetworkTopologyMap() {
           <div className="flex flex-col items-center">
             <div
               onClick={() => setSelectedNode(nodes[1]!)}
-              className="group cursor-pointer max-w-md w-full p-3.5 rounded-xl bg-[#222933] border border-[#2d3748] hover:border-emerald-400 transition-all shadow-lg flex items-center justify-between gap-3"
+              className="group cursor-pointer max-w-md w-full p-3.5 rounded-xl bg-[#222933] border border-[#2d3748] hover:border-emerald-400 transition-all shadow-lg flex flex-col gap-2.5"
             >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-emerald-400" />
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">
+                      xivizley-caddy
+                    </div>
+                    <div className="text-[10px] font-mono text-slate-400">
+                      Caddy TLS 1.3 & Layer-7 WAF (:80, :443)
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">
-                    xivizley-caddy
-                  </div>
-                  <div className="text-[10px] font-mono text-slate-400">
-                    Caddy TLS 1.3 & Layer-7 WAF (:80, :443)
-                  </div>
+                {getStatusBadge(nodes[1]!.status)}
+              </div>
+
+              {/* Port & CPU/RAM Özeti */}
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#2d3748]/70 text-[10px] font-mono">
+                <div className="flex gap-1">
+                  <span className="px-1.5 py-0.5 rounded bg-[#181e24] text-slate-300 border border-[#2d3748]">
+                    80:80/tcp
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded bg-[#181e24] text-slate-300 border border-[#2d3748]">
+                    443:443/tcp
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-400">
+                  <span>CPU %{nodes[1]!.cpuUsage}</span>
+                  <span>•</span>
+                  <span>RAM %{nodes[1]!.ramUsage}</span>
                 </div>
               </div>
-              {getStatusBadge(nodes[1]!.status)}
             </div>
 
             {/* Bağlantı Çizgisi: Caddy ➔ Bridge */}
@@ -443,7 +490,11 @@ export function NetworkTopologyMap() {
 
             {/* Bağlantı Çatalı (SVG Bus) */}
             <div className="w-full max-w-4xl h-8 flex items-center justify-center relative">
-              <svg className="w-full h-8" preserveAspectRatio="none" viewBox="0 0 100 24">
+              <svg
+                className="w-full h-8"
+                preserveAspectRatio="none"
+                viewBox="0 0 100 24"
+              >
                 <path
                   d="M 50 0 L 50 12 M 10 12 L 90 12 M 10 12 L 10 24 M 30 12 L 30 24 M 50 12 L 50 24 M 70 12 L 70 24 M 90 12 L 90 24"
                   fill="none"
@@ -563,11 +614,17 @@ export function NetworkTopologyMap() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs font-mono">
             <div className="p-2.5 rounded-lg bg-[#222933] border border-[#2d3748]">
-              <span className="text-[10px] text-slate-500 block">Dahili IP</span>
-              <span className="font-bold text-slate-200">{selectedNode.internalIp}</span>
+              <span className="text-[10px] text-slate-500 block">
+                Dahili IP
+              </span>
+              <span className="font-bold text-slate-200">
+                {selectedNode.internalIp}
+              </span>
             </div>
             <div className="p-2.5 rounded-lg bg-[#222933] border border-[#2d3748]">
-              <span className="text-[10px] text-slate-500 block">Aktif Portlar</span>
+              <span className="text-[10px] text-slate-500 block">
+                Aktif Portlar
+              </span>
               <span className="font-bold text-[#38bdf8] truncate block">
                 {selectedNode.ports.join(", ")}
               </span>
@@ -579,8 +636,12 @@ export function NetworkTopologyMap() {
               </span>
             </div>
             <div className="p-2.5 rounded-lg bg-[#222933] border border-[#2d3748]">
-              <span className="text-[10px] text-slate-500 block">Yeniden Başlatma</span>
-              <span className="font-bold text-slate-200">{selectedNode.restartPolicy}</span>
+              <span className="text-[10px] text-slate-500 block">
+                Yeniden Başlatma
+              </span>
+              <span className="font-bold text-slate-200">
+                {selectedNode.restartPolicy}
+              </span>
             </div>
           </div>
 
@@ -602,7 +663,9 @@ export function NetworkTopologyMap() {
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span>{runningCount} / {nodes.length} Düğüm Aktif</span>
+            <span>
+              {runningCount} / {nodes.length} Düğüm Aktif
+            </span>
           </span>
           <span>•</span>
           <span>Ağ Köprüsü: 172.20.0.0/16 (xivizley-bridge)</span>

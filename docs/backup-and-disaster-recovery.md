@@ -29,9 +29,9 @@ This document details the automated backup pipeline, data integrity verification
 └── db_YYYYMMDD_HHMMSS.sql.gz      # Timestamped Archive
 ```
 
-* Backup executable: `/opt/xivizley-suite/scripts/backup-daily.sh`
-* Restore executable: `/opt/xivizley-suite/scripts/restore.sh`
-* Crontab schedule: Every night at `03:00` server time.
+- Backup executable: `/opt/xivizley-suite/scripts/backup-daily.sh`
+- Restore executable: `/opt/xivizley-suite/scripts/restore.sh`
+- Crontab schedule: Every night at `03:00` server time.
 
 ---
 
@@ -48,6 +48,7 @@ crontab -l
 ```
 
 Expected output:
+
 ```text
 0 3 * * * /bin/bash /opt/xivizley-suite/scripts/backup-daily.sh >> /var/log/xivizley-backup.log 2>&1
 ```
@@ -63,6 +64,7 @@ To trigger a backup on-demand (e.g. before major updates or migrations):
 ```
 
 Example successful log output:
+
 ```text
 [2026-10-04T01:57:20+03:00] [BACKUP] Konteyner içi PostgreSQL yedeği alınıyor: /var/backups/xivizley/db_20261004_015720.sql.gz...
 [2026-10-04T01:57:21+03:00] [SUCCESS] Yedekleme tamamlandı (16K).
@@ -76,12 +78,15 @@ Example successful log output:
 In case of server hardware failure, database corruption, or accidental deletion:
 
 ### Step 1: Identify Target Backup
+
 List all available archives ordered by timestamp:
+
 ```bash
 ls -lht /var/backups/xivizley/db_*.sql.gz
 ```
 
 ### Step 2: Execute Recovery
+
 Run `restore.sh` with the path to the selected backup archive:
 
 ```bash
@@ -89,6 +94,7 @@ Run `restore.sh` with the path to the selected backup archive:
 ```
 
 The script will ask for interactive confirmation:
+
 ```text
 UYARI: Bu işlem mevcut PostgreSQL veritabanını /var/backups/xivizley/db_20261004_015720.sql.gz arşivinden geri yükleyecektir.
 Onaylıyor musunuz? (e/H): e
@@ -96,12 +102,15 @@ Onaylıyor musunuz? (e/H): e
 [2026-10-04T01:58:05+03:00] [SUCCESS] Veritabanı başarıyla geri yüklendi.
 ```
 
-*(For headless/scripted environments, set `FORCE=true`: `FORCE=true /bin/bash /opt/xivizley-suite/scripts/restore.sh <file>`)*
+_(For headless/scripted environments, set `FORCE=true`: `FORCE=true /bin/bash /opt/xivizley-suite/scripts/restore.sh <file>`)_
 
 ### Step 3: Verify Restoration Integrity
+
 Check table row counts and service response:
+
 ```bash
 docker exec -i xivizley-postgres psql -U xivizley -d xivizley_suite -c "SELECT count(*) FROM sso.users;"
 curl -s -o /dev/null -w "%{http_code}\n" https://suite.xivizley.com.tr/store
 ```
+
 A return code of `200` confirms successful service restoration.

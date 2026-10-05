@@ -36,7 +36,9 @@ export function RecentFilesWidget() {
   const fetchRecentFiles = async () => {
     try {
       setIsLoading(true);
-      const res = await fetch("/api/files?filter=recent", { credentials: "include" });
+      const res = await fetch("/api/files?filter=recent", {
+        credentials: "include",
+      });
       if (res.ok) {
         const json = await res.json();
         if (json.ok && Array.isArray(json.data)) {
@@ -75,13 +77,22 @@ export function RecentFilesWidget() {
 
   const getFileIcon = (mime?: string, name?: string) => {
     const ext = name?.split(".").pop()?.toLowerCase();
-    if (mime?.startsWith("image/") || ["png", "jpg", "jpeg", "webp", "gif"].includes(ext || "")) {
+    if (
+      mime?.startsWith("image/") ||
+      ["png", "jpg", "jpeg", "webp", "gif"].includes(ext || "")
+    ) {
       return <ImageIcon className="w-4 h-4 text-sky-400" />;
     }
-    if (mime?.startsWith("video/") || ["mp4", "mkv", "webm"].includes(ext || "")) {
+    if (
+      mime?.startsWith("video/") ||
+      ["mp4", "mkv", "webm"].includes(ext || "")
+    ) {
       return <Film className="w-4 h-4 text-purple-400" />;
     }
-    if (mime?.startsWith("audio/") || ["mp3", "wav", "flac"].includes(ext || "")) {
+    if (
+      mime?.startsWith("audio/") ||
+      ["mp3", "wav", "flac"].includes(ext || "")
+    ) {
       return <Music className="w-4 h-4 text-amber-400" />;
     }
     if (["zip", "tar", "gz", "rar", "7z"].includes(ext || "")) {
@@ -113,8 +124,8 @@ export function RecentFilesWidget() {
       if (res.ok) {
         await fetchRecentFiles();
       }
-    } catch {}
-    finally {
+    } catch {
+    } finally {
       setIsUploading(false);
     }
   };
@@ -151,8 +162,12 @@ export function RecentFilesWidget() {
               <HardDrive className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-slate-100">Son Dosyalar</h3>
-              <p className="text-[10px] text-slate-400">Drive kişisel bulut depolamanız</p>
+              <h3 className="font-semibold text-sm text-slate-100">
+                Son Dosyalar
+              </h3>
+              <p className="text-[10px] text-slate-400">
+                Drive kişisel bulut depolamanız
+              </p>
             </div>
           </div>
 
@@ -165,7 +180,9 @@ export function RecentFilesWidget() {
               title="Hızlı Dosya Yükle"
               aria-label="Hızlı Dosya Yükle"
             >
-              <Upload className={`w-3.5 h-3.5 ${isUploading ? "animate-bounce text-[#0082c9]" : ""}`} />
+              <Upload
+                className={`w-3.5 h-3.5 ${isUploading ? "animate-bounce text-[#0082c9]" : ""}`}
+              />
             </button>
             <button
               type="button"
@@ -174,7 +191,9 @@ export function RecentFilesWidget() {
               title="Yenile"
               aria-label="Dosya Listesini Yenile"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
+              />
             </button>
           </div>
         </div>
@@ -191,7 +210,9 @@ export function RecentFilesWidget() {
             className="py-8 text-center rounded-lg border border-dashed border-[#3b4758] bg-[#181e24] cursor-pointer hover:border-[#0082c9] transition-colors p-4"
           >
             <Upload className="w-6 h-6 text-slate-500 mx-auto mb-1.5" />
-            <p className="text-xs font-medium text-slate-300">Henüz son dosya bulunmuyor</p>
+            <p className="text-xs font-medium text-slate-300">
+              Henüz son dosya bulunmuyor
+            </p>
             <p className="text-[11px] text-slate-500 mt-0.5">
               Dosya yüklemek için buraya sürükleyin veya tıklayın
             </p>
@@ -214,7 +235,9 @@ export function RecentFilesWidget() {
                     <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono mt-0.5">
                       <span>{formatSize(file.size)}</span>
                       <span>•</span>
-                      <span>{formatTimeAgo(file.updatedAt || file.createdAt)}</span>
+                      <span>
+                        {formatTimeAgo(file.updatedAt || file.createdAt)}
+                      </span>
                     </div>
                   </div>
                 </div>

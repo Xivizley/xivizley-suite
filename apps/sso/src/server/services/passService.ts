@@ -3,18 +3,18 @@
 // Dual-mode: PostgreSQL (Drizzle) with Resilient In-Memory Fallback
 // ============================================================
 
-import { getDb, vaultItems, passFolders } from '@xivizley/db';
-import { eq, desc } from 'drizzle-orm';
+import { getDb, vaultItems, passFolders } from "@xivizley/db";
+import { eq, desc } from "drizzle-orm";
 import {
   encryptVaultData,
   decryptVaultData,
   generateTotp,
   type EncryptedPayload,
-} from '../crypto/vaultCrypto';
+} from "../crypto/vaultCrypto";
 
 export interface VaultItem {
   id: string;
-  type: 'login' | 'secure_note' | 'server_ssh' | 'api_key' | 'card';
+  type: "login" | "secure_note" | "server_ssh" | "api_key" | "card";
   title: string;
   username?: string | undefined;
   password?: string | undefined; // Client'a decrypted veya maskeli döner
@@ -63,7 +63,8 @@ export const demoVaultItems: VaultItem[] = [
     id: "vault-demo-note",
     type: "secure_note",
     title: "📝 Demo Güvenli Not",
-    notes: "Canlı demo modunda tüm kasalar izole durumdadır. Salt-okunur moddasınız.",
+    notes:
+      "Canlı demo modunda tüm kasalar izole durumdadır. Salt-okunur moddasınız.",
     folder: "Genel",
     isFavorite: false,
     createdAt: new Date().toISOString(),
@@ -74,17 +75,27 @@ export const demoVaultItems: VaultItem[] = [
 // In-Memory Güvenli Örnek Şablon Verileri (Yeni Kurulum Başlangıç Öğeleri)
 const inMemoryVault: VaultItem[] = [...demoVaultItems];
 
-export async function getAllVaultItems(folder?: string, isGuest: boolean = false): Promise<VaultItem[]> {
+export async function getAllVaultItems(
+  folder?: string,
+  isGuest: boolean = false,
+): Promise<VaultItem[]> {
   if (isGuest) {
-    return folder ? demoVaultItems.filter((i) => i.folder === folder) : [...demoVaultItems];
+    return folder
+      ? demoVaultItems.filter((i) => i.folder === folder)
+      : [...demoVaultItems];
   }
 
   try {
     const db = getDb();
-    const rows = await db.select().from(vaultItems).orderBy(desc(vaultItems.createdAt));
+    const rows = await db
+      .select()
+      .from(vaultItems)
+      .orderBy(desc(vaultItems.createdAt));
 
     if (rows.length === 0) {
-      return folder ? inMemoryVault.filter((i) => i.folder === folder) : inMemoryVault;
+      return folder
+        ? inMemoryVault.filter((i) => i.folder === folder)
+        : inMemoryVault;
     }
 
     const items: VaultItem[] = rows.map((r) => {
@@ -115,17 +126,24 @@ export async function getAllVaultItems(folder?: string, isGuest: boolean = false
 
     return folder ? items.filter((i) => i.folder === folder) : items;
   } catch {
-    return folder ? inMemoryVault.filter((i) => i.folder === folder) : inMemoryVault;
+    return folder
+      ? inMemoryVault.filter((i) => i.folder === folder)
+      : inMemoryVault;
   }
 }
 
-export async function getVaultItemById(id: string, isGuest: boolean = false): Promise<VaultItem | null> {
+export async function getVaultItemById(
+  id: string,
+  isGuest: boolean = false,
+): Promise<VaultItem | null> {
   const all = await getAllVaultItems(undefined, isGuest);
   return all.find((i) => i.id === id) || null;
 }
 
-export async function createVaultItem(data: Omit<VaultItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<VaultItem> {
-  const enc = encryptVaultData(data.password || '');
+export async function createVaultItem(
+  data: Omit<VaultItem, "id" | "createdAt" | "updatedAt">,
+): Promise<VaultItem> {
+  const enc = encryptVaultData(data.password || "");
   const encString = JSON.stringify(enc);
 
   try {
@@ -140,7 +158,7 @@ export async function createVaultItem(data: Omit<VaultItem, 'id' | 'createdAt' |
         url: data.url,
         totpSecret: data.totpSecret,
         notes: data.notes,
-        folder: data.folder || 'Genel',
+        folder: data.folder || "Genel",
         isFavorite: data.isFavorite || false,
       })
       .returning();
@@ -155,7 +173,7 @@ export async function createVaultItem(data: Omit<VaultItem, 'id' | 'createdAt' |
         url: row.url || undefined,
         totpSecret: row.totpSecret || undefined,
         notes: row.notes || undefined,
-        folder: row.folder || 'Genel',
+        folder: row.folder || "Genel",
         isFavorite: row.isFavorite,
         createdAt: row.createdAt.toISOString(),
         updatedAt: row.updatedAt.toISOString(),
@@ -175,12 +193,17 @@ export async function createVaultItem(data: Omit<VaultItem, 'id' | 'createdAt' |
   return newItem;
 }
 
-export async function updateVaultItem(id: string, data: Partial<VaultItem>): Promise<VaultItem | null> {
+export async function updateVaultItem(
+  id: string,
+  data: Partial<VaultItem>,
+): Promise<VaultItem | null> {
   try {
     const db = getDb();
     const updatePayload: any = { ...data };
     if (data.password) {
-      updatePayload.encryptedPassword = JSON.stringify(encryptVaultData(data.password));
+      updatePayload.encryptedPassword = JSON.stringify(
+        encryptVaultData(data.password),
+      );
       delete updatePayload.password;
     }
     updatePayload.updatedAt = new Date();
@@ -200,7 +223,7 @@ export async function updateVaultItem(id: string, data: Partial<VaultItem>): Pro
         url: updatedRow.url || undefined,
         totpSecret: updatedRow.totpSecret || undefined,
         notes: updatedRow.notes || undefined,
-        folder: updatedRow.folder || 'Genel',
+        folder: updatedRow.folder || "Genel",
         isFavorite: updatedRow.isFavorite,
         createdAt: updatedRow.createdAt.toISOString(),
         updatedAt: updatedRow.updatedAt.toISOString(),
@@ -222,7 +245,10 @@ export async function deleteVaultItemById(id: string): Promise<boolean> {
   let dbDeleted = false;
   try {
     const db = getDb();
-    const deleted = await db.delete(vaultItems).where(eq(vaultItems.id, id)).returning();
+    const deleted = await db
+      .delete(vaultItems)
+      .where(eq(vaultItems.id, id))
+      .returning();
     if (deleted.length > 0) dbDeleted = true;
   } catch {
     // ignore
@@ -241,7 +267,10 @@ export const deleteVaultItem = deleteVaultItemById;
 export async function toggleVaultFavorite(id: string): Promise<boolean> {
   try {
     const db = getDb();
-    const [existing] = await db.select().from(vaultItems).where(eq(vaultItems.id, id));
+    const [existing] = await db
+      .select()
+      .from(vaultItems)
+      .where(eq(vaultItems.id, id));
     if (existing) {
       const [updated] = await db
         .update(vaultItems)

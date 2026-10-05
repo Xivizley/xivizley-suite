@@ -38,13 +38,17 @@ export const notesRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     let filtered = allNotes;
-    if (filtered.length === 0 && (request.user?.role === "guest" || userId === DEMO_USER_ID)) {
+    if (
+      filtered.length === 0 &&
+      (request.user?.role === "guest" || userId === DEMO_USER_ID)
+    ) {
       filtered = [
         {
           id: "demo-note-welcome",
           userId: DEMO_USER_ID,
           title: "👋 XIVIZLEY Suite Canlı Demo Modu",
-          content: "XIVIZLEY ekosistemine hoş geldiniz! Canlı demo modunda tüm verileriniz izole ve salt-okunur durumdadır.",
+          content:
+            "XIVIZLEY ekosistemine hoş geldiniz! Canlı demo modunda tüm verileriniz izole ve salt-okunur durumdadır.",
           category: "Genel",
           isFavorite: true,
           isPinned: true,
@@ -57,7 +61,9 @@ export const notesRoutes: FastifyPluginAsync = async (fastify) => {
     if (search) {
       const q = search.toLowerCase();
       filtered = filtered.filter(
-        (n) => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
+        (n) =>
+          n.title.toLowerCase().includes(q) ||
+          n.content.toLowerCase().includes(q),
       );
     }
     if (category && category !== "all") {
@@ -75,7 +81,11 @@ export const notesRoutes: FastifyPluginAsync = async (fastify) => {
     Body: { title?: string; content?: string; category?: string };
   }>("/api/notes", async (request, reply) => {
     const userId = resolveUserId(request);
-    const { title = "Yeni Not", content = "", category = "Genel" } = request.body || {};
+    const {
+      title = "Yeni Not",
+      content = "",
+      category = "Genel",
+    } = request.body || {};
 
     const [newNote] = await db
       .insert(notes)
@@ -97,14 +107,18 @@ export const notesRoutes: FastifyPluginAsync = async (fastify) => {
     const userId = resolveUserId(request);
     const { id } = request.params;
 
-    if (id === "demo-note-welcome" && (request.user?.role === "guest" || userId === DEMO_USER_ID)) {
+    if (
+      id === "demo-note-welcome" &&
+      (request.user?.role === "guest" || userId === DEMO_USER_ID)
+    ) {
       return reply.send({
         ok: true,
         data: {
           id: "demo-note-welcome",
           userId: DEMO_USER_ID,
           title: "👋 XIVIZLEY Suite Canlı Demo Modu",
-          content: "XIVIZLEY ekosistemine hoş geldiniz! Canlı demo modunda tüm verileriniz izole ve salt-okunur durumdadır.",
+          content:
+            "XIVIZLEY ekosistemine hoş geldiniz! Canlı demo modunda tüm verileriniz izole ve salt-okunur durumdadır.",
           category: "Genel",
           isFavorite: true,
           isPinned: true,
@@ -130,7 +144,13 @@ export const notesRoutes: FastifyPluginAsync = async (fastify) => {
   // 4. PUT /api/notes/:id - Notu güncelle
   fastify.put<{
     Params: { id: string };
-    Body: { title?: string; content?: string; category?: string; isFavorite?: boolean; isPinned?: boolean };
+    Body: {
+      title?: string;
+      content?: string;
+      category?: string;
+      isFavorite?: boolean;
+      isPinned?: boolean;
+    };
   }>("/api/notes/:id", async (request, reply) => {
     const userId = resolveUserId(request);
     const { id } = request.params;
@@ -142,7 +162,9 @@ export const notesRoutes: FastifyPluginAsync = async (fastify) => {
         ...(body.title !== undefined ? { title: body.title } : {}),
         ...(body.content !== undefined ? { content: body.content } : {}),
         ...(body.category !== undefined ? { category: body.category } : {}),
-        ...(body.isFavorite !== undefined ? { isFavorite: body.isFavorite } : {}),
+        ...(body.isFavorite !== undefined
+          ? { isFavorite: body.isFavorite }
+          : {}),
         ...(body.isPinned !== undefined ? { isPinned: body.isPinned } : {}),
         updatedAt: new Date(),
       })
@@ -163,7 +185,9 @@ export const notesRoutes: FastifyPluginAsync = async (fastify) => {
     const userId = resolveUserId(request);
     const { id } = request.params;
 
-    await db.delete(notes).where(and(eq(notes.id, id), eq(notes.userId, userId)));
+    await db
+      .delete(notes)
+      .where(and(eq(notes.id, id), eq(notes.userId, userId)));
 
     return reply.send({ ok: true });
   });

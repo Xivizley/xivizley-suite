@@ -29,7 +29,9 @@ export const vaultItems = pass.table("vault_items", {
   folder: varchar("folder", { length: 128 }).default("Genel"),
   isFavorite: boolean("is_favorite").notNull().default(false),
   lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow()
@@ -42,5 +44,7 @@ export const passFolders = pass.table("folders", {
   userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 128 }).notNull(),
   icon: varchar("icon", { length: 64 }).default("Folder"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });

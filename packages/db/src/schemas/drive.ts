@@ -22,7 +22,9 @@ export const folders = drive.table("folders", {
   name: varchar("name", { length: 255 }).notNull(),
   color: varchar("color", { length: 20 }), // Klasör renk etiketi (aurora-cyan, aurora-purple vb.)
   isFavorite: boolean("is_favorite").notNull().default(false),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow()
@@ -35,17 +37,23 @@ export const files = drive.table("files", {
   userId: uuid("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  folderId: uuid("folder_id").references(() => folders.id, { onDelete: "cascade" }), // null ise kökte
+  folderId: uuid("folder_id").references(() => folders.id, {
+    onDelete: "cascade",
+  }), // null ise kökte
   name: varchar("name", { length: 255 }).notNull(),
   originalName: varchar("original_name", { length: 255 }).notNull(),
-  mimeType: varchar("mime_type", { length: 128 }).notNull().default("application/octet-stream"),
+  mimeType: varchar("mime_type", { length: 128 })
+    .notNull()
+    .default("application/octet-stream"),
   sizeBytes: bigint("size_bytes", { mode: "number" }).notNull(),
   storagePath: text("storage_path").notNull(), // Disk üzerindeki fiziksel yol
   sha256Hash: varchar("sha256_hash", { length: 64 }),
   isFavorite: boolean("is_favorite").notNull().default(false),
   isTrashed: boolean("is_trashed").notNull().default(false),
   trashedAt: timestamp("trashed_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow()
@@ -56,7 +64,9 @@ export const files = drive.table("files", {
 export const shares = drive.table("shares", {
   id: uuid("id").primaryKey().defaultRandom(),
   fileId: uuid("file_id").references(() => files.id, { onDelete: "cascade" }),
-  folderId: uuid("folder_id").references(() => folders.id, { onDelete: "cascade" }),
+  folderId: uuid("folder_id").references(() => folders.id, {
+    onDelete: "cascade",
+  }),
   createdBy: uuid("created_by")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
@@ -64,8 +74,12 @@ export const shares = drive.table("shares", {
   passwordHash: text("password_hash"), // Opsiyonel şifreli koruma
   expiresAt: timestamp("expires_at", { withTimezone: true }),
   allowDownload: boolean("allow_download").notNull().default(true),
-  downloadCount: bigint("download_count", { mode: "number" }).notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  downloadCount: bigint("download_count", { mode: "number" })
+    .notNull()
+    .default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 // ─── Tipler ──────────────────────────────────────────────────

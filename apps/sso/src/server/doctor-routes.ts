@@ -1,5 +1,8 @@
 import type { FastifyPluginAsync } from "fastify";
-import { runSystemDiagnostics, remediateDiagnosticIssue } from "./services/doctorService.js";
+import {
+  runSystemDiagnostics,
+  remediateDiagnosticIssue,
+} from "./services/doctorService.js";
 
 export const doctorRoutes: FastifyPluginAsync = async (fastify) => {
   // 1. Sistem Sağlık Teşhis Raporu
@@ -14,11 +17,16 @@ export const doctorRoutes: FastifyPluginAsync = async (fastify) => {
 
   // 2. 1-Tıkla Otomatik Onarım Eylemi
   fastify.post("/api/doctor/remediate", async (request, reply) => {
-    const body = (request.body || {}) as { containerId?: string; action?: string };
+    const body = (request.body || {}) as {
+      containerId?: string;
+      action?: string;
+    };
     const { containerId, action = "restart" } = body;
 
     if (!containerId) {
-      return reply.status(400).send({ ok: false, message: "containerId parametresi zorunludur." });
+      return reply
+        .status(400)
+        .send({ ok: false, message: "containerId parametresi zorunludur." });
     }
 
     const user = (request as any).user;
@@ -26,7 +34,8 @@ export const doctorRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.status(403).send({
         ok: false,
         code: "DEMO_READ_ONLY",
-        message: "Canlı demo modunda sunucu konteynerleri üzerinde değişiklik yapılamaz.",
+        message:
+          "Canlı demo modunda sunucu konteynerleri üzerinde değişiklik yapılamaz.",
       });
     }
 

@@ -4,7 +4,8 @@ import { DashboardClient } from "@/components/dashboard/DashboardClient";
 
 export const metadata = {
   title: "XIVIZLEY Cloud Hub • Homelab Dashboard",
-  description: "Kişisel bulut işletim sistemi, canlı modüler paneller ve Docker uygulama merkezi.",
+  description:
+    "Kişisel bulut işletim sistemi, canlı modüler paneller ve Docker uygulama merkezi.",
 };
 
 export default async function RootPage({

@@ -16,12 +16,12 @@ const MC_COLOR_MAP: Record<string, string> = {
   "7": "#AAAAAA", // Açık Gri
   "8": "#555555", // Koyu Gri
   "9": "#5555FF", // Mavi
-  a: "#55FF55",   // Açık Yeşil
-  b: "#55FFFF",   // Camgöbeği
-  c: "#FF5555",   // Açık Kırmızı
-  d: "#FF55FF",   // Pembe
-  e: "#FFFF55",   // Sarı
-  f: "#FFFFFF",   // Beyaz
+  a: "#55FF55", // Açık Yeşil
+  b: "#55FFFF", // Camgöbeği
+  c: "#FF5555", // Açık Kırmızı
+  d: "#FF55FF", // Pembe
+  e: "#FFFF55", // Sarı
+  f: "#FFFFFF", // Beyaz
 };
 
 const COLOR_CHIPS = [
@@ -39,7 +39,8 @@ const COLOR_CHIPS = [
 ];
 
 function renderMinecraftText(text: string) {
-  if (!text) return <span className="text-white/40 italic">MOTD tanımlanmadı</span>;
+  if (!text)
+    return <span className="text-white/40 italic">MOTD tanımlanmadı</span>;
 
   const clean = text.replace(/\\n/g, "\n");
   const lines = clean.split("\n");
@@ -154,7 +155,10 @@ export function GameConfigurator() {
   const [pluginCategory, setPluginCategory] = useState<string>("ALL");
   const [pluginSearch, setPluginSearch] = useState("");
   const [isApplying, setIsApplying] = useState(false);
-  const [applyResult, setApplyResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [applyResult, setApplyResult] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
 
   // Hızlı Yönetici Komut State'leri
   const [quickCmdRunning, setQuickCmdRunning] = useState<string | null>(null);
@@ -164,7 +168,8 @@ export function GameConfigurator() {
 
   const game = GAME_CATALOG[activeGameId];
   const config = configPerGame[activeGameId] || game.defaultConfig;
-  const currentEngine = game.engines.find((e) => e.id === config.engineId) || game.engines[0];
+  const currentEngine =
+    game.engines.find((e) => e.id === config.engineId) || game.engines[0];
 
   // Oyun veya Motor değiştiğinde filtreleri sıfırla
   useEffect(() => {
@@ -198,7 +203,8 @@ export function GameConfigurator() {
   // Filtrelenmiş eklentiler
   const filteredPlugins = useMemo(() => {
     return availablePlugins.filter((p) => {
-      const matchCat = pluginCategory === "ALL" || p.category === pluginCategory;
+      const matchCat =
+        pluginCategory === "ALL" || p.category === pluginCategory;
       const matchSearch =
         !pluginSearch.trim() ||
         p.name.toLowerCase().includes(pluginSearch.toLowerCase()) ||
@@ -214,10 +220,16 @@ export function GameConfigurator() {
     const isSelected = config.selectedPackIds.includes(packId);
     toggleModPack(activeGameId, packId);
 
-    if (!isSelected && pack?.includedPluginIds && pack.includedPluginIds.length > 0) {
+    if (
+      !isSelected &&
+      pack?.includedPluginIds &&
+      pack.includedPluginIds.length > 0
+    ) {
       const currentPlugins = new Set(config.enabledPluginIds || []);
       pack.includedPluginIds.forEach((id) => currentPlugins.add(id));
-      updateConfig(activeGameId, { enabledPluginIds: Array.from(currentPlugins) });
+      updateConfig(activeGameId, {
+        enabledPluginIds: Array.from(currentPlugins),
+      });
     }
   };
 
@@ -236,7 +248,9 @@ export function GameConfigurator() {
       if (res.ok && data.ok) {
         setQuickCmdFeedback(`✅ Komut yürütüldü: ${cmd}`);
       } else {
-        setQuickCmdFeedback(`❌ Hata: ${data.message || "Komut çalıştırılamadı"}`);
+        setQuickCmdFeedback(
+          `❌ Hata: ${data.message || "Komut çalıştırılamadı"}`,
+        );
       }
     } catch (err: any) {
       setQuickCmdFeedback(`❌ Bağlantı hatası: ${err.message}`);
@@ -299,7 +313,9 @@ export function GameConfigurator() {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-2xl">{game.icon}</span>
-            <h2 className="text-xl font-bold text-white">{game.name} Yapılandırması</h2>
+            <h2 className="text-xl font-bold text-white">
+              {game.name} Yapılandırması
+            </h2>
             <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#0082c9]/15 text-[#38bdf8] border border-[#0082c9]/30">
               {game.badge}
             </span>
@@ -319,7 +335,8 @@ export function GameConfigurator() {
       <div className="flex flex-col gap-4 p-4 rounded-xl bg-[#181e24] border border-[#2d3748]">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
-            <span>⚙️</span> 1. Oyun Motoru ve Sürüm Seçimi ({game.engines.length} Motor Mevcut)
+            <span>⚙️</span> 1. Oyun Motoru ve Sürüm Seçimi (
+            {game.engines.length} Motor Mevcut)
           </label>
           <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
             Seçili: {currentEngine?.name.split(" ")[0]} v{config.version}
@@ -328,7 +345,9 @@ export function GameConfigurator() {
 
         {/* Motor Seçici Kartları */}
         <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-medium text-slate-400">Sunucu Çekirdeği / Motoru:</span>
+          <span className="text-[11px] font-medium text-slate-400">
+            Sunucu Çekirdeği / Motoru:
+          </span>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {game.engines.map((eng) => {
               const isSelected = config.engineId === eng.id;
@@ -339,7 +358,8 @@ export function GameConfigurator() {
                   onClick={() => {
                     updateConfig(activeGameId, {
                       engineId: eng.id,
-                      version: eng.defaultVersion || eng.versions[0] || "latest",
+                      version:
+                        eng.defaultVersion || eng.versions[0] || "latest",
                     });
                   }}
                   className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
@@ -349,8 +369,12 @@ export function GameConfigurator() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-1">
-                    <span className="font-semibold text-xs text-white">{eng.name}</span>
-                    <span className="text-[10px] font-mono text-slate-400 shrink-0">+{eng.overheadMb} MB</span>
+                    <span className="font-semibold text-xs text-white">
+                      {eng.name}
+                    </span>
+                    <span className="text-[10px] font-mono text-slate-400 shrink-0">
+                      +{eng.overheadMb} MB
+                    </span>
                   </div>
                   <span className="text-[10px] text-slate-500 mt-1 font-mono">
                     {eng.versions.length} resmi sürüm
@@ -365,9 +389,12 @@ export function GameConfigurator() {
         <div className="flex flex-col gap-2.5 pt-3 border-t border-[#2d3748]">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1.5">
-              <span>🎯</span> {currentEngine?.name.split(" ")[0]} Sürümleri ({currentEngine?.versions.length || 0} Adet):
+              <span>🎯</span> {currentEngine?.name.split(" ")[0]} Sürümleri (
+              {currentEngine?.versions.length || 0} Adet):
             </span>
-            <span className="text-[10px] text-[#0082c9] font-mono">1-Tıkla Sürüm Değiştir</span>
+            <span className="text-[10px] text-[#0082c9] font-mono">
+              1-Tıkla Sürüm Değiştir
+            </span>
           </div>
 
           {/* Sürüm Hapları (Scrollable & Responsive) */}
@@ -401,7 +428,9 @@ export function GameConfigurator() {
                 type="text"
                 placeholder="Örn: latest veya özel sürüm numarası..."
                 value={config.version}
-                onChange={(e) => updateConfig(activeGameId, { version: e.target.value })}
+                onChange={(e) =>
+                  updateConfig(activeGameId, { version: e.target.value })
+                }
                 className="w-full bg-[#222933] border border-[#2d3748] rounded-lg pl-24 pr-3 py-2 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#0082c9] transition-colors"
               />
             </div>
@@ -461,7 +490,7 @@ export function GameConfigurator() {
                 <div className="mt-1">
                   {renderMinecraftText(
                     config.motd ||
-                      "&b&lXIVIZLEY &8| &fUltra Performanslı Sunucu\\n&a&l➤ &7Sürüm: &e1.21.x &8- &6Hoş Geldiniz!"
+                      "&b&lXIVIZLEY &8| &fUltra Performanslı Sunucu\\n&a&l➤ &7Sürüm: &e1.21.x &8- &6Hoş Geldiniz!",
                   )}
                 </div>
               </div>
@@ -475,14 +504,18 @@ export function GameConfigurator() {
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-bold text-sm text-white truncate">
-                      {config.serverName || game.defaultConfig.serverName || `${game.name} Dedicated`}
+                      {config.serverName ||
+                        game.defaultConfig.serverName ||
+                        `${game.name} Dedicated`}
                     </span>
                     <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono">
                       ONLINE
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-400 truncate mt-0.5">
-                    {config.serverDesc || game.defaultConfig.serverDesc || game.tagline}
+                    {config.serverDesc ||
+                      game.defaultConfig.serverDesc ||
+                      game.tagline}
                   </p>
                   {config.map && (
                     <span className="text-[10px] text-[#0082c9] font-mono mt-1">
@@ -541,7 +574,9 @@ export function GameConfigurator() {
                       style={{ backgroundColor: chip.hex }}
                     />
                     <span style={{ color: chip.hex }}>{chip.code}</span>
-                    <span className="text-white/60 font-normal">{chip.name}</span>
+                    <span className="text-white/60 font-normal">
+                      {chip.name}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -549,7 +584,9 @@ export function GameConfigurator() {
               <textarea
                 rows={2}
                 value={config.motd || ""}
-                onChange={(e) => updateConfig(activeGameId, { motd: e.target.value })}
+                onChange={(e) =>
+                  updateConfig(activeGameId, { motd: e.target.value })
+                }
                 placeholder="&b&lXIVIZLEY &8| &fSunucu Başlığı\n&a&l➤ &7Sürüm 1.21.x..."
                 className="w-full bg-[#181e24] border border-[#2d3748] rounded-lg p-3 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#0082c9] transition-colors resize-none"
               />
@@ -558,11 +595,15 @@ export function GameConfigurator() {
             {/* Minecraft Ayar Kutuları */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-[#2d3748]">
               <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[#222933] border border-[#2d3748]">
-                <span className="text-[11px] font-semibold text-white">Giriş Türü:</span>
+                <span className="text-[11px] font-semibold text-white">
+                  Giriş Türü:
+                </span>
                 <div className="flex items-center gap-1 mt-1">
                   <button
                     type="button"
-                    onClick={() => updateConfig(activeGameId, { onlineMode: false })}
+                    onClick={() =>
+                      updateConfig(activeGameId, { onlineMode: false })
+                    }
                     className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-semibold transition-all cursor-pointer ${
                       config.onlineMode === false
                         ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
@@ -573,7 +614,9 @@ export function GameConfigurator() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => updateConfig(activeGameId, { onlineMode: true })}
+                    onClick={() =>
+                      updateConfig(activeGameId, { onlineMode: true })
+                    }
                     className={`flex-1 py-1.5 px-2 rounded-lg text-[10px] font-semibold transition-all cursor-pointer ${
                       config.onlineMode === true
                         ? "bg-[#0082c9]/20 text-[#38bdf8] border border-[#0082c9]/40"
@@ -586,31 +629,45 @@ export function GameConfigurator() {
               </div>
 
               <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[#222933] border border-[#2d3748]">
-                <span className="text-[11px] font-semibold text-white">Zorluk Seviyesi:</span>
+                <span className="text-[11px] font-semibold text-white">
+                  Zorluk Seviyesi:
+                </span>
                 <div className="grid grid-cols-4 gap-1 mt-1">
-                  {(["peaceful", "easy", "normal", "hard"] as const).map((diff) => {
-                    const labels = { peaceful: "Barışçıl", easy: "Kolay", normal: "Normal", hard: "Zor" };
-                    const isSelected = (config.difficulty || "normal") === diff;
-                    return (
-                      <button
-                        key={diff}
-                        type="button"
-                        onClick={() => updateConfig(activeGameId, { difficulty: diff })}
-                        className={`py-1 rounded-lg text-[10px] font-medium transition-all cursor-pointer ${
-                          isSelected
-                            ? "bg-[#0082c9] text-white font-bold"
-                            : "bg-[#181e24] text-slate-400 hover:text-white"
-                        }`}
-                      >
-                        {labels[diff]}
-                      </button>
-                    );
-                  })}
+                  {(["peaceful", "easy", "normal", "hard"] as const).map(
+                    (diff) => {
+                      const labels = {
+                        peaceful: "Barışçıl",
+                        easy: "Kolay",
+                        normal: "Normal",
+                        hard: "Zor",
+                      };
+                      const isSelected =
+                        (config.difficulty || "normal") === diff;
+                      return (
+                        <button
+                          key={diff}
+                          type="button"
+                          onClick={() =>
+                            updateConfig(activeGameId, { difficulty: diff })
+                          }
+                          className={`py-1 rounded-lg text-[10px] font-medium transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-[#0082c9] text-white font-bold"
+                              : "bg-[#181e24] text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          {labels[diff]}
+                        </button>
+                      );
+                    },
+                  )}
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[#222933] border border-[#2d3748]">
-                <span className="text-[11px] font-semibold text-white">PvP (Savaş):</span>
+                <span className="text-[11px] font-semibold text-white">
+                  PvP (Savaş):
+                </span>
                 <div className="flex items-center gap-1 mt-1">
                   <button
                     type="button"
@@ -638,7 +695,9 @@ export function GameConfigurator() {
               </div>
 
               <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-[#222933] border border-[#2d3748]">
-                <span className="text-[11px] font-semibold text-white">Maksimum Oyuncu:</span>
+                <span className="text-[11px] font-semibold text-white">
+                  Maksimum Oyuncu:
+                </span>
                 <div className="flex items-center gap-2 mt-1">
                   <input
                     type="number"
@@ -646,11 +705,15 @@ export function GameConfigurator() {
                     max={250}
                     value={config.maxPlayers || 30}
                     onChange={(e) =>
-                      updateConfig(activeGameId, { maxPlayers: parseInt(e.target.value) || 30 })
+                      updateConfig(activeGameId, {
+                        maxPlayers: parseInt(e.target.value) || 30,
+                      })
                     }
                     className="w-full bg-[#181e24] border border-[#2d3748] rounded-lg px-2.5 py-1 text-xs font-mono text-white focus:outline-none focus:border-[#0082c9]"
                   />
-                  <span className="text-[10px] text-slate-400 font-mono shrink-0">Slot</span>
+                  <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                    Slot
+                  </span>
                 </div>
               </div>
             </div>
@@ -659,16 +722,21 @@ export function GameConfigurator() {
             <div className="flex flex-col gap-3 p-3.5 rounded-xl bg-[#1b222a] border border-[#2d3748]">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                  <span>⚡</span> Gelişmiş Sunucu Parametreleri (server.properties)
+                  <span>⚡</span> Gelişmiş Sunucu Parametreleri
+                  (server.properties)
                 </span>
-                <span className="text-[10px] font-mono text-slate-400">Çekirdek Düzeyi Yapılandırma</span>
+                <span className="text-[10px] font-mono text-slate-400">
+                  Çekirdek Düzeyi Yapılandırma
+                </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {/* Görüş Mesafesi */}
                 <div className="flex flex-col gap-1 p-2.5 rounded-lg bg-[#222933] border border-[#2d3748]">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-medium text-slate-300">Görüş Mesafesi:</span>
+                    <span className="text-[11px] font-medium text-slate-300">
+                      Görüş Mesafesi:
+                    </span>
                     <span className="text-[11px] font-mono font-bold text-[#0082c9]">
                       {config.viewDistance || 10} chunk
                     </span>
@@ -679,7 +747,9 @@ export function GameConfigurator() {
                     max={32}
                     value={config.viewDistance || 10}
                     onChange={(e) =>
-                      updateConfig(activeGameId, { viewDistance: parseInt(e.target.value) || 10 })
+                      updateConfig(activeGameId, {
+                        viewDistance: parseInt(e.target.value) || 10,
+                      })
                     }
                     className="w-full h-1.5 bg-[#181e24] rounded-lg appearance-none cursor-pointer accent-[#0082c9]"
                   />
@@ -688,7 +758,9 @@ export function GameConfigurator() {
                 {/* Simülasyon Mesafesi */}
                 <div className="flex flex-col gap-1 p-2.5 rounded-lg bg-[#222933] border border-[#2d3748]">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-medium text-slate-300">Simülasyon:</span>
+                    <span className="text-[11px] font-medium text-slate-300">
+                      Simülasyon:
+                    </span>
                     <span className="text-[11px] font-mono font-bold text-[#0082c9]">
                       {config.simulationDistance || 8} chunk
                     </span>
@@ -699,7 +771,9 @@ export function GameConfigurator() {
                     max={24}
                     value={config.simulationDistance || 8}
                     onChange={(e) =>
-                      updateConfig(activeGameId, { simulationDistance: parseInt(e.target.value) || 8 })
+                      updateConfig(activeGameId, {
+                        simulationDistance: parseInt(e.target.value) || 8,
+                      })
                     }
                     className="w-full h-1.5 bg-[#181e24] rounded-lg appearance-none cursor-pointer accent-[#0082c9]"
                   />
@@ -707,11 +781,15 @@ export function GameConfigurator() {
 
                 {/* Uçuş İzni (Allow Flight) */}
                 <div className="flex flex-col gap-1 p-2.5 rounded-lg bg-[#222933] border border-[#2d3748]">
-                  <span className="text-[11px] font-medium text-slate-300">Uçuş İzni (Allow Flight):</span>
+                  <span className="text-[11px] font-medium text-slate-300">
+                    Uçuş İzni (Allow Flight):
+                  </span>
                   <div className="flex items-center gap-1 mt-1">
                     <button
                       type="button"
-                      onClick={() => updateConfig(activeGameId, { allowFlight: true })}
+                      onClick={() =>
+                        updateConfig(activeGameId, { allowFlight: true })
+                      }
                       className={`flex-1 py-1 rounded text-[10px] font-semibold transition-all ${
                         config.allowFlight
                           ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
@@ -722,7 +800,9 @@ export function GameConfigurator() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => updateConfig(activeGameId, { allowFlight: false })}
+                      onClick={() =>
+                        updateConfig(activeGameId, { allowFlight: false })
+                      }
                       className={`flex-1 py-1 rounded text-[10px] font-semibold transition-all ${
                         !config.allowFlight
                           ? "bg-slate-700 text-white border border-slate-600"
@@ -736,11 +816,15 @@ export function GameConfigurator() {
 
                 {/* Komut Blokları (Command Blocks) */}
                 <div className="flex flex-col gap-1 p-2.5 rounded-lg bg-[#222933] border border-[#2d3748]">
-                  <span className="text-[11px] font-medium text-slate-300">Komut Blokları:</span>
+                  <span className="text-[11px] font-medium text-slate-300">
+                    Komut Blokları:
+                  </span>
                   <div className="flex items-center gap-1 mt-1">
                     <button
                       type="button"
-                      onClick={() => updateConfig(activeGameId, { enableCommandBlock: true })}
+                      onClick={() =>
+                        updateConfig(activeGameId, { enableCommandBlock: true })
+                      }
                       className={`flex-1 py-1 rounded text-[10px] font-semibold transition-all ${
                         config.enableCommandBlock
                           ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
@@ -751,7 +835,11 @@ export function GameConfigurator() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => updateConfig(activeGameId, { enableCommandBlock: false })}
+                      onClick={() =>
+                        updateConfig(activeGameId, {
+                          enableCommandBlock: false,
+                        })
+                      }
                       className={`flex-1 py-1 rounded text-[10px] font-semibold transition-all ${
                         !config.enableCommandBlock
                           ? "bg-slate-700 text-white border border-slate-600"
@@ -767,10 +855,14 @@ export function GameConfigurator() {
               {/* Alt Satır: Hardcore, Seed & Spawn Koruması */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-[#2d3748]/60">
                 <div className="flex flex-col gap-1 p-2 rounded-lg bg-[#222933] border border-[#2d3748]">
-                  <span className="text-[11px] font-medium text-slate-300">Hardcore Mod (Tek Can):</span>
+                  <span className="text-[11px] font-medium text-slate-300">
+                    Hardcore Mod (Tek Can):
+                  </span>
                   <button
                     type="button"
-                    onClick={() => updateConfig(activeGameId, { hardcore: !config.hardcore })}
+                    onClick={() =>
+                      updateConfig(activeGameId, { hardcore: !config.hardcore })
+                    }
                     className={`mt-1 py-1.5 px-3 rounded text-[10px] font-bold transition-all text-center ${
                       config.hardcore
                         ? "bg-red-500/20 text-red-300 border border-red-500/40"
@@ -782,30 +874,44 @@ export function GameConfigurator() {
                 </div>
 
                 <div className="flex flex-col gap-1 p-2 rounded-lg bg-[#222933] border border-[#2d3748]">
-                  <span className="text-[11px] font-medium text-slate-300">Dünya Tohumu (Seed):</span>
+                  <span className="text-[11px] font-medium text-slate-300">
+                    Dünya Tohumu (Seed):
+                  </span>
                   <input
                     type="text"
                     value={config.seed || ""}
-                    onChange={(e) => updateConfig(activeGameId, { seed: e.target.value })}
+                    onChange={(e) =>
+                      updateConfig(activeGameId, { seed: e.target.value })
+                    }
                     placeholder="Rastgele için boş bırakın..."
                     className="bg-[#181e24] border border-[#2d3748] rounded px-2.5 py-1 text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#0082c9]"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1 p-2 rounded-lg bg-[#222933] border border-[#2d3748]">
-                  <span className="text-[11px] font-medium text-slate-300">Spawn Koruma Yarıçapı:</span>
+                  <span className="text-[11px] font-medium text-slate-300">
+                    Spawn Koruma Yarıçapı:
+                  </span>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
                       min={0}
                       max={128}
-                      value={config.spawnProtection !== undefined ? config.spawnProtection : 16}
+                      value={
+                        config.spawnProtection !== undefined
+                          ? config.spawnProtection
+                          : 16
+                      }
                       onChange={(e) =>
-                        updateConfig(activeGameId, { spawnProtection: parseInt(e.target.value) || 0 })
+                        updateConfig(activeGameId, {
+                          spawnProtection: parseInt(e.target.value) || 0,
+                        })
                       }
                       className="w-full bg-[#181e24] border border-[#2d3748] rounded px-2.5 py-1 text-xs font-mono text-white focus:outline-none focus:border-[#0082c9]"
                     />
-                    <span className="text-[10px] text-slate-400 font-mono shrink-0">blok</span>
+                    <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                      blok
+                    </span>
                   </div>
                 </div>
               </div>
@@ -817,7 +923,9 @@ export function GameConfigurator() {
                 <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                   <span>🕹️</span> Hızlı Yönetici Komutları & Konsol Kısayolları
                 </span>
-                <span className="text-[10px] font-mono text-emerald-400">Canlı RCON / stdin Köprüsü</span>
+                <span className="text-[10px] font-mono text-emerald-400">
+                  Canlı RCON / stdin Köprüsü
+                </span>
               </div>
 
               {/* Hızlı 1-Tık Butonları */}
@@ -907,7 +1015,9 @@ export function GameConfigurator() {
                     type="button"
                     disabled={!kickPlayerName.trim() || !!quickCmdRunning}
                     onClick={() => {
-                      sendQuickCommand(`kick ${kickPlayerName.trim()} "Sunucu yöneticisi tarafından uzaklaştırıldınız."`);
+                      sendQuickCommand(
+                        `kick ${kickPlayerName.trim()} "Sunucu yöneticisi tarafından uzaklaştırıldınız."`,
+                      );
                       setKickPlayerName("");
                     }}
                     className="py-1.5 px-3 rounded-lg bg-rose-600 text-white text-xs font-semibold hover:bg-rose-700 disabled:opacity-40 cursor-pointer shrink-0"
@@ -930,22 +1040,30 @@ export function GameConfigurator() {
             {/* Sunucu Adı & Açıklaması */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <span className="text-[11px] font-semibold text-white">Sunucu Başlığı (Hostname / Name):</span>
+                <span className="text-[11px] font-semibold text-white">
+                  Sunucu Başlığı (Hostname / Name):
+                </span>
                 <input
                   type="text"
                   value={config.serverName || ""}
-                  onChange={(e) => updateConfig(activeGameId, { serverName: e.target.value })}
+                  onChange={(e) =>
+                    updateConfig(activeGameId, { serverName: e.target.value })
+                  }
                   placeholder="Sunucu başlığını girin..."
                   className="bg-[#181e24] border border-[#2d3748] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#0082c9]"
                 />
               </div>
 
               <div className="flex flex-col gap-1">
-                <span className="text-[11px] font-semibold text-white">Sunucu Açıklaması / Alt Bilgi:</span>
+                <span className="text-[11px] font-semibold text-white">
+                  Sunucu Açıklaması / Alt Bilgi:
+                </span>
                 <input
                   type="text"
                   value={config.serverDesc || ""}
-                  onChange={(e) => updateConfig(activeGameId, { serverDesc: e.target.value })}
+                  onChange={(e) =>
+                    updateConfig(activeGameId, { serverDesc: e.target.value })
+                  }
                   placeholder="Sunucu açıklamasını girin..."
                   className="bg-[#181e24] border border-[#2d3748] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#0082c9]"
                 />
@@ -955,13 +1073,24 @@ export function GameConfigurator() {
             {/* CS2 Özel Harita & Mod Seçicileri */}
             {activeGameId === "cs2" && (
               <div className="flex flex-col gap-2 p-3 rounded-xl bg-[#222933] border border-[#2d3748]">
-                <span className="text-[11px] font-semibold text-white">Başlangıç Haritası:</span>
+                <span className="text-[11px] font-semibold text-white">
+                  Başlangıç Haritası:
+                </span>
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  {["de_dust2", "de_mirage", "de_inferno", "de_nuke", "de_anubis", "de_ancient"].map((mapName) => (
+                  {[
+                    "de_dust2",
+                    "de_mirage",
+                    "de_inferno",
+                    "de_nuke",
+                    "de_anubis",
+                    "de_ancient",
+                  ].map((mapName) => (
                     <button
                       key={mapName}
                       type="button"
-                      onClick={() => updateConfig(activeGameId, { map: mapName })}
+                      onClick={() =>
+                        updateConfig(activeGameId, { map: mapName })
+                      }
                       className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
                         (config.map || "de_dust2") === mapName
                           ? "bg-[#0082c9] text-white font-bold shadow-sm"
@@ -978,13 +1107,23 @@ export function GameConfigurator() {
             {/* Unturned Özel Harita Seçici */}
             {activeGameId === "unturned" && (
               <div className="flex flex-col gap-2 p-3 rounded-xl bg-[#222933] border border-[#2d3748]">
-                <span className="text-[11px] font-semibold text-white">Oynanacak Harita:</span>
+                <span className="text-[11px] font-semibold text-white">
+                  Oynanacak Harita:
+                </span>
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  {["Washington", "PEI", "Russia", "Germany", "Türkiye (TR)"].map((mapName) => (
+                  {[
+                    "Washington",
+                    "PEI",
+                    "Russia",
+                    "Germany",
+                    "Türkiye (TR)",
+                  ].map((mapName) => (
                     <button
                       key={mapName}
                       type="button"
-                      onClick={() => updateConfig(activeGameId, { map: mapName })}
+                      onClick={() =>
+                        updateConfig(activeGameId, { map: mapName })
+                      }
                       className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                         (config.map || "Washington") === mapName
                           ? "bg-[#0082c9] text-white font-bold shadow-sm"
@@ -1001,13 +1140,23 @@ export function GameConfigurator() {
             {/* ARK Özel Harita Seçici */}
             {activeGameId === "ark" && (
               <div className="flex flex-col gap-2 p-3 rounded-xl bg-[#222933] border border-[#2d3748]">
-                <span className="text-[11px] font-semibold text-white">ARK Haritası:</span>
+                <span className="text-[11px] font-semibold text-white">
+                  ARK Haritası:
+                </span>
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  {["TheIsland", "ScorchedEarth", "Ragnarok", "Aberration", "Extinction"].map((mapName) => (
+                  {[
+                    "TheIsland",
+                    "ScorchedEarth",
+                    "Ragnarok",
+                    "Aberration",
+                    "Extinction",
+                  ].map((mapName) => (
                     <button
                       key={mapName}
                       type="button"
-                      onClick={() => updateConfig(activeGameId, { map: mapName })}
+                      onClick={() =>
+                        updateConfig(activeGameId, { map: mapName })
+                      }
                       className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                         (config.map || "TheIsland") === mapName
                           ? "bg-[#0082c9] text-white font-bold shadow-sm"
@@ -1025,21 +1174,31 @@ export function GameConfigurator() {
             {["palworld", "valheim", "ark"].includes(activeGameId) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[11px] font-semibold text-white">Sunucu Giriş Şifresi (Opsiyonel):</span>
+                  <span className="text-[11px] font-semibold text-white">
+                    Sunucu Giriş Şifresi (Opsiyonel):
+                  </span>
                   <input
                     type="text"
                     value={config.serverPassword || ""}
-                    onChange={(e) => updateConfig(activeGameId, { serverPassword: e.target.value })}
+                    onChange={(e) =>
+                      updateConfig(activeGameId, {
+                        serverPassword: e.target.value,
+                      })
+                    }
                     placeholder="Şifresiz açık giriş için boş bırakın..."
                     className="bg-[#181e24] border border-[#2d3748] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#0082c9] font-mono"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-[11px] font-semibold text-white">Dünya Adı (World Name):</span>
+                  <span className="text-[11px] font-semibold text-white">
+                    Dünya Adı (World Name):
+                  </span>
                   <input
                     type="text"
                     value={config.map || ""}
-                    onChange={(e) => updateConfig(activeGameId, { map: e.target.value })}
+                    onChange={(e) =>
+                      updateConfig(activeGameId, { map: e.target.value })
+                    }
                     placeholder="Dedicated, XivizleyWorld..."
                     className="bg-[#181e24] border border-[#2d3748] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#0082c9] font-mono"
                   />
@@ -1050,20 +1209,32 @@ export function GameConfigurator() {
             {/* Port & Max Players Alt Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#2d3748]/50">
               <div className="flex flex-col gap-1">
-                <span className="text-[11px] font-semibold text-white">Maksimum Oyuncu Kapasitesi:</span>
+                <span className="text-[11px] font-semibold text-white">
+                  Maksimum Oyuncu Kapasitesi:
+                </span>
                 <input
                   type="number"
                   value={config.maxPlayers}
-                  onChange={(e) => updateConfig(activeGameId, { maxPlayers: parseInt(e.target.value) || 10 })}
+                  onChange={(e) =>
+                    updateConfig(activeGameId, {
+                      maxPlayers: parseInt(e.target.value) || 10,
+                    })
+                  }
                   className="bg-[#181e24] border border-[#2d3748] rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#0082c9]"
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <span className="text-[11px] font-semibold text-white">Sunucu Bağlantı Portu:</span>
+                <span className="text-[11px] font-semibold text-white">
+                  Sunucu Bağlantı Portu:
+                </span>
                 <input
                   type="number"
                   value={config.port}
-                  onChange={(e) => updateConfig(activeGameId, { port: parseInt(e.target.value) || game.defaultPort })}
+                  onChange={(e) =>
+                    updateConfig(activeGameId, {
+                      port: parseInt(e.target.value) || game.defaultPort,
+                    })
+                  }
                   className="bg-[#181e24] border border-[#2d3748] rounded-xl px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-[#0082c9]"
                 />
               </div>
@@ -1076,7 +1247,8 @@ export function GameConfigurator() {
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <label className="text-xs font-semibold uppercase tracking-wider text-[#1AD76F] flex items-center gap-1.5">
-            <span>📦</span> 3. Hazır Mod & Eklenti Paketleri ({availableModPacks.length} Paket Uyumlu)
+            <span>📦</span> 3. Hazır Mod & Eklenti Paketleri (
+            {availableModPacks.length} Paket Uyumlu)
           </label>
           <span className="text-[11px] text-slate-400">
             {config.selectedPackIds.length} paket devrede
@@ -1084,13 +1256,20 @@ export function GameConfigurator() {
         </div>
 
         <p className="text-[11px] text-slate-400 -mt-1.5">
-          <span className="text-purple-400 font-semibold">Ana Oyun Türleri</span> (Skyblock, Survival, Faction) tek seçimdir; <span className="text-[#1AD76F] font-semibold">İlave Paketler</span> (Crossplay, Lobi, Optimizasyon) çoklu seçilip birleştirilebilir.
+          <span className="text-purple-400 font-semibold">
+            Ana Oyun Türleri
+          </span>{" "}
+          (Skyblock, Survival, Faction) tek seçimdir;{" "}
+          <span className="text-[#1AD76F] font-semibold">İlave Paketler</span>{" "}
+          (Crossplay, Lobi, Optimizasyon) çoklu seçilip birleştirilebilir.
         </p>
 
         <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
           {availableModPacks.map((pack) => {
             const isSelected = config.selectedPackIds.includes(pack.id);
-            const isGameMode = pack.packType === "gamemode" || pack.mutuallyExclusiveGroup === "gamemode";
+            const isGameMode =
+              pack.packType === "gamemode" ||
+              pack.mutuallyExclusiveGroup === "gamemode";
             return (
               <div
                 key={pack.id}
@@ -1116,7 +1295,9 @@ export function GameConfigurator() {
                   />
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="text-xs font-semibold text-white">{pack.name}</h4>
+                      <h4 className="text-xs font-semibold text-white">
+                        {pack.name}
+                      </h4>
                       <span
                         className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
                           isGameMode
@@ -1158,7 +1339,8 @@ export function GameConfigurator() {
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <label className="text-xs font-semibold uppercase tracking-wider text-[#0082c9] flex items-center gap-1.5">
-            <span>🧩</span> 4. Eklenti ve Script Kütüphanesi ({availablePlugins.length} Eklenti/Mod Uyumlu)
+            <span>🧩</span> 4. Eklenti ve Script Kütüphanesi (
+            {availablePlugins.length} Eklenti/Mod Uyumlu)
           </label>
           <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
             {config.enabledPluginIds.length} Aktif
@@ -1169,7 +1351,10 @@ export function GameConfigurator() {
         <div className="flex items-center gap-1.5 flex-wrap">
           {categories.map((cat) => {
             const isSelected = pluginCategory === cat;
-            const count = cat === "ALL" ? availablePlugins.length : availablePlugins.filter((p) => p.category === cat).length;
+            const count =
+              cat === "ALL"
+                ? availablePlugins.length
+                : availablePlugins.filter((p) => p.category === cat).length;
             const label = cat === "ALL" ? "Tümü" : cat;
             return (
               <button
@@ -1215,7 +1400,9 @@ export function GameConfigurator() {
               >
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-semibold text-white">{plugin.name}</span>
+                    <span className="text-xs font-semibold text-white">
+                      {plugin.name}
+                    </span>
                     <span className="text-[9px] px-1.5 py-0.2 rounded bg-white/5 text-slate-400 border border-white/10">
                       {plugin.category}
                     </span>
@@ -1253,10 +1440,14 @@ export function GameConfigurator() {
                     isRequired
                       ? "bg-[#0082c9]/40 cursor-not-allowed"
                       : isEnabled
-                      ? "bg-[#0082c9]"
-                      : "bg-[#2d3748]"
+                        ? "bg-[#0082c9]"
+                        : "bg-[#2d3748]"
                   }`}
-                  title={isRequired ? "Bu eklenti çekirdek için zorunludur ve kapatılamaz." : undefined}
+                  title={
+                    isRequired
+                      ? "Bu eklenti çekirdek için zorunludur ve kapatılamaz."
+                      : undefined
+                  }
                 >
                   <span
                     className={`w-5 h-5 rounded-full bg-white shadow transform transition-transform ${
@@ -1280,11 +1471,13 @@ export function GameConfigurator() {
         >
           {!isAdmin ? (
             <>
-              <span>🔒</span> Yapılandırma Uygulamak İçin Sağ Üstten Yönetici Girişi Yapın
+              <span>🔒</span> Yapılandırma Uygulamak İçin Sağ Üstten Yönetici
+              Girişi Yapın
             </>
           ) : isApplying ? (
             <>
-              <span className="animate-spin text-sm">⏳</span> Yapılandırma Uygulanıyor...
+              <span className="animate-spin text-sm">⏳</span> Yapılandırma
+              Uygulanıyor...
             </>
           ) : (
             <>

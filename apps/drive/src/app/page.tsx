@@ -26,13 +26,21 @@ export default function DrivePage() {
   const [folders, setFolders] = useState<DriveFolder[]>([]);
   const [files, setFiles] = useState<DriveItemFile[]>([]);
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-  const [currentFolderName, setCurrentFolderName] = useState<string | null>(null);
+  const [currentFolderName, setCurrentFolderName] = useState<string | null>(
+    null,
+  );
   const [isUploading, setIsUploading] = useState(false);
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
-  const [selectedFileForOffice, setSelectedFileForOffice] = useState<DriveItemFile | null>(null);
-  const [selectedItem, setSelectedItem] = useState<{ type: "file" | "folder"; data: DriveItemFile | DriveFolder } | null>(null);
-  const [activeNav, setActiveNav] = useState<"all" | "recent" | "favorites" | "shares" | "trash">("all");
+  const [selectedFileForOffice, setSelectedFileForOffice] =
+    useState<DriveItemFile | null>(null);
+  const [selectedItem, setSelectedItem] = useState<{
+    type: "file" | "folder";
+    data: DriveItemFile | DriveFolder;
+  } | null>(null);
+  const [activeNav, setActiveNav] = useState<
+    "all" | "recent" | "favorites" | "shares" | "trash"
+  >("all");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -40,7 +48,9 @@ export default function DrivePage() {
 
   // Çoklu Dosya Seçimi & Paylaşım Bağlantısı Durumları
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([]);
-  const [shareModalFile, setShareModalFile] = useState<DriveItemFile | null>(null);
+  const [shareModalFile, setShareModalFile] = useState<DriveItemFile | null>(
+    null,
+  );
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [isCreatingShare, setIsCreatingShare] = useState(false);
   const [copiedShare, setCopiedShare] = useState(false);
@@ -48,7 +58,10 @@ export default function DrivePage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Dosya ve klasörleri API'den yükle (activeNav ve currentFolderId'ye göre)
-  const fetchItems = async (folderId: string | null = currentFolderId, nav: string = activeNav) => {
+  const fetchItems = async (
+    folderId: string | null = currentFolderId,
+    nav: string = activeNav,
+  ) => {
     try {
       const params = new URLSearchParams();
       if (folderId && nav === "all") {
@@ -103,7 +116,9 @@ export default function DrivePage() {
         alert(json.message || "Dosya yüklenemedi.");
       }
     } catch (err: any) {
-      alert("Dosya yüklenirken hata oluştu: " + (err?.message || "Bağlantı hatası"));
+      alert(
+        "Dosya yüklenirken hata oluştu: " + (err?.message || "Bağlantı hatası"),
+      );
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -143,7 +158,9 @@ export default function DrivePage() {
   const handleToggleSelectFile = (fileId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedFileIds((prev) =>
-      prev.includes(fileId) ? prev.filter((id) => id !== fileId) : [...prev, fileId]
+      prev.includes(fileId)
+        ? prev.filter((id) => id !== fileId)
+        : [...prev, fileId],
     );
   };
 
@@ -195,7 +212,10 @@ export default function DrivePage() {
   };
 
   // Paylaşım Bağlantısı Modalı Açma
-  const handleOpenShareModal = async (file: DriveItemFile, e: React.MouseEvent) => {
+  const handleOpenShareModal = async (
+    file: DriveItemFile,
+    e: React.MouseEvent,
+  ) => {
     e.stopPropagation();
     setShareModalFile(file);
     setShareUrl(null);
@@ -219,13 +239,20 @@ export default function DrivePage() {
   };
 
   // Favori Ekle / Kaldır
-  const handleToggleFavorite = async (file: DriveItemFile, e?: React.MouseEvent) => {
+  const handleToggleFavorite = async (
+    file: DriveItemFile,
+    e?: React.MouseEvent,
+  ) => {
     if (e) e.stopPropagation();
     try {
-      const res = await fetch(`/api/files/${file.id}/favorite`, { method: "POST" });
+      const res = await fetch(`/api/files/${file.id}/favorite`, {
+        method: "POST",
+      });
       const json = await res.json();
       if (json.ok) {
-        showNotification(file.isFavorite ? "Favorilerden kaldırıldı." : "Favorilere eklendi.");
+        showNotification(
+          file.isFavorite ? "Favorilerden kaldırıldı." : "Favorilere eklendi.",
+        );
         await fetchItems(currentFolderId, activeNav);
       }
     } catch {}
@@ -246,10 +273,15 @@ export default function DrivePage() {
   };
 
   // Çöpten Geri Yükle
-  const handleRestoreFile = async (file: DriveItemFile, e?: React.MouseEvent) => {
+  const handleRestoreFile = async (
+    file: DriveItemFile,
+    e?: React.MouseEvent,
+  ) => {
     if (e) e.stopPropagation();
     try {
-      const res = await fetch(`/api/files/${file.id}/restore`, { method: "POST" });
+      const res = await fetch(`/api/files/${file.id}/restore`, {
+        method: "POST",
+      });
       const json = await res.json();
       if (json.ok) {
         showNotification(`"${file.name}" geri yüklendi.`);
@@ -260,12 +292,22 @@ export default function DrivePage() {
   };
 
   // Kalıcı Olarak Sil
-  const handlePermanentDelete = async (file: DriveItemFile, e?: React.MouseEvent) => {
+  const handlePermanentDelete = async (
+    file: DriveItemFile,
+    e?: React.MouseEvent,
+  ) => {
     if (e) e.stopPropagation();
-    if (!confirm(`"${file.name}" dosyasını kalıcı olarak silmek istediğinizden emin misiniz?`)) return;
+    if (
+      !confirm(
+        `"${file.name}" dosyasını kalıcı olarak silmek istediğinizden emin misiniz?`,
+      )
+    )
+      return;
 
     try {
-      const res = await fetch(`/api/files/${file.id}/permanent`, { method: "DELETE" });
+      const res = await fetch(`/api/files/${file.id}/permanent`, {
+        method: "DELETE",
+      });
       const json = await res.json();
       if (json.ok) {
         showNotification(`"${file.name}" kalıcı olarak silindi.`);
@@ -299,12 +341,16 @@ export default function DrivePage() {
   // Arama Filtresi
   const filteredFolders = useMemo(() => {
     if (!searchQuery) return folders;
-    return folders.filter((f) => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    return folders.filter((f) =>
+      f.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
   }, [folders, searchQuery]);
 
   const filteredFiles = useMemo(() => {
     if (!searchQuery) return files;
-    return files.filter((f) => f.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    return files.filter((f) =>
+      f.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
   }, [files, searchQuery]);
 
   const handleOpenFolder = (folder: DriveFolder) => {
@@ -346,7 +392,11 @@ export default function DrivePage() {
               onClick={() => setIsCreateFolderOpen(true)}
               className="h-7 text-xs bg-white/10 hover:bg-white/20 text-white border-transparent"
               leftIcon={
-                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                <svg
+                  className="w-3.5 h-3.5"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
                   <path d="M.5 3l.04.87a1.99 1.99 0 0 0-.342 1.311l.637 7A2 2 0 0 0 2.826 14H9v-1H2.826a1 1 0 0 1-.995-.91l-.637-7A1 1 0 0 1 2.19 4h11.62a1 1 0 0 1 .996 1.09l-.637 7a1 1 0 0 1-.995.91H11v1h2.174a2 2 0 0 0 1.99-1.819l.637-7a1.99 1.99 0 0 0-.342-1.31L15.5 3H9.414L7.707 1.293A1 1 0 0 0 7 1H2a2 2 0 0 0-2 2h.5z" />
                   <path d="M13.5 10v-1.5a.5.5 0 0 0-1 0V10H11a.5.5 0 0 0 0 1h1.5v1.5a.5.5 0 0 0 1 0V11H15a.5.5 0 0 0 0-1h-1.5z" />
                 </svg>
@@ -361,7 +411,11 @@ export default function DrivePage() {
               onClick={() => fileInputRef.current?.click()}
               className="h-7 text-xs bg-white text-[#0082c9] hover:bg-white/90 font-semibold shadow-sm"
               leftIcon={
-                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                <svg
+                  className="w-3.5 h-3.5"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
                   <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
                   <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V10.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z" />
                 </svg>
@@ -394,7 +448,9 @@ export default function DrivePage() {
         {/* SOL SIDEBAR: Nextcloud Gezinti & Depolama Bilgisi ─ */}
         <aside
           className={`w-60 bg-[#222933] border-r border-[#2d3748] flex flex-col justify-between shrink-0 select-none p-3 transition-transform duration-200 z-40 fixed inset-y-12 left-0 md:static md:translate-x-0 ${
-            isMobileSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"
+            isMobileSidebarOpen
+              ? "translate-x-0 shadow-2xl"
+              : "-translate-x-full md:translate-x-0"
           }`}
         >
           <div className="space-y-1">
@@ -407,7 +463,13 @@ export default function DrivePage() {
                 className="md:hidden p-1 rounded-md text-slate-400 hover:text-white"
                 aria-label="Kapat"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
@@ -427,12 +489,18 @@ export default function DrivePage() {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <svg className="w-4 h-4 text-[#38bdf8]" viewBox="0 0 24 24" fill="currentColor">
+                <svg
+                  className="w-4 h-4 text-[#38bdf8]"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
                   <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                 </svg>
                 <span>Tüm Dosyalar</span>
               </div>
-              <span className="text-[10px] font-mono opacity-80">{activeNav === "all" ? files.length : ""}</span>
+              <span className="text-[10px] font-mono opacity-80">
+                {activeNav === "all" ? files.length : ""}
+              </span>
             </button>
 
             <button
@@ -448,7 +516,13 @@ export default function DrivePage() {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <svg className="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="w-4 h-4 text-slate-400"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <circle cx="12" cy="12" r="10" />
                   <polyline points="12 6 12 12 14 14" />
                 </svg>
@@ -469,7 +543,11 @@ export default function DrivePage() {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <svg className="w-4 h-4 text-amber-400" viewBox="0 0 24 24" fill="currentColor">
+                <svg
+                  className="w-4 h-4 text-amber-400"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
                 <span>Favoriler</span>
@@ -489,7 +567,13 @@ export default function DrivePage() {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="w-4 h-4 text-emerald-400"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <circle cx="18" cy="5" r="3" />
                   <circle cx="6" cy="12" r="3" />
                   <circle cx="18" cy="19" r="3" />
@@ -513,7 +597,13 @@ export default function DrivePage() {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <svg className="w-4 h-4 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="w-4 h-4 text-rose-400"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <polyline points="3 6 5 6 21 6" />
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                 </svg>
@@ -526,15 +616,21 @@ export default function DrivePage() {
           <div className="p-3 rounded-xl bg-[#181e24] border border-[#2d3748] space-y-2">
             <div className="flex items-center justify-between text-[11px] text-slate-400">
               <span>Depolama Alanı</span>
-              <span className="font-mono text-slate-200">{formatBytes(totalUsedBytes)} / 1 TB</span>
+              <span className="font-mono text-slate-200">
+                {formatBytes(totalUsedBytes)} / 1 TB
+              </span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
               <div
                 className="h-full rounded-full bg-[#0082c9]"
-                style={{ width: `${Math.max(Math.min((totalUsedBytes / (1024 * 1024 * 1024 * 1024)) * 100, 100), 2)}%` }}
+                style={{
+                  width: `${Math.max(Math.min((totalUsedBytes / (1024 * 1024 * 1024 * 1024)) * 100, 100), 2)}%`,
+                }}
               />
             </div>
-            <p className="text-[10px] text-slate-400">NVMe ZFS Depolama Havuzu</p>
+            <p className="text-[10px] text-slate-400">
+              NVMe ZFS Depolama Havuzu
+            </p>
           </div>
         </aside>
 
@@ -550,7 +646,13 @@ export default function DrivePage() {
                 aria-label="Dosya Menüsü"
                 title="Dosya Gezgini Menüsü"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <line x1="3" y1="6" x2="21" y2="6" />
                   <line x1="3" y1="12" x2="21" y2="12" />
                   <line x1="3" y1="18" x2="21" y2="18" />
@@ -561,26 +663,32 @@ export default function DrivePage() {
                 onClick={handleGoHome}
                 className="flex items-center gap-1.5 text-slate-300 hover:text-white font-medium transition-colors"
               >
-                <svg className="w-3.5 h-3.5 text-[#0082c9]" viewBox="0 0 24 24" fill="currentColor">
+                <svg
+                  className="w-3.5 h-3.5 text-[#0082c9]"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
                   <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
                 </svg>
                 <span>
                   {activeNav === "all"
                     ? "Tüm Dosyalar"
                     : activeNav === "recent"
-                    ? "Son Kullanılanlar"
-                    : activeNav === "favorites"
-                    ? "Favoriler"
-                    : activeNav === "shares"
-                    ? "Paylaşılanlar"
-                    : "Çöp Kutusu"}
+                      ? "Son Kullanılanlar"
+                      : activeNav === "favorites"
+                        ? "Favoriler"
+                        : activeNav === "shares"
+                          ? "Paylaşılanlar"
+                          : "Çöp Kutusu"}
                 </span>
               </button>
 
               {currentFolderName && activeNav === "all" && (
                 <>
                   <span className="text-slate-500">/</span>
-                  <span className="text-slate-100 font-semibold truncate max-w-[120px] sm:max-w-none">{currentFolderName}</span>
+                  <span className="text-slate-100 font-semibold truncate max-w-[120px] sm:max-w-none">
+                    {currentFolderName}
+                  </span>
                 </>
               )}
             </div>
@@ -591,11 +699,19 @@ export default function DrivePage() {
                 <button
                   onClick={() => setViewMode("list")}
                   className={`p-1.5 rounded-md transition-colors ${
-                    viewMode === "list" ? "bg-[#2b3442] text-white" : "text-slate-400 hover:text-white"
+                    viewMode === "list"
+                      ? "bg-[#2b3442] text-white"
+                      : "text-slate-400 hover:text-white"
                   }`}
                   title="Liste Görünümü"
                 >
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    className="w-3.5 h-3.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <line x1="8" y1="6" x2="21" y2="6" />
                     <line x1="8" y1="12" x2="21" y2="12" />
                     <line x1="8" y1="18" x2="21" y2="18" />
@@ -607,11 +723,19 @@ export default function DrivePage() {
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`p-1.5 rounded-md transition-colors ${
-                    viewMode === "grid" ? "bg-[#2b3442] text-white" : "text-slate-400 hover:text-white"
+                    viewMode === "grid"
+                      ? "bg-[#2b3442] text-white"
+                      : "text-slate-400 hover:text-white"
                   }`}
                   title="Izgara Görünümü"
                 >
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    className="w-3.5 h-3.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <rect x="3" y="3" width="7" height="7" />
                     <rect x="14" y="3" width="7" height="7" />
                     <rect x="14" y="14" width="7" height="7" />
@@ -636,7 +760,9 @@ export default function DrivePage() {
           {/* Çöp Kutusu Bilgilendirme Çubuğu */}
           {activeNav === "trash" && (
             <div className="bg-rose-950/40 border-b border-rose-900/60 px-4 py-2 text-xs text-rose-200 flex items-center justify-between">
-              <span>🗑️ Çöp kutusundaki dosyalar silinene kadar burada saklanır.</span>
+              <span>
+                🗑️ Çöp kutusundaki dosyalar silinene kadar burada saklanır.
+              </span>
             </div>
           )}
 
@@ -661,7 +787,13 @@ export default function DrivePage() {
                   onClick={handleBatchDownloadZip}
                   className="bg-[#0082c9] text-white hover:bg-[#006aa3] h-7 text-xs flex items-center gap-1.5"
                 >
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    className="w-3.5 h-3.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
@@ -687,7 +819,13 @@ export default function DrivePage() {
             {filteredFolders.length === 0 && filteredFiles.length === 0 ? (
               <div className="h-64 flex flex-col items-center justify-center text-center p-6 rounded-2xl border border-dashed border-[#2d3748] bg-[#222933]/30">
                 <div className="w-12 h-12 rounded-full bg-[#222933] flex items-center justify-center text-slate-400 mb-3">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    className="w-6 h-6"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                   </svg>
                 </div>
@@ -695,15 +833,15 @@ export default function DrivePage() {
                   {activeNav === "trash"
                     ? "Çöp kutusu boş"
                     : activeNav === "favorites"
-                    ? "Henüz favori dosya yok"
-                    : "Bu klasör henüz boş"}
+                      ? "Henüz favori dosya yok"
+                      : "Bu klasör henüz boş"}
                 </h3>
                 <p className="text-xs text-slate-400 max-w-sm mt-1 mb-4">
                   {activeNav === "trash"
                     ? "Silinen dosyalarınız burada listelenir."
                     : activeNav === "favorites"
-                    ? "Önemli dosyalarınıza yıldız ekleyerek buradan kolayca erişebilirsiniz."
-                    : "Yeni klasör oluşturarak veya sağ üstteki Yükle butonuyla dosya ekleyerek başlayabilirsiniz."}
+                      ? "Önemli dosyalarınıza yıldız ekleyerek buradan kolayca erişebilirsiniz."
+                      : "Yeni klasör oluşturarak veya sağ üstteki Yükle butonuyla dosya ekleyerek başlayabilirsiniz."}
                 </p>
                 {activeNav === "all" && (
                   <Button
@@ -725,15 +863,22 @@ export default function DrivePage() {
                       <th className="py-2.5 px-3 w-8">
                         <input
                           type="checkbox"
-                          checked={filteredFiles.length > 0 && selectedFileIds.length === filteredFiles.length}
+                          checked={
+                            filteredFiles.length > 0 &&
+                            selectedFileIds.length === filteredFiles.length
+                          }
                           onChange={handleSelectAllFiles}
                           className="rounded border-[#2d3748] text-[#0082c9] bg-[#181e24] cursor-pointer"
                         />
                       </th>
                       <th className="py-2.5 px-4 font-semibold">Ad</th>
                       <th className="py-2.5 px-4 font-semibold w-28">Boyut</th>
-                      <th className="py-2.5 px-4 font-semibold w-36 hidden sm:table-cell">Tarih</th>
-                      <th className="py-2.5 px-4 font-semibold w-48 text-right">Eylemler</th>
+                      <th className="py-2.5 px-4 font-semibold w-36 hidden sm:table-cell">
+                        Tarih
+                      </th>
+                      <th className="py-2.5 px-4 font-semibold w-48 text-right">
+                        Eylemler
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#2d3748]/60">
@@ -741,15 +886,23 @@ export default function DrivePage() {
                     {filteredFolders.map((f) => (
                       <tr
                         key={f.id}
-                        onClick={() => setSelectedItem({ type: "folder", data: f })}
+                        onClick={() =>
+                          setSelectedItem({ type: "folder", data: f })
+                        }
                         onDoubleClick={() => handleOpenFolder(f)}
                         className={`hover:bg-[#2b3442] cursor-pointer transition-colors group ${
-                          selectedItem?.data.id === f.id ? "bg-[#0082c9]/15" : ""
+                          selectedItem?.data.id === f.id
+                            ? "bg-[#0082c9]/15"
+                            : ""
                         }`}
                       >
                         <td className="py-2.5 px-3 w-8"></td>
                         <td className="py-2.5 px-4 flex items-center gap-3">
-                          <svg className="w-5 h-5 text-[#0082c9] shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                          <svg
+                            className="w-5 h-5 text-[#0082c9] shrink-0"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                          >
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                           </svg>
                           <span
@@ -762,7 +915,9 @@ export default function DrivePage() {
                             {f.name}
                           </span>
                         </td>
-                        <td className="py-2.5 px-4 text-slate-400 font-mono">--</td>
+                        <td className="py-2.5 px-4 text-slate-400 font-mono">
+                          --
+                        </td>
                         <td className="py-2.5 px-4 text-slate-400 hidden sm:table-cell">
                           {new Date(f.createdAt).toLocaleDateString("tr-TR")}
                         </td>
@@ -786,16 +941,25 @@ export default function DrivePage() {
                       return (
                         <tr
                           key={file.id}
-                          onClick={() => setSelectedItem({ type: "file", data: file })}
+                          onClick={() =>
+                            setSelectedItem({ type: "file", data: file })
+                          }
                           className={`hover:bg-[#2b3442] cursor-pointer transition-colors group ${
-                            selectedItem?.data.id === file.id ? "bg-[#0082c9]/15" : ""
+                            selectedItem?.data.id === file.id
+                              ? "bg-[#0082c9]/15"
+                              : ""
                           }`}
                         >
-                          <td className="py-2.5 px-3 w-8" onClick={(e) => e.stopPropagation()}>
+                          <td
+                            className="py-2.5 px-3 w-8"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <input
                               type="checkbox"
                               checked={selectedFileIds.includes(file.id)}
-                              onChange={(e) => handleToggleSelectFile(file.id, e as any)}
+                              onChange={(e) =>
+                                handleToggleSelectFile(file.id, e as any)
+                              }
                               className="rounded border-[#2d3748] text-[#0082c9] bg-[#181e24] cursor-pointer"
                             />
                           </td>
@@ -805,16 +969,26 @@ export default function DrivePage() {
                               <button
                                 onClick={(e) => handleToggleFavorite(file, e)}
                                 className={`text-sm transition-transform hover:scale-125 ${
-                                  file.isFavorite ? "text-amber-400" : "text-slate-600 hover:text-amber-300"
+                                  file.isFavorite
+                                    ? "text-amber-400"
+                                    : "text-slate-600 hover:text-amber-300"
                                 }`}
-                                title={file.isFavorite ? "Favorilerden kaldır" : "Favorilere ekle"}
+                                title={
+                                  file.isFavorite
+                                    ? "Favorilerden kaldır"
+                                    : "Favorilere ekle"
+                                }
                               >
                                 ★
                               </button>
                             )}
 
                             <span className="text-base shrink-0">
-                              {isOffice ? "📑" : file.mimeType.includes("image") ? "🖼️" : "📄"}
+                              {isOffice
+                                ? "📑"
+                                : file.mimeType.includes("image")
+                                  ? "🖼️"
+                                  : "📄"}
                             </span>
                             <span className="font-medium text-slate-200 truncate group-hover:text-white">
                               {file.name}
@@ -829,7 +1003,9 @@ export default function DrivePage() {
                             {formatBytes(file.sizeBytes)}
                           </td>
                           <td className="py-2.5 px-4 text-slate-400 hidden sm:table-cell">
-                            {new Date(file.createdAt).toLocaleDateString("tr-TR")}
+                            {new Date(file.createdAt).toLocaleDateString(
+                              "tr-TR",
+                            )}
                           </td>
                           <td className="py-2.5 px-4 text-right space-x-2">
                             {activeNav === "trash" ? (
@@ -842,7 +1018,9 @@ export default function DrivePage() {
                                   Kurtar
                                 </button>
                                 <button
-                                  onClick={(e) => handlePermanentDelete(file, e)}
+                                  onClick={(e) =>
+                                    handlePermanentDelete(file, e)
+                                  }
                                   className="text-rose-400 hover:text-rose-300 text-xs font-medium"
                                   title="Kalıcı Olarak Sil"
                                 >
@@ -905,16 +1083,26 @@ export default function DrivePage() {
                       {filteredFolders.map((f) => (
                         <div
                           key={f.id}
-                          onClick={() => setSelectedItem({ type: "folder", data: f })}
+                          onClick={() =>
+                            setSelectedItem({ type: "folder", data: f })
+                          }
                           onDoubleClick={() => handleOpenFolder(f)}
                           className={`p-3 rounded-xl border border-[#2d3748] bg-[#222933] hover:border-[#0082c9]/50 hover:bg-[#2b3442] cursor-pointer transition-all flex items-center gap-2.5 select-none ${
-                            selectedItem?.data.id === f.id ? "ring-2 ring-[#0082c9] border-transparent" : ""
+                            selectedItem?.data.id === f.id
+                              ? "ring-2 ring-[#0082c9] border-transparent"
+                              : ""
                           }`}
                         >
-                          <svg className="w-5 h-5 text-[#0082c9] shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                          <svg
+                            className="w-5 h-5 text-[#0082c9] shrink-0"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                          >
                             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
                           </svg>
-                          <span className="text-xs font-medium text-slate-200 truncate">{f.name}</span>
+                          <span className="text-xs font-medium text-slate-200 truncate">
+                            {f.name}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -932,19 +1120,29 @@ export default function DrivePage() {
                         return (
                           <div
                             key={file.id}
-                            onClick={() => setSelectedItem({ type: "file", data: file })}
+                            onClick={() =>
+                              setSelectedItem({ type: "file", data: file })
+                            }
                             className={`p-3.5 rounded-xl border border-[#2d3748] bg-[#222933] hover:border-[#0082c9]/50 hover:bg-[#2b3442] cursor-pointer transition-all flex flex-col justify-between h-32 select-none relative ${
-                              selectedItem?.data.id === file.id ? "ring-2 ring-[#0082c9] border-transparent" : ""
+                              selectedItem?.data.id === file.id
+                                ? "ring-2 ring-[#0082c9] border-transparent"
+                                : ""
                             }`}
                           >
                             <div className="flex items-start justify-between gap-1">
                               <span className="text-2xl">
-                                {isOffice ? "📑" : file.mimeType.includes("image") ? "🖼️" : "📄"}
+                                {isOffice
+                                  ? "📑"
+                                  : file.mimeType.includes("image")
+                                    ? "🖼️"
+                                    : "📄"}
                               </span>
                               <div className="flex items-center gap-1">
                                 {activeNav !== "trash" && (
                                   <button
-                                    onClick={(e) => handleToggleFavorite(file, e)}
+                                    onClick={(e) =>
+                                      handleToggleFavorite(file, e)
+                                    }
                                     className={`text-xs ${file.isFavorite ? "text-amber-400" : "text-slate-600 hover:text-amber-300"}`}
                                   >
                                     ★
@@ -958,7 +1156,9 @@ export default function DrivePage() {
                               </div>
                             </div>
                             <div>
-                              <p className="text-xs font-medium text-slate-200 truncate">{file.name}</p>
+                              <p className="text-xs font-medium text-slate-200 truncate">
+                                {file.name}
+                              </p>
                               <p className="text-[11px] text-slate-400 font-mono mt-0.5">
                                 {formatBytes(file.sizeBytes)}
                               </p>
@@ -982,141 +1182,180 @@ export default function DrivePage() {
               onClick={() => setSelectedItem(null)}
             />
             <aside className="w-80 max-w-[85vw] bg-[#222933] border-l border-[#2d3748] p-4 flex flex-col justify-between shrink-0 overflow-y-auto animate-in slide-in-from-right-2 duration-150 fixed inset-y-12 right-0 z-40 md:static md:w-72">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#2d3748]">
-                <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Ayrıntılar</h4>
-                <button
-                  onClick={() => setSelectedItem(null)}
-                  className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-[#181e24]"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </button>
-              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-[#2d3748]">
+                  <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                    Ayrıntılar
+                  </h4>
+                  <button
+                    onClick={() => setSelectedItem(null)}
+                    className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-[#181e24]"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                </div>
 
-              {/* Önizleme İkonu & Adı */}
-              <div className="flex flex-col items-center text-center p-4 rounded-xl bg-[#181e24] border border-[#2d3748]">
-                <span className="text-4xl mb-2">
-                  {selectedItem.type === "folder"
-                    ? "📁"
-                    : isOfficeFile((selectedItem.data as DriveItemFile).name)
-                    ? "📑"
-                    : "📄"}
-                </span>
-                <p className="text-sm font-semibold text-slate-100 break-all">{selectedItem.data.name}</p>
-                {selectedItem.type === "file" && (
-                  <p className="text-xs text-slate-400 font-mono mt-1">
-                    {formatBytes((selectedItem.data as DriveItemFile).sizeBytes)}
-                  </p>
-                )}
-              </div>
-
-              {/* Bilgiler Listesi */}
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between py-1 border-b border-[#2d3748]/60">
-                  <span className="text-slate-400">Tür:</span>
-                  <span className="text-slate-200">
+                {/* Önizleme İkonu & Adı */}
+                <div className="flex flex-col items-center text-center p-4 rounded-xl bg-[#181e24] border border-[#2d3748]">
+                  <span className="text-4xl mb-2">
                     {selectedItem.type === "folder"
-                      ? "Dizin"
-                      : (selectedItem.data as DriveItemFile).mimeType || "Dosya"}
+                      ? "📁"
+                      : isOfficeFile((selectedItem.data as DriveItemFile).name)
+                        ? "📑"
+                        : "📄"}
                   </span>
+                  <p className="text-sm font-semibold text-slate-100 break-all">
+                    {selectedItem.data.name}
+                  </p>
+                  {selectedItem.type === "file" && (
+                    <p className="text-xs text-slate-400 font-mono mt-1">
+                      {formatBytes(
+                        (selectedItem.data as DriveItemFile).sizeBytes,
+                      )}
+                    </p>
+                  )}
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#2d3748]/60">
-                  <span className="text-slate-400">Oluşturulma:</span>
-                  <span className="text-slate-200">
-                    {new Date(selectedItem.data.createdAt).toLocaleDateString("tr-TR")}
-                  </span>
+
+                {/* Bilgiler Listesi */}
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between py-1 border-b border-[#2d3748]/60">
+                    <span className="text-slate-400">Tür:</span>
+                    <span className="text-slate-200">
+                      {selectedItem.type === "folder"
+                        ? "Dizin"
+                        : (selectedItem.data as DriveItemFile).mimeType ||
+                          "Dosya"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-[#2d3748]/60">
+                    <span className="text-slate-400">Oluşturulma:</span>
+                    <span className="text-slate-200">
+                      {new Date(selectedItem.data.createdAt).toLocaleDateString(
+                        "tr-TR",
+                      )}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Aksiyonlar */}
-            <div className="pt-4 border-t border-[#2d3748] space-y-2">
-              {selectedItem.type === "file" && (
-                <>
-                  {activeNav === "trash" ? (
-                    <>
-                      <Button
-                        variant="primary"
-                        size="sm"
-                        fullWidth
-                        onClick={() => handleRestoreFile(selectedItem.data as DriveItemFile)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                      >
-                        Dosyayı Geri Yükle
-                      </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        fullWidth
-                        onClick={() => handlePermanentDelete(selectedItem.data as DriveItemFile)}
-                        className="bg-rose-600 hover:bg-rose-700 text-white"
-                      >
-                        Kalıcı Olarak Sil
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      {isOfficeFile((selectedItem.data as DriveItemFile).name) && (
+              {/* Aksiyonlar */}
+              <div className="pt-4 border-t border-[#2d3748] space-y-2">
+                {selectedItem.type === "file" && (
+                  <>
+                    {activeNav === "trash" ? (
+                      <>
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          fullWidth
+                          onClick={() =>
+                            handleRestoreFile(
+                              selectedItem.data as DriveItemFile,
+                            )
+                          }
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        >
+                          Dosyayı Geri Yükle
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          fullWidth
+                          onClick={() =>
+                            handlePermanentDelete(
+                              selectedItem.data as DriveItemFile,
+                            )
+                          }
+                          className="bg-rose-600 hover:bg-rose-700 text-white"
+                        >
+                          Kalıcı Olarak Sil
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        {isOfficeFile(
+                          (selectedItem.data as DriveItemFile).name,
+                        ) && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            fullWidth
+                            onClick={() =>
+                              setSelectedFileForOffice(
+                                selectedItem.data as DriveItemFile,
+                              )
+                            }
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white border-transparent"
+                          >
+                            Office'te Düzenle
+                          </Button>
+                        )}
+
+                        <a
+                          href={`/api/download/${(selectedItem.data as DriveItemFile).id}`}
+                          download={selectedItem.data.name}
+                          className="w-full flex items-center justify-center py-2 px-3 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold shadow-sm transition-colors"
+                        >
+                          Dosyayı İndir
+                        </a>
+
                         <Button
                           variant="secondary"
                           size="sm"
                           fullWidth
-                          onClick={() => setSelectedFileForOffice(selectedItem.data as DriveItemFile)}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white border-transparent"
+                          onClick={() =>
+                            handleToggleFavorite(
+                              selectedItem.data as DriveItemFile,
+                            )
+                          }
+                          className="border-[#2d3748] text-slate-300 hover:text-white"
                         >
-                          Office'te Düzenle
+                          {(selectedItem.data as DriveItemFile).isFavorite
+                            ? "★ Favorilerden Çıkar"
+                            : "☆ Favorilere Ekle"}
                         </Button>
-                      )}
 
-                      <a
-                        href={`/api/download/${(selectedItem.data as DriveItemFile).id}`}
-                        download={selectedItem.data.name}
-                        className="w-full flex items-center justify-center py-2 px-3 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold shadow-sm transition-colors"
-                      >
-                        Dosyayı İndir
-                      </a>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          fullWidth
+                          onClick={() =>
+                            handleTrashFile(selectedItem.data as DriveItemFile)
+                          }
+                          className="bg-rose-600/20 text-rose-300 hover:bg-rose-600 hover:text-white border-rose-500/30"
+                        >
+                          Çöp Kutusuna Taşı
+                        </Button>
+                      </>
+                    )}
+                  </>
+                )}
 
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        fullWidth
-                        onClick={() => handleToggleFavorite(selectedItem.data as DriveItemFile)}
-                        className="border-[#2d3748] text-slate-300 hover:text-white"
-                      >
-                        {(selectedItem.data as DriveItemFile).isFavorite ? "★ Favorilerden Çıkar" : "☆ Favorilere Ekle"}
-                      </Button>
-
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        fullWidth
-                        onClick={() => handleTrashFile(selectedItem.data as DriveItemFile)}
-                        className="bg-rose-600/20 text-rose-300 hover:bg-rose-600 hover:text-white border-rose-500/30"
-                      >
-                        Çöp Kutusuna Taşı
-                      </Button>
-                    </>
-                  )}
-                </>
-              )}
-
-              {selectedItem.type === "folder" && (
-                <Button
-                  variant="primary"
-                  size="sm"
-                  fullWidth
-                  onClick={() => handleOpenFolder(selectedItem.data as DriveFolder)}
-                  className="bg-[#0082c9] text-white hover:bg-[#006aa3]"
-                >
-                  Klasöre Git
-                </Button>
-              )}
-            </div>
-          </aside>
-        </>
+                {selectedItem.type === "folder" && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    fullWidth
+                    onClick={() =>
+                      handleOpenFolder(selectedItem.data as DriveFolder)
+                    }
+                    className="bg-[#0082c9] text-white hover:bg-[#006aa3]"
+                  >
+                    Klasöre Git
+                  </Button>
+                )}
+              </div>
+            </aside>
+          </>
         )}
       </div>
 
@@ -1128,7 +1367,11 @@ export default function DrivePage() {
         description="Dosyalarınızı organize etmek için yeni bir dizin adı girin."
         footer={
           <>
-            <Button variant="ghost" size="sm" onClick={() => setIsCreateFolderOpen(false)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsCreateFolderOpen(false)}
+            >
               İptal
             </Button>
             <Button
@@ -1166,15 +1409,20 @@ export default function DrivePage() {
             Microsoft Office & LibreOffice Web Editörü
           </h3>
           <p className="text-xs text-slate-400 max-w-md">
-            {selectedFileForOffice?.name} dosyası OnlyOffice / LibreOffice motoru üzerinden tam
-            düzenleme modunda açılmaya hazır.
+            {selectedFileForOffice?.name} dosyası OnlyOffice / LibreOffice
+            motoru üzerinden tam düzenleme modunda açılmaya hazır.
           </p>
           <div className="flex gap-3 pt-4">
             <Button
               size="sm"
               variant="primary"
               className="bg-[#0082c9] text-white hover:bg-[#006aa3]"
-              onClick={() => window.open(`/api/download/${selectedFileForOffice?.id}`, "_blank")}
+              onClick={() =>
+                window.open(
+                  `/api/download/${selectedFileForOffice?.id}`,
+                  "_blank",
+                )
+              }
             >
               İndir & Yerel Olarak Aç
             </Button>
@@ -1207,7 +1455,8 @@ export default function DrivePage() {
       >
         <div className="space-y-4 py-1 text-xs">
           <p className="text-slate-300">
-            Bu bağlantıya sahip olan herkes bu dosyayı doğrudan görüntüleyebilir ve indirebilir (7 gün geçerli).
+            Bu bağlantıya sahip olan herkes bu dosyayı doğrudan görüntüleyebilir
+            ve indirebilir (7 gün geçerli).
           </p>
 
           {isCreatingShare ? (
@@ -1245,7 +1494,9 @@ export default function DrivePage() {
                 </div>
                 <div className="flex justify-between">
                   <span>İzinler:</span>
-                  <span className="text-slate-200">Doğrudan İndirme ve Önizleme</span>
+                  <span className="text-slate-200">
+                    Doğrudan İndirme ve Önizleme
+                  </span>
                 </div>
               </div>
             </div>

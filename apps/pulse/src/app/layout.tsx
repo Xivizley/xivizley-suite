@@ -1,9 +1,10 @@
-import type { Metadata } from 'next';
-import '../styles/globals.css';
+import type { Metadata } from "next";
+import "../styles/globals.css";
 
 export const metadata: Metadata = {
-  title: 'XIVIZLEY Pulse — Gerçek Zamanlı Sunucu ve Konteyner Nabız Monitörü',
-  description: 'Uptime Kuma katili yerli sunucu, port ve HTTP izleme istasyonu. %99.99 Uptime ve anlık Telegram alarmları.',
+  title: "XIVIZLEY Pulse — Gerçek Zamanlı Sunucu ve Konteyner Nabız Monitörü",
+  description:
+    "Uptime Kuma katili yerli sunucu, port ve HTTP izleme istasyonu. %99.99 Uptime ve anlık Telegram alarmları.",
 };
 
 export default function RootLayout({

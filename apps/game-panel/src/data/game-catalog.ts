@@ -64,35 +64,40 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "pak-arac",
         name: "🚗 Türk & Dünya Gerçekçi Araç Paketi",
-        description: "100+ Optimize sesli gerçekçi Türk ve dünya araç modelleri.",
+        description:
+          "100+ Optimize sesli gerçekçi Türk ve dünya araç modelleri.",
         estimatedRamMb: 768,
         tags: ["Araç", "Gerçekçi"],
       },
       {
         id: "pak-polis",
         name: "🚓 ELS Polis, Jandarma & Acil Durum",
-        description: "Gerçekçi çakar desenleri, Türk telsiz anonsları ve acil durum araçları.",
+        description:
+          "Gerçekçi çakar desenleri, Türk telsiz anonsları ve acil durum araçları.",
         estimatedRamMb: 512,
         tags: ["Emniyet", "Acil"],
       },
       {
         id: "pak-drift",
         name: "🏎️ JDM & Sokak Drift Paketi",
-        description: "Özel drift handling kodları, harita pistleri ve modifiye parçaları.",
+        description:
+          "Özel drift handling kodları, harita pistleri ve modifiye parçaları.",
         estimatedRamMb: 384,
         tags: ["Yarış", "Drift"],
       },
       {
         id: "pak-ymap",
         name: "🗺️ Genişletilmiş YMAP & MLO Haritaları",
-        description: "Gelişmiş hastane, karakol, oto galeri ve malikane iç mekanları.",
+        description:
+          "Gelişmiş hastane, karakol, oto galeri ve malikane iç mekanları.",
         estimatedRamMb: 512,
         tags: ["Harita", "MLO"],
       },
       {
         id: "pak-soygun",
         name: "🎒 İllegal Soygun & Envanter Döngüsü",
-        description: "Merkez bankası, kuyumcu, market ve ATM soygun senaryoları.",
+        description:
+          "Merkez bankası, kuyumcu, market ve ATM soygun senaryoları.",
         estimatedRamMb: 256,
         tags: ["İllegal", "Rol"],
       },
@@ -101,7 +106,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "ox_lib",
         name: "ox_lib (Zorunlu UI & Çekirdek)",
-        description: "Yüksek performanslı UI ve bellek kütüphanesi. ox_* eklentileri için şarttır.",
+        description:
+          "Yüksek performanslı UI ve bellek kütüphanesi. ox_* eklentileri için şarttır.",
         category: "Çekirdek",
         isRequired: true,
         defaultEnabled: true,
@@ -109,98 +115,112 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "ox_inventory",
         name: "ox_inventory (Ağırlık & Slot Envanteri)",
-        description: "Modern slot ve ağırlık tabanlı gelişmiş envanter arayüzü.",
+        description:
+          "Modern slot ve ağırlık tabanlı gelişmiş envanter arayüzü.",
         category: "Oynanış",
         defaultEnabled: true,
       },
       {
         id: "ox_target",
         name: "ox_target (3. Göz Hedefleme)",
-        description: "Karakter ve nesnelerle etkileşim sağlayan modern göz simgesi sistemi.",
+        description:
+          "Karakter ve nesnelerle etkileşim sağlayan modern göz simgesi sistemi.",
         category: "Oynanış",
         defaultEnabled: true,
       },
       {
         id: "ox_doorlock",
         name: "ox_doorlock (Kapı & Kasa Kilitleri)",
-        description: "Polis departmanı, banka kasaları ve özel mülk kapı şifreleme motoru.",
+        description:
+          "Polis departmanı, banka kasaları ve özel mülk kapı şifreleme motoru.",
         category: "Güvenlik",
         defaultEnabled: true,
       },
       {
         id: "ox_fuel",
         name: "ox_fuel (Gerçekçi Yakıt Sistemi)",
-        description: "Benzin istasyonları, bidonla yakıt doldurma ve elektrikli şarj istasyonları.",
+        description:
+          "Benzin istasyonları, bidonla yakıt doldurma ve elektrikli şarj istasyonları.",
         category: "Gerçekçilik",
         defaultEnabled: true,
       },
       {
         id: "pma-voice",
         name: "PMA-Voice (3D Telsiz & Ses)",
-        description: "Düşük gecikmeli mekansal 3D ses ve telsiz frekans desteği.",
+        description:
+          "Düşük gecikmeli mekansal 3D ses ve telsiz frekans desteği.",
         category: "İletişim",
         defaultEnabled: true,
       },
       {
         id: "npwd",
         name: "NPWD (Akıllı Telefon)",
-        description: "Kamera, rehber, banka, Twitter ve sosyal medya içeren entegre dokunmatik telefon.",
+        description:
+          "Kamera, rehber, banka, Twitter ve sosyal medya içeren entegre dokunmatik telefon.",
         category: "Rol",
         defaultEnabled: true,
       },
       {
         id: "renewed-banking",
         name: "Renewed Banking (ATM & Banka)",
-        description: "Kişisel ve şirket hesapları için modern ATM ve banka arayüzü.",
+        description:
+          "Kişisel ve şirket hesapları için modern ATM ve banka arayüzü.",
         category: "Ekonomi",
         defaultEnabled: true,
       },
       {
         id: "qb-radialmenu",
         name: "RadialMenu (F1 Hızlı Menü)",
-        description: "Araç kontrolü, animasyonlar, kıyafet çıkarma ve meslek kısayolları.",
+        description:
+          "Araç kontrolü, animasyonlar, kıyafet çıkarma ve meslek kısayolları.",
         category: "Arayüz",
         defaultEnabled: true,
       },
       {
         id: "illenium-appearance",
         name: "Illenium Appearance (Kıyafet & Dövme)",
-        description: "Gelişmiş karakter yaratma, kıyafet kombinleri ve berber sistemi.",
+        description:
+          "Gelişmiş karakter yaratma, kıyafet kombinleri ve berber sistemi.",
         category: "Kozmetik",
         defaultEnabled: true,
       },
       {
         id: "ps-housing",
         name: "PS-Housing (Ev Kiralama & Satış)",
-        description: "Oyuncuların haritadaki evleri satın alıp mobilyalarla dekore etmesini sağlar.",
+        description:
+          "Oyuncuların haritadaki evleri satın alıp mobilyalarla dekore etmesini sağlar.",
         category: "Rol",
         defaultEnabled: false,
       },
       {
         id: "ps-dispatch",
         name: "PS-Dispatch (Polis/EMS İhbar Paneli)",
-        description: "Soygun ve çatışma alarmlarını GPS koordinatlarıyla polislere iletir.",
+        description:
+          "Soygun ve çatışma alarmlarını GPS koordinatlarıyla polislere iletir.",
         category: "Emniyet",
         defaultEnabled: true,
       },
       {
         id: "cd_easytime",
         name: "CD EasyTime (Hava Durumu & Zaman)",
-        description: "Gerçek zamanlı hava durumu, kar yağışı ve gece/gündüz döngüsü.",
+        description:
+          "Gerçek zamanlı hava durumu, kar yağışı ve gece/gündüz döngüsü.",
         category: "Dünya",
         defaultEnabled: true,
       },
       {
         id: "rcore_casino",
         name: "RCore Casino (Kumarhane & Rulet)",
-        description: "Diamond Casino içi blackjack, rulet, çarkıfelek ve slot makineleri.",
+        description:
+          "Diamond Casino içi blackjack, rulet, çarkıfelek ve slot makineleri.",
         category: "Ekonomi",
         defaultEnabled: false,
       },
       {
         id: "qb-smallresources",
         name: "QB SmallResources (Temel Optimizasyon)",
-        description: "Emniyet kemeri, hız sınırı, harita blipleri ve sürüş konfor ayarları.",
+        description:
+          "Emniyet kemeri, hız sınırı, harita blipleri ve sürüş konfor ayarları.",
         category: "Çekirdek",
         defaultEnabled: true,
       },
@@ -227,7 +247,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       port: 30120,
       maxPlayers: 64,
       autoRestart: true,
-      serverName: "🇹🇷 XIVIZLEY Roleplay | QB-Core v2 | Yüksek FPS | +100 FPS Araçlar",
+      serverName:
+        "🇹🇷 XIVIZLEY Roleplay | QB-Core v2 | Yüksek FPS | +100 FPS Araçlar",
       serverDesc: "Türkiye'nin en gelişmiş QB-Core GTA V rol yapma sunucusu.",
       gameMode: "Sosyal Rol & Aile",
     },
@@ -254,9 +275,17 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         jvmOverheadMb: 384,
         defaultVersion: "1.21.1",
         versions: [
-          "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21",
-          "1.20.6", "1.20.4", "1.20.2", "1.20.1",
-          "1.19.4", "1.19.2",
+          "1.21.4",
+          "1.21.3",
+          "1.21.2",
+          "1.21.1",
+          "1.21",
+          "1.20.6",
+          "1.20.4",
+          "1.20.2",
+          "1.20.1",
+          "1.19.4",
+          "1.19.2",
           "1.18.2",
           "1.17.1",
           "1.16.5",
@@ -269,10 +298,20 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         jvmOverheadMb: 256,
         defaultVersion: "1.21.1",
         versions: [
-          "1.21.4", "1.21.3", "1.21.2", "1.21.1", "1.21",
-          "1.20.6", "1.20.4", "1.20.2", "1.20.1",
-          "1.19.4", "1.19.3", "1.19.2",
-          "1.18.2", "1.18.1",
+          "1.21.4",
+          "1.21.3",
+          "1.21.2",
+          "1.21.1",
+          "1.21",
+          "1.20.6",
+          "1.20.4",
+          "1.20.2",
+          "1.20.1",
+          "1.19.4",
+          "1.19.3",
+          "1.19.2",
+          "1.18.2",
+          "1.18.1",
           "1.17.1",
           "1.16.5",
           "1.15.2",
@@ -289,9 +328,16 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         jvmOverheadMb: 256,
         defaultVersion: "1.21.1",
         versions: [
-          "1.21.4", "1.21.3", "1.21.1", "1.21",
-          "1.20.6", "1.20.4", "1.20.2", "1.20.1",
-          "1.19.4", "1.19.2",
+          "1.21.4",
+          "1.21.3",
+          "1.21.1",
+          "1.21",
+          "1.20.6",
+          "1.20.4",
+          "1.20.2",
+          "1.20.1",
+          "1.19.4",
+          "1.19.2",
           "1.18.2",
           "1.17.1",
           "1.16.5",
@@ -304,9 +350,7 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         overheadMb: 768,
         jvmOverheadMb: 512,
         defaultVersion: "1.21.1",
-        versions: [
-          "1.21.4", "1.21.3", "1.21.1", "1.20.4",
-        ],
+        versions: ["1.21.4", "1.21.3", "1.21.1", "1.20.4"],
       },
       {
         id: "forge",
@@ -315,9 +359,13 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         jvmOverheadMb: 512,
         defaultVersion: "1.20.1",
         versions: [
-          "1.21.1", "1.21",
-          "1.20.4", "1.20.2", "1.20.1",
-          "1.19.4", "1.19.2",
+          "1.21.1",
+          "1.21",
+          "1.20.4",
+          "1.20.2",
+          "1.20.1",
+          "1.19.4",
+          "1.19.2",
           "1.18.2",
           "1.16.5",
           "1.12.2",
@@ -331,8 +379,12 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         jvmOverheadMb: 256,
         defaultVersion: "1.21.4",
         versions: [
-          "1.21.4", "1.21.3", "1.21.1",
-          "1.20.6", "1.20.4", "1.20.1",
+          "1.21.4",
+          "1.21.3",
+          "1.21.1",
+          "1.20.6",
+          "1.20.4",
+          "1.20.1",
           "1.19.4",
           "1.18.2",
           "1.16.5",
@@ -354,7 +406,16 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         overheadMb: 768,
         jvmOverheadMb: 512,
         defaultVersion: "1.21.1",
-        versions: ["1.21.4", "1.21.3", "1.21.1", "1.20.6", "1.20.4", "1.20.2", "1.20.1", "1.19.4"],
+        versions: [
+          "1.21.4",
+          "1.21.3",
+          "1.21.1",
+          "1.20.6",
+          "1.20.4",
+          "1.20.2",
+          "1.20.1",
+          "1.19.4",
+        ],
       },
       {
         id: "waterfall",
@@ -378,7 +439,18 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         overheadMb: 256,
         jvmOverheadMb: 256,
         defaultVersion: "1.21.1",
-        versions: ["1.21.4", "1.21.3", "1.21.1", "1.20.4", "1.20.1", "1.19.4", "1.18.2", "1.16.5", "1.12.2", "1.8.8"],
+        versions: [
+          "1.21.4",
+          "1.21.3",
+          "1.21.1",
+          "1.20.4",
+          "1.20.1",
+          "1.19.4",
+          "1.18.2",
+          "1.16.5",
+          "1.12.2",
+          "1.8.8",
+        ],
       },
       {
         id: "mohist",
@@ -386,7 +458,16 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         overheadMb: 768,
         jvmOverheadMb: 512,
         defaultVersion: "1.20.1",
-        versions: ["1.20.2", "1.20.1", "1.19.4", "1.19.2", "1.18.2", "1.16.5", "1.12.2", "1.7.10"],
+        versions: [
+          "1.20.2",
+          "1.20.1",
+          "1.19.4",
+          "1.19.2",
+          "1.18.2",
+          "1.16.5",
+          "1.12.2",
+          "1.7.10",
+        ],
       },
     ],
     modPacks: [
@@ -394,24 +475,47 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "mc-survival",
         name: "⚔️ Hardcore Survival & Towny",
-        description: "Kasaba ve ulus kurma, ekonomi, meslekler, claim koruması ve rütbeler.",
+        description:
+          "Kasaba ve ulus kurma, ekonomi, meslekler, claim koruması ve rütbeler.",
         estimatedRamMb: 1024,
         tags: ["Hayatta Kalma", "Ekonomi"],
         packType: "gamemode",
         mutuallyExclusiveGroup: "gamemode",
         engines: ["purpur", "papermc", "folia", "spigot", "mohist"],
-        includedPluginIds: ["towny", "luckperms", "essentialsx", "vault", "worldguard", "worldedit", "coreprotect", "quickshop-hikari", "betterrtp", "tab", "decentholograms"],
+        includedPluginIds: [
+          "towny",
+          "luckperms",
+          "essentialsx",
+          "vault",
+          "worldguard",
+          "worldedit",
+          "coreprotect",
+          "quickshop-hikari",
+          "betterrtp",
+          "tab",
+          "decentholograms",
+        ],
       },
       {
         id: "mc-skyblock",
         name: "☁️ Gelişmiş Skyblock & OneBlock",
-        description: "Özel ada yükseltmeleri, minyonlar, jeneratörler ve ada sıralaması.",
+        description:
+          "Özel ada yükseltmeleri, minyonlar, jeneratörler ve ada sıralaması.",
         estimatedRamMb: 768,
         tags: ["Ada", "Görev"],
         packType: "gamemode",
         mutuallyExclusiveGroup: "gamemode",
         engines: ["purpur", "papermc", "folia", "spigot", "mohist"],
-        includedPluginIds: ["iridiumskyblock", "luckperms", "essentialsx", "vault", "multiverse-core", "quickshop-hikari", "tab", "decentholograms"],
+        includedPluginIds: [
+          "iridiumskyblock",
+          "luckperms",
+          "essentialsx",
+          "vault",
+          "multiverse-core",
+          "quickshop-hikari",
+          "tab",
+          "decentholograms",
+        ],
       },
       {
         id: "mc-faction",
@@ -422,44 +526,75 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
         packType: "gamemode",
         mutuallyExclusiveGroup: "gamemode",
         engines: ["purpur", "papermc", "folia", "spigot", "mohist"],
-        includedPluginIds: ["improved-factions", "luckperms", "essentialsx", "vault", "worldguard", "combatlogx", "tab", "skinsrestorer"],
+        includedPluginIds: [
+          "improved-factions",
+          "luckperms",
+          "essentialsx",
+          "vault",
+          "worldguard",
+          "combatlogx",
+          "tab",
+          "skinsrestorer",
+        ],
       },
       {
         id: "mc-crossplay",
         name: "📱 Bedrock & Mobil Crossplay Paketi",
-        description: "Android, iOS, Windows Bedrock ve konsol oyuncularının Java sunucusuna sıfır gecikmeyle bağlanması.",
+        description:
+          "Android, iOS, Windows Bedrock ve konsol oyuncularının Java sunucusuna sıfır gecikmeyle bağlanması.",
         estimatedRamMb: 384,
         tags: ["Crossplay", "Mobil"],
         packType: "addon",
         engines: ["purpur", "papermc", "folia", "spigot", "mohist"],
-        includedPluginIds: ["geyser", "floodgate", "viaversion", "viabackwards"],
+        includedPluginIds: [
+          "geyser",
+          "floodgate",
+          "viaversion",
+          "viabackwards",
+        ],
       },
       {
         id: "mc-lobi",
         name: "🏰 Çakma Lobi & Auth Güvenlik",
-        description: "Şifreli giriş, bot saldırı kalkanı, animasyonlu hologramlar ve otomatik sunucu yönlendirmesi.",
+        description:
+          "Şifreli giriş, bot saldırı kalkanı, animasyonlu hologramlar ve otomatik sunucu yönlendirmesi.",
         estimatedRamMb: 256,
         tags: ["Güvenlik", "Lobi"],
         packType: "addon",
         engines: ["purpur", "papermc", "folia", "spigot", "mohist"],
-        includedPluginIds: ["authme", "tab", "decentholograms", "skinsrestorer", "multiverse-core"],
+        includedPluginIds: [
+          "authme",
+          "tab",
+          "decentholograms",
+          "skinsrestorer",
+          "multiverse-core",
+        ],
       },
 
       // ─── Fabric Mod Paketleri ───
       {
         id: "mc-fabric-optimization",
         name: "🚀 Fabric Optimizasyon & Performans Paketi",
-        description: "Sunucu TPS'ini 20'de sabitleyen Lithium, FerriteCore, Krypton, C2ME ve Chunky motor paketi.",
+        description:
+          "Sunucu TPS'ini 20'de sabitleyen Lithium, FerriteCore, Krypton, C2ME ve Chunky motor paketi.",
         estimatedRamMb: 384,
         tags: ["Performans", "Optimizasyon"],
         packType: "addon",
         engines: ["fabric"],
-        includedPluginIds: ["fabric-api", "lithium", "ferrite-core", "krypton", "c2me", "chunky-fabric"],
+        includedPluginIds: [
+          "fabric-api",
+          "lithium",
+          "ferrite-core",
+          "krypton",
+          "c2me",
+          "chunky-fabric",
+        ],
       },
       {
         id: "mc-fabric-voice",
         name: "🎙️ Fabric Proximity Voice Chat & Güvenlik",
-        description: "Mekansal 3D sesli sohbet (Simple Voice Chat) ve hafif log takip motoru (Ledger).",
+        description:
+          "Mekansal 3D sesli sohbet (Simple Voice Chat) ve hafif log takip motoru (Ledger).",
         estimatedRamMb: 256,
         tags: ["Ses", "Güvenlik"],
         packType: "addon",
@@ -471,24 +606,38 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "mc-velocity-proxy",
         name: "🌐 Velocity Yüksek Performanslı Ağ Proxy",
-        description: "Yüzlerce oyuncuyu alt sunuculara yönlendiren, Bedrock uyumlu ve ultra güvenli proxy paketi.",
+        description:
+          "Yüzlerce oyuncuyu alt sunuculara yönlendiren, Bedrock uyumlu ve ultra güvenli proxy paketi.",
         estimatedRamMb: 256,
         tags: ["Proxy", "BungeeCord", "Ağ"],
         packType: "addon",
         engines: ["velocity"],
-        includedPluginIds: ["velocity-luckperms", "velocity-floodgate", "velocity-viaversion", "velocity-minimotd", "velocity-skinsrestorer", "velocity-signedvelocity"],
+        includedPluginIds: [
+          "velocity-luckperms",
+          "velocity-floodgate",
+          "velocity-viaversion",
+          "velocity-minimotd",
+          "velocity-skinsrestorer",
+          "velocity-signedvelocity",
+        ],
       },
 
       // ─── Forge & NeoForge Mod Paketleri ───
       {
         id: "mc-forge-essentials",
         name: "⚡ Forge / NeoForge Optimizasyon & Temel Modlar",
-        description: "Embeddium, FerriteCore, ModernFix ve JEI eşya tarayıcısı içeren temel kararlılık paketi.",
+        description:
+          "Embeddium, FerriteCore, ModernFix ve JEI eşya tarayıcısı içeren temel kararlılık paketi.",
         estimatedRamMb: 512,
         tags: ["Performans", "Temel"],
         packType: "addon",
         engines: ["forge", "neoforge"],
-        includedPluginIds: ["forge-embeddium", "forge-ferritecore", "forge-modernfix", "forge-jei"],
+        includedPluginIds: [
+          "forge-embeddium",
+          "forge-ferritecore",
+          "forge-modernfix",
+          "forge-jei",
+        ],
       },
     ],
     plugins: [
@@ -496,7 +645,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "luckperms",
         name: "LuckPerms",
-        description: "Gelişmiş grup, VIP rütbeleri, web arayüzü (/lp editor) ve yetki yönetim motoru.",
+        description:
+          "Gelişmiş grup, VIP rütbeleri, web arayüzü (/lp editor) ve yetki yönetim motoru.",
         category: "Yönetim",
         isRequired: true,
         defaultEnabled: true,
@@ -506,7 +656,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "essentialsx",
         name: "EssentialsX",
-        description: "/spawn, /sethome, /tpa, /warp, /kit, /back gibi 100+ temel sunucu komutu paketi.",
+        description:
+          "/spawn, /sethome, /tpa, /warp, /kit, /back gibi 100+ temel sunucu komutu paketi.",
         category: "Yönetim",
         defaultEnabled: true,
         modrinthSlug: "essentialsx:nY6VN1XH",
@@ -515,7 +666,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "vault",
         name: "Vault (Ekonomi Köprüsü)",
-        description: "Tüm ekonomi, market ve izin eklentileri arasında evrensel standart API köprüsü.",
+        description:
+          "Tüm ekonomi, market ve izin eklentileri arasında evrensel standart API köprüsü.",
         category: "Ekonomi",
         defaultEnabled: true,
         spigetId: 34315,
@@ -524,7 +676,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "worldguard",
         name: "WorldGuard",
-        description: "Spawn, pazar ve özel alanları PvP, patlama, ateş ve blok kırmaya karşı korur.",
+        description:
+          "Spawn, pazar ve özel alanları PvP, patlama, ateş ve blok kırmaya karşı korur.",
         category: "Koruma",
         defaultEnabled: true,
         modrinthSlug: "worldguard",
@@ -533,7 +686,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "worldedit",
         name: "WorldEdit",
-        description: "Tahta balta ile saniyeler içinde devasa yapılar, küreler ve kopyala-yapıştır mimari motoru.",
+        description:
+          "Tahta balta ile saniyeler içinde devasa yapılar, küreler ve kopyala-yapıştır mimari motoru.",
         category: "Dünya",
         defaultEnabled: true,
         modrinthSlug: "worldedit",
@@ -542,7 +696,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "coreprotect",
         name: "CoreProtect (Log & Rollback)",
-        description: "Kimin hangi bloğu kırdığını ve sandığı açtığını kaydeder, zararı tek komutla geri alır (/co rollback).",
+        description:
+          "Kimin hangi bloğu kırdığını ve sandığı açtığını kaydeder, zararı tek komutla geri alır (/co rollback).",
         category: "Koruma",
         defaultEnabled: true,
         modrinthSlug: "coreprotect",
@@ -551,7 +706,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "griefprevention",
         name: "GriefPrevention (Altın Kürek)",
-        description: "Oyuncuların altın kürekle kendi arazilerini claim'leyip sandıklarını kolayca kilitlemesini sağlar.",
+        description:
+          "Oyuncuların altın kürekle kendi arazilerini claim'leyip sandıklarını kolayca kilitlemesini sağlar.",
         category: "Koruma",
         defaultEnabled: false,
         modrinthSlug: "griefprevention",
@@ -560,7 +716,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "authme",
         name: "AuthMe Reloaded",
-        description: "Korsan / Offline sunucularda hesap güvenliği için /register ve /login şifreleme kalkanı.",
+        description:
+          "Korsan / Offline sunucularda hesap güvenliği için /register ve /login şifreleme kalkanı.",
         category: "Koruma",
         defaultEnabled: false,
         modrinthSlug: "authmereloaded",
@@ -569,7 +726,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "geyser",
         name: "Geyser (Bedrock & Mobil Giriş)",
-        description: "Android, iOS, PlayStation, Xbox ve Windows Bedrock oyuncularının Java sunucusuna bağlanmasını sağlar.",
+        description:
+          "Android, iOS, PlayStation, Xbox ve Windows Bedrock oyuncularının Java sunucusuna bağlanmasını sağlar.",
         category: "Crossplay",
         defaultEnabled: true,
         modrinthSlug: "geyser",
@@ -578,7 +736,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "floodgate",
         name: "Floodgate (Hesapsız Bedrock)",
-        description: "Bedrock oyuncularının ayrı bir Java hesabı almadan sunucuya doğrudan bağlanmasını mümkün kılar.",
+        description:
+          "Bedrock oyuncularının ayrı bir Java hesabı almadan sunucuya doğrudan bağlanmasını mümkün kılar.",
         category: "Crossplay",
         defaultEnabled: true,
         modrinthSlug: "floodgate",
@@ -587,7 +746,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "viaversion",
         name: "ViaVersion",
-        description: "Sunucunuz eski olsa bile daha yeni Minecraft sürümlerine sahip oyuncuların girmesini sağlar.",
+        description:
+          "Sunucunuz eski olsa bile daha yeni Minecraft sürümlerine sahip oyuncuların girmesini sağlar.",
         category: "Crossplay",
         defaultEnabled: true,
         modrinthSlug: "viaversion",
@@ -596,7 +756,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "viabackwards",
         name: "ViaBackwards",
-        description: "Sunucunuz güncel olsa bile daha eski Minecraft sürümlerine sahip oyuncuların bağlanmasını sağlar.",
+        description:
+          "Sunucunuz güncel olsa bile daha eski Minecraft sürümlerine sahip oyuncuların bağlanmasını sağlar.",
         category: "Crossplay",
         defaultEnabled: true,
         modrinthSlug: "viabackwards",
@@ -605,7 +766,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "tab",
         name: "TAB [Reborn]",
-        description: "Özel TAB listesi, oyuncu tag'leri, ping göstergeleri ve baş üstü rütbe formatı.",
+        description:
+          "Özel TAB listesi, oyuncu tag'leri, ping göstergeleri ve baş üstü rütbe formatı.",
         category: "Görsel",
         defaultEnabled: true,
         modrinthSlug: "tab",
@@ -614,7 +776,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "decentholograms",
         name: "DecentHolograms",
-        description: "Spawn alanlarına duyurular, kurallar, sıralamalar ve animasyonlu 3D metinler yerleştirir.",
+        description:
+          "Spawn alanlarına duyurular, kurallar, sıralamalar ve animasyonlu 3D metinler yerleştirir.",
         category: "Görsel",
         defaultEnabled: true,
         modrinthSlug: "decentholograms",
@@ -623,7 +786,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "skinsrestorer",
         name: "SkinsRestorer",
-        description: "Korsan / Offline sunucularda karakter skinlerini geri getirir ve /skin komutu sunar.",
+        description:
+          "Korsan / Offline sunucularda karakter skinlerini geri getirir ve /skin komutu sunar.",
         category: "Görsel",
         defaultEnabled: true,
         modrinthSlug: "skinsrestorer",
@@ -632,7 +796,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "quickshop-hikari",
         name: "QuickShop-Hikari (3D Pazar)",
-        description: "Sandık üzerinde dönen 3D eşyalarla oyuncuların kolayca market kurup ticaret yapmasını sağlar.",
+        description:
+          "Sandık üzerinde dönen 3D eşyalarla oyuncuların kolayca market kurup ticaret yapmasını sağlar.",
         category: "Ekonomi",
         defaultEnabled: true,
         modrinthSlug: "quickshop-hikari",
@@ -641,7 +806,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "chestshop",
         name: "ChestShop (Tabela Market)",
-        description: "Geleneksel tabela tabanlı sandık marketi. Çok düşük kaynak tüketimiyle sorunsuz çalışır.",
+        description:
+          "Geleneksel tabela tabanlı sandık marketi. Çok düşük kaynak tüketimiyle sorunsuz çalışır.",
         category: "Ekonomi",
         defaultEnabled: false,
         modrinthSlug: "chestshop",
@@ -650,7 +816,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "economyshopgui",
         name: "EconomyShopGUI (Menülü Market)",
-        description: "/shop komutuyla açılan kategorize eşya alım ve satım grafiksel menüsü.",
+        description:
+          "/shop komutuyla açılan kategorize eşya alım ve satım grafiksel menüsü.",
         category: "Ekonomi",
         defaultEnabled: false,
         spigetId: 69927,
@@ -659,7 +826,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "chunky",
         name: "Chunky (Dünya Ön-Yükleyici)",
-        description: "Dünyayı önceden render ederek oyuncular keşif yaparken oluşabilecek lagı sıfırlar. (Tek seferlik).",
+        description:
+          "Dünyayı önceden render ederek oyuncular keşif yaparken oluşabilecek lagı sıfırlar. (Tek seferlik).",
         category: "Dünya",
         isOneTimeTask: true,
         defaultEnabled: false,
@@ -669,7 +837,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "multiverse-core",
         name: "Multiverse-Core",
-        description: "Aynı sunucu içinde Lobi, Survival, Maden Dünyası ve Arena gibi birden çok dünya yönetir.",
+        description:
+          "Aynı sunucu içinde Lobi, Survival, Maden Dünyası ve Arena gibi birden çok dünya yönetir.",
         category: "Dünya",
         defaultEnabled: true,
         modrinthSlug: "multiverse-core",
@@ -678,7 +847,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "spark",
         name: "Spark Profiler",
-        description: "Hangi eklentinin veya chunk'ın lag yaptığını web tabanlı grafiklerle derinlemesine analiz eder.",
+        description:
+          "Hangi eklentinin veya chunk'ın lag yaptığını web tabanlı grafiklerle derinlemesine analiz eder.",
         category: "Dünya",
         defaultEnabled: false,
         modrinthSlug: "spark",
@@ -687,7 +857,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "betterrtp",
         name: "BetterRTP (Rastgele Işınlanma)",
-        description: "/rtp yazan oyuncuları lav ve su birikintilerinden koruyarak rastgele bir alana güvenle ışınlar.",
+        description:
+          "/rtp yazan oyuncuları lav ve su birikintilerinden koruyarak rastgele bir alana güvenle ışınlar.",
         category: "Oynanış",
         defaultEnabled: true,
         spigetId: 36081,
@@ -696,7 +867,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "combatlogx",
         name: "CombatLogX (PvP Kalkanı)",
-        description: "Savaş sırasında oyundan kaçmaya çalışan oyuncuları anında öldürür ve ganimetini düşürür.",
+        description:
+          "Savaş sırasında oyundan kaçmaya çalışan oyuncuları anında öldürür ve ganimetini düşürür.",
         category: "Oynanış",
         defaultEnabled: true,
         spigetId: 31689,
@@ -705,7 +877,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "auraskills",
         name: "AuraSkills (RPG Yetenekleri)",
-        description: "Madencilik, dövüş, odunculuk ve simya yetenekleri ile oyunculara RPG seviye ve pasif güçler kazandırır.",
+        description:
+          "Madencilik, dövüş, odunculuk ve simya yetenekleri ile oyunculara RPG seviye ve pasif güçler kazandırır.",
         category: "Oynanış",
         defaultEnabled: false,
         modrinthSlug: "auraskills",
@@ -714,7 +887,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "iridiumskyblock",
         name: "Iridium Skyblock (Ada Motoru & Görevler)",
-        description: "/is ada menüsü, otomatik boşluk dünyası, maden jeneratörleri, ada yükseltmeleri ve sıralama.",
+        description:
+          "/is ada menüsü, otomatik boşluk dünyası, maden jeneratörleri, ada yükseltmeleri ve sıralama.",
         category: "Dünya",
         defaultEnabled: true,
         modrinthSlug: "iridiumskyblock",
@@ -723,7 +897,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "towny",
         name: "Towny (Kasaba & Ulus Sistemi)",
-        description: "Oyuncuların kasaba ve ulus kurması, arsa vergisi, belediye başkanı ve savaş koruması.",
+        description:
+          "Oyuncuların kasaba ve ulus kurması, arsa vergisi, belediye başkanı ve savaş koruması.",
         category: "Koruma",
         defaultEnabled: true,
         modrinthSlug: "towny",
@@ -732,7 +907,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "improved-factions",
         name: "Improved Factions (Klan & Güç Motoru)",
-        description: "Klan kurma (/f create), klan arazisi sahiplenme, güç (power) sistemi ve klan savaşları.",
+        description:
+          "Klan kurma (/f create), klan arazisi sahiplenme, güç (power) sistemi ve klan savaşları.",
         category: "Oynanış",
         defaultEnabled: true,
         modrinthSlug: "improved-factions",
@@ -743,7 +919,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "fabric-api",
         name: "Fabric API (Zorunlu Çekirdek)",
-        description: "Tüm Fabric modlarının çalışması için zorunlu olan resmi kanca ve kütüphane motoru.",
+        description:
+          "Tüm Fabric modlarının çalışması için zorunlu olan resmi kanca ve kütüphane motoru.",
         category: "Çekirdek",
         isRequired: true,
         defaultEnabled: true,
@@ -753,7 +930,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "lithium",
         name: "Lithium (TPS & Fizik Optimizasyonu)",
-        description: "Fizik, yapay zeka, chunk yükleme ve mob hesaplamalarını optimize ederek lagı sıfırlar.",
+        description:
+          "Fizik, yapay zeka, chunk yükleme ve mob hesaplamalarını optimize ederek lagı sıfırlar.",
         category: "Performans",
         defaultEnabled: true,
         modrinthSlug: "lithium",
@@ -762,7 +940,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "ferrite-core",
         name: "FerriteCore (RAM Bellek Tasarrufu)",
-        description: "Sunucunun RAM tüketimini %30-%50 oranında düşürür, bellek sızıntılarını önler.",
+        description:
+          "Sunucunun RAM tüketimini %30-%50 oranında düşürür, bellek sızıntılarını önler.",
         category: "Performans",
         defaultEnabled: true,
         modrinthSlug: "ferrite-core",
@@ -771,7 +950,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "krypton",
         name: "Krypton (Ağ Yığını Hızlandırıcı)",
-        description: "Minecraft ağ yığınını optimize eder, sunucu bant genişliğini ve oyuncu pinglerini düşürür.",
+        description:
+          "Minecraft ağ yığınını optimize eder, sunucu bant genişliğini ve oyuncu pinglerini düşürür.",
         category: "Performans",
         defaultEnabled: true,
         modrinthSlug: "krypton",
@@ -780,7 +960,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "c2me",
         name: "C2ME (Çok Çekirdekli Chunk Üretimi)",
-        description: "Chunk ve dünya üretimini işlemcinin tüm çekirdeklerine dağıtarak keşif takılmalarını bitirir.",
+        description:
+          "Chunk ve dünya üretimini işlemcinin tüm çekirdeklerine dağıtarak keşif takılmalarını bitirir.",
         category: "Performans",
         defaultEnabled: true,
         modrinthSlug: "c2me-fabric",
@@ -789,7 +970,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "simple-voice-chat",
         name: "Simple Voice Chat (Mekansal Sesli Sohbet)",
-        description: "Oyun içi 3D yakınlık tabanlı (proximity) sesli sohbet ve telsiz sistemi.",
+        description:
+          "Oyun içi 3D yakınlık tabanlı (proximity) sesli sohbet ve telsiz sistemi.",
         category: "İletişim",
         defaultEnabled: true,
         modrinthSlug: "simple-voice-chat",
@@ -798,7 +980,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "ledger",
         name: "Ledger (Fabric Blok Loglama & Rollback)",
-        description: "CoreProtect gibi kim hangi bloğu kırdı kaydeder ve geri alma (rollback) imkanı tanır.",
+        description:
+          "CoreProtect gibi kim hangi bloğu kırdı kaydeder ve geri alma (rollback) imkanı tanır.",
         category: "Güvenlik",
         defaultEnabled: true,
         modrinthSlug: "ledger",
@@ -807,7 +990,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "chunky-fabric",
         name: "Chunky (Fabric Dünya Ön-Yükleyici)",
-        description: "Dünyayı önceden render ederek oyuncular keşfederken FPS düşüşlerini engeller.",
+        description:
+          "Dünyayı önceden render ederek oyuncular keşfederken FPS düşüşlerini engeller.",
         category: "Dünya",
         isOneTimeTask: true,
         defaultEnabled: false,
@@ -819,7 +1003,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "velocity-luckperms",
         name: "LuckPerms (Velocity Proxy)",
-        description: "Tüm sunucu ağınızda global yetkileri ve proxy izinlerini yönetir.",
+        description:
+          "Tüm sunucu ağınızda global yetkileri ve proxy izinlerini yönetir.",
         category: "Yönetim",
         isRequired: true,
         defaultEnabled: true,
@@ -829,7 +1014,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "velocity-floodgate",
         name: "Floodgate (Velocity Bedrock Girişi)",
-        description: "Bedrock oyuncularının doğrudan Velocity proxy üzerinden alt sunuculara geçmesini sağlar.",
+        description:
+          "Bedrock oyuncularının doğrudan Velocity proxy üzerinden alt sunuculara geçmesini sağlar.",
         category: "Crossplay",
         defaultEnabled: true,
         modrinthSlug: "floodgate",
@@ -838,7 +1024,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "velocity-viaversion",
         name: "ViaVersion (Velocity Çoklu Sürüm)",
-        description: "Tüm yeni Minecraft istemcilerinin proxy ağına bağlanmasına izin verir.",
+        description:
+          "Tüm yeni Minecraft istemcilerinin proxy ağına bağlanmasına izin verir.",
         category: "Crossplay",
         defaultEnabled: true,
         modrinthSlug: "viaversion",
@@ -847,7 +1034,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "velocity-skinsrestorer",
         name: "SkinsRestorer (Velocity Global Skin)",
-        description: "Proxy genelinde tüm oyuncu skinlerinin doğru ve hızlı yüklenmesini sağlar.",
+        description:
+          "Proxy genelinde tüm oyuncu skinlerinin doğru ve hızlı yüklenmesini sağlar.",
         category: "Görsel",
         defaultEnabled: true,
         modrinthSlug: "skinsrestorer",
@@ -856,7 +1044,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "velocity-minimotd",
         name: "MiniMOTD (Velocity RGB Sunucu Başlığı)",
-        description: "Sunucu listesinde animasyonlu, gradyan ve RGB renkli modern MOTD gösterir.",
+        description:
+          "Sunucu listesinde animasyonlu, gradyan ve RGB renkli modern MOTD gösterir.",
         category: "Görsel",
         defaultEnabled: true,
         modrinthSlug: "minimotd",
@@ -865,7 +1054,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "velocity-signedvelocity",
         name: "SignedVelocity (Sohbet İmzası Uyumluluğu)",
-        description: "Mojang sohbet imzalama zorunluluğunu proxy seviyesinde çözer ve kicklenmeleri önler.",
+        description:
+          "Mojang sohbet imzalama zorunluluğunu proxy seviyesinde çözer ve kicklenmeleri önler.",
         category: "Güvenlik",
         defaultEnabled: true,
         modrinthSlug: "signedvelocity",
@@ -876,7 +1066,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "forge-embeddium",
         name: "Embeddium (Forge FPS Artırıcı)",
-        description: "Sodium'un modern Forge / NeoForge portu. FPS'i katlar ve akıcı render sağlar.",
+        description:
+          "Sodium'un modern Forge / NeoForge portu. FPS'i katlar ve akıcı render sağlar.",
         category: "Performans",
         defaultEnabled: true,
         modrinthSlug: "embeddium",
@@ -885,7 +1076,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "forge-ferritecore",
         name: "FerriteCore (Forge RAM Tasarrufu)",
-        description: "Ağır modlu Forge sunucularında RAM tüketimini dramatik ölçüde azaltır.",
+        description:
+          "Ağır modlu Forge sunucularında RAM tüketimini dramatik ölçüde azaltır.",
         category: "Performans",
         defaultEnabled: true,
         modrinthSlug: "ferrite-core",
@@ -894,7 +1086,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "forge-modernfix",
         name: "ModernFix (Forge Yükleme Hızı & Düzeltmeler)",
-        description: "Sunucu açılış süresini %50 kısaltır ve bellek sızıntılarını giderir.",
+        description:
+          "Sunucu açılış süresini %50 kısaltır ve bellek sızıntılarını giderir.",
         category: "Performans",
         defaultEnabled: true,
         modrinthSlug: "modernfix",
@@ -903,7 +1096,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "forge-jei",
         name: "Just Enough Items - JEI (Eşya Arama Motoru)",
-        description: "Tarifleri ve modlu eşyaları listeleyen sunucu ve istemci senkronizasyon motoru.",
+        description:
+          "Tarifleri ve modlu eşyaları listeleyen sunucu ve istemci senkronizasyon motoru.",
         category: "Oynanış",
         defaultEnabled: true,
         modrinthSlug: "jei",
@@ -912,7 +1106,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "forge-journeymap",
         name: "JourneyMap (Harita & Radar Senkronizasyonu)",
-        description: "Gerçek zamanlı harita ve waypoint verilerini sunucu ile senkronize eder.",
+        description:
+          "Gerçek zamanlı harita ve waypoint verilerini sunucu ile senkronize eder.",
         category: "Dünya",
         defaultEnabled: false,
         modrinthSlug: "journeymap",
@@ -1006,7 +1201,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "cs-surf",
         name: "🏄 Surf, Bhop & KZ Parkur",
-        description: "Hız sayaçları, checkpoint ve lider tablosu parkur sistemi.",
+        description:
+          "Hız sayaçları, checkpoint ve lider tablosu parkur sistemi.",
         estimatedRamMb: 512,
         tags: ["Eğlence", "Parkur"],
       },
@@ -1022,7 +1218,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "simple-admin",
         name: "SimpleAdmin",
-        description: "Ban, kick, mute ve sunucu ayar kontrolleri için modern yönetici arayüzü.",
+        description:
+          "Ban, kick, mute ve sunucu ayar kontrolleri için modern yönetici arayüzü.",
         category: "Yönetim",
         isRequired: true,
         defaultEnabled: true,
@@ -1030,84 +1227,96 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "matchzy",
         name: "MatchZy Tournament Controller",
-        description: "Turnuva standartlarında 5v5 maç kontrolü, bıçak raundu ve scrim sistemi.",
+        description:
+          "Turnuva standartlarında 5v5 maç kontrolü, bıçak raundu ve scrim sistemi.",
         category: "Turnuva",
         defaultEnabled: true,
       },
       {
         id: "cs2fixes",
         name: "CS2Fixes & Tick Kararlılığı",
-        description: "Sub-tick hareketleri ve gecikmeyi dengeleyen kararlılık eklentisi.",
+        description:
+          "Sub-tick hareketleri ve gecikmeyi dengeleyen kararlılık eklentisi.",
         category: "Performans",
         defaultEnabled: true,
       },
       {
         id: "weapons",
         name: "Özel Bıçak, Eldiven & Skin Menüsü",
-        description: "Oyuncuların sunucu içinde tüm bıçak, eldiven ve silah skinlerini denemesini sağlar.",
+        description:
+          "Oyuncuların sunucu içinde tüm bıçak, eldiven ve silah skinlerini denemesini sağlar.",
         category: "Kozmetik",
         defaultEnabled: true,
       },
       {
         id: "retakes",
         name: "CS2 Retakes Modu",
-        description: "Bomba kurulduktan hemen sonra alan savunması ve retake antrenmanı.",
+        description:
+          "Bomba kurulduktan hemen sonra alan savunması ve retake antrenmanı.",
         category: "Antrenman",
         defaultEnabled: false,
       },
       {
         id: "cs2-surf",
         name: "CS2 Surf & Bhop Modu",
-        description: "Özel hava hızlanması (airaccelerate), parkur zamanlayıcısı ve checkpoint sistemi.",
+        description:
+          "Özel hava hızlanması (airaccelerate), parkur zamanlayıcısı ve checkpoint sistemi.",
         category: "Eğlence",
         defaultEnabled: false,
       },
       {
         id: "deathmatch",
         name: "CS2 FFA Deathmatch",
-        description: "Herkes tek, anında yeniden doğma ve otomatik şarjör doldurma.",
+        description:
+          "Herkes tek, anında yeniden doğma ve otomatik şarjör doldurma.",
         category: "Antrenman",
         defaultEnabled: false,
       },
       {
         id: "openhud",
         name: "OpenHUD Skor & MVP Arayüzü",
-        description: "Canlı K/D oranı, MVP duyuruları ve tur sonu müzik yayını.",
+        description:
+          "Canlı K/D oranı, MVP duyuruları ve tur sonu müzik yayını.",
         category: "Arayüz",
         defaultEnabled: true,
       },
       {
         id: "advertisement",
         name: "Sohbet & Panel Duyuru Botu",
-        description: "Belirlenen aralıklarla sunucu kurallarını ve sosyal medya linklerini duyurur.",
+        description:
+          "Belirlenen aralıklarla sunucu kurallarını ve sosyal medya linklerini duyurur.",
         category: "İletişim",
         defaultEnabled: true,
       },
       {
         id: "discord-logger",
         name: "Discord Webhook Logger",
-        description: "Maç sonuçlarını, MVP'leri ve verilen cezaları otomatik Discord kanalına aktarır.",
+        description:
+          "Maç sonuçlarını, MVP'leri ve verilen cezaları otomatik Discord kanalına aktarır.",
         category: "Entegrasyon",
         defaultEnabled: true,
       },
       {
         id: "practice-mode",
         name: "CS2 Practice Mode",
-        description: "Bomba atış çizgisi (/trajectory), geri sarma (/rethrow) ve serbest uçuş (/noclip).",
+        description:
+          "Bomba atış çizgisi (/trajectory), geri sarma (/rethrow) ve serbest uçuş (/noclip).",
         category: "Antrenman",
         defaultEnabled: false,
       },
       {
         id: "team-balancer",
         name: "Auto Team Balance",
-        description: "Takımları skor ve oyuncu sayısına göre eşit şekilde dengeler.",
+        description:
+          "Takımları skor ve oyuncu sayısına göre eşit şekilde dengeler.",
         category: "Yönetim",
         defaultEnabled: true,
       },
       {
         id: "vip-core",
         name: "VIP Core System",
-        description: "Özel VIP isim renkleri, sohbet tag'leri ve ekstra giriş önceliği.",
+        description:
+          "Özel VIP isim renkleri, sohbet tag'leri ve ekstra giriş önceliği.",
         category: "Rol",
         defaultEnabled: false,
       },
@@ -1130,7 +1339,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       maxPlayers: 10,
       autoRestart: true,
       serverName: "🇹🇷 [TR] XIVIZLEY 5v5 Rekabetçi | MatchZy | 128 Tickrate",
-      serverDesc: "Anti-cheat korumalı, sub-tick optimizasyonlu profesyonel CS2 sunucusu.",
+      serverDesc:
+        "Anti-cheat korumalı, sub-tick optimizasyonlu profesyonel CS2 sunucusu.",
       map: "de_dust2",
       gameMode: "competitive",
       tickrate: 128,
@@ -1177,28 +1387,32 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "rust-fastloot",
         name: "⚡ 2x / 3x / 5x Hızlı Loot Paketi",
-        description: "Hızlı madencilik, bileşen çarpanları ve anında fırınlama.",
+        description:
+          "Hızlı madencilik, bileşen çarpanları ve anında fırınlama.",
         estimatedRamMb: 512,
         tags: ["Loot", "Hız"],
       },
       {
         id: "rust-clan",
         name: "👥 Klan & Otomatik Yetki Sistemi",
-        description: "Clans GUI ile tam uyumlu takım, kapı kodu ve kule paylaşımı.",
+        description:
+          "Clans GUI ile tam uyumlu takım, kapı kodu ve kule paylaşımı.",
         estimatedRamMb: 384,
         tags: ["Takım", "Klan"],
       },
       {
         id: "rust-event",
         name: "🚁 Heli, Kargo & Airdrop Event Paketi",
-        description: "Saatlik otomatik etkinlikler ve korumalı kilitli sandıklar.",
+        description:
+          "Saatlik otomatik etkinlikler ve korumalı kilitli sandıklar.",
         estimatedRamMb: 256,
         tags: ["Etkinlik", "PvP"],
       },
       {
         id: "rust-nodecay",
         name: "🏚️ No-Decay & Yapı Koruma",
-        description: "Evlerin çürümesini durdurur ve kaynak tüketimini azaltır.",
+        description:
+          "Evlerin çürümesini durdurur ve kaynak tüketimini azaltır.",
         estimatedRamMb: 128,
         tags: ["Yapı", "Kolaylık"],
       },
@@ -1235,35 +1449,40 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "bgrade",
         name: "BGrade (Otomatik Taş/Metal)",
-        description: "İnşa ederken yapıları otomatik taş veya metale yükseltir.",
+        description:
+          "İnşa ederken yapıları otomatik taş veya metale yükseltir.",
         category: "İnşa",
         defaultEnabled: true,
       },
       {
         id: "loot-tables",
         name: "BetterLoot (Sandık & Kasa Ayarları)",
-        description: "Varil ve askeri sandıklardan gereksiz çöp eşyaları kaldırır.",
+        description:
+          "Varil ve askeri sandıklardan gereksiz çöp eşyaları kaldırır.",
         category: "Loot",
         defaultEnabled: true,
       },
       {
         id: "no-decay",
         name: "NoDecay (Ev Çürümesini Durdurma)",
-        description: "Ana dolap (TC) kaynak tüketimini durdurur, binalar çürümez.",
+        description:
+          "Ana dolap (TC) kaynak tüketimini durdurur, binalar çürümez.",
         category: "Koruma",
         defaultEnabled: true,
       },
       {
         id: "kits",
         name: "Kits (Başlangıç & VIP Paketleri)",
-        description: "Oyuncuların belirli aralıklarla başlangıç teçhizatı almasını sağlar.",
+        description:
+          "Oyuncuların belirli aralıklarla başlangıç teçhizatı almasını sağlar.",
         category: "Kolaylık",
         defaultEnabled: true,
       },
       {
         id: "stacksize",
         name: "StackSizeController (10.000x İstifleme)",
-        description: "Odun, taş ve mermilerin büyük paketler halinde taşınmasını sağlar.",
+        description:
+          "Odun, taş ve mermilerin büyük paketler halinde taşınmasını sağlar.",
         category: "Envanter",
         defaultEnabled: true,
       },
@@ -1291,14 +1510,16 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "rustcord",
         name: "Rustcord (Discord Sohbet Köprüsü)",
-        description: "Oyun içi sohbeti, klan bildirimlerini ve airdrop olaylarını Discord'a aktarır.",
+        description:
+          "Oyun içi sohbeti, klan bildirimlerini ve airdrop olaylarını Discord'a aktarır.",
         category: "Entegrasyon",
         defaultEnabled: false,
       },
       {
         id: "trade",
         name: "Trade System (Güvenli Takas)",
-        description: "Oyuncuların öldürülme korkusu olmadan uzaktan takas yapmasını sağlar.",
+        description:
+          "Oyuncuların öldürülme korkusu olmadan uzaktan takas yapmasını sağlar.",
         category: "Ekonomi",
         defaultEnabled: false,
       },
@@ -1325,7 +1546,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       maxPlayers: 50,
       autoRestart: true,
       serverName: "🇹🇷 [TR] XIVIZLEY 3x Hızlı Loot | Solo/Duo/Trio | No-Decay",
-      serverDesc: "Aktif yetkililer, hızlı erime, 3x kaynak ve adil klan savaşları.",
+      serverDesc:
+        "Aktif yetkililer, hızlı erime, 3x kaynak ve adil klan savaşları.",
       map: "Procedural Map",
     },
   },
@@ -1363,7 +1585,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "pal-32p",
         name: "🌐 32 Kişilik Çok Oyunculu Optimizasyon",
-        description: "Bellek sızıntısını engelleyen periyodik temizleyici ve tick sabitleyici.",
+        description:
+          "Bellek sızıntısını engelleyen periyodik temizleyici ve tick sabitleyici.",
         estimatedRamMb: 512,
         tags: ["Performans", "Çok Oyunculu"],
       },
@@ -1377,7 +1600,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "pal-boss",
         name: "🕒 Hızlı Boss Doğma Paketi",
-        description: "Alan boss'larının doğma bekleme süresini 15 dakikaya indirir.",
+        description:
+          "Alan boss'larının doğma bekleme süresini 15 dakikaya indirir.",
         estimatedRamMb: 128,
         tags: ["Boss", "Savaş"],
       },
@@ -1386,14 +1610,16 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "pal-nodrop",
         name: "Kayıp Eşya Koruması (No-Drop)",
-        description: "Karakter ölünce envanterdeki eşyaların ve Pal'ların düşmesini engeller.",
+        description:
+          "Karakter ölünce envanterdeki eşyaların ve Pal'ların düşmesini engeller.",
         category: "Oynanış",
         defaultEnabled: true,
       },
       {
         id: "pal-stamina",
         name: "Stamina Dengeleyici (2x Dayanıklılık)",
-        description: "Koşma, tırmanma ve uçma dayanıklılığını 2 katına çıkarır.",
+        description:
+          "Koşma, tırmanma ve uçma dayanıklılığını 2 katına çıkarır.",
         category: "Konfor",
         defaultEnabled: true,
       },
@@ -1421,35 +1647,40 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "pal-basecamps",
         name: "128 Üs Açma Limiti",
-        description: "Lonca başına kurulabilen üs sınırını 3'ten 128'e yükseltir.",
+        description:
+          "Lonca başına kurulabilen üs sınırını 3'ten 128'e yükseltir.",
         category: "Genişletme",
         defaultEnabled: false,
       },
       {
         id: "pal-workerlimit",
         name: "Üs Başına 30 Pal Çalıştırma",
-        description: "Üslerde aynı anda çalışabilen işçi Pal sayısını 15'ten 30'a çıkarır.",
+        description:
+          "Üslerde aynı anda çalışabilen işçi Pal sayısını 15'ten 30'a çıkarır.",
         category: "Gelişim",
         defaultEnabled: true,
       },
       {
         id: "pal-fastcraft",
         name: "3x Hızlı Üretim Modu",
-        description: "Tezgahlarda eşya, silah ve mühimmat üretim süresini üçte bire indirir.",
+        description:
+          "Tezgahlarda eşya, silah ve mühimmat üretim süresini üçte bire indirir.",
         category: "Hız",
         defaultEnabled: true,
       },
       {
         id: "pal-autosave",
         name: "Hızlı Veri Yedekleme (Autosave)",
-        description: "Sunucu dünyasını her 5 dakikada bir otomatik diske kaydeder.",
+        description:
+          "Sunucu dünyasını her 5 dakikada bir otomatik diske kaydeder.",
         category: "Güvenlik",
         defaultEnabled: true,
       },
       {
         id: "pal-discord",
         name: "Palworld Discord Canlı Durum",
-        description: "Sunucudaki çevrimiçi oyuncuları ve anlık durumu Discord botuyla gösterir.",
+        description:
+          "Sunucudaki çevrimiçi oyuncuları ve anlık durumu Discord botuyla gösterir.",
         category: "Entegrasyon",
         defaultEnabled: false,
       },
@@ -1517,7 +1748,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "unt-tr",
         name: "🇹🇷 Türkiye Haritası & Özel İtemler",
-        description: "Türk ordusu kamuflajları, yerel araçlar ve İstanbul haritası.",
+        description:
+          "Türk ordusu kamuflajları, yerel araçlar ve İstanbul haritası.",
         estimatedRamMb: 512,
         tags: ["Harita", "Türk"],
       },
@@ -1568,14 +1800,16 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "kits",
         name: "RocketKits (Askeri /kit)",
-        description: "Oyunculara belirli bekleme süreleriyle başlangıç ve VIP silah kitleri verir.",
+        description:
+          "Oyunculara belirli bekleme süreleriyle başlangıç ve VIP silah kitleri verir.",
         category: "Loot",
         defaultEnabled: true,
       },
       {
         id: "feaston",
         name: "FeastOn (Havalimanı Kasa Etkinliği)",
-        description: "Periyodik olarak haritanın ortasına zengin askeri ganimet kasası düşürür.",
+        description:
+          "Periyodik olarak haritanın ortasına zengin askeri ganimet kasası düşürür.",
         category: "Etkinlik",
         defaultEnabled: true,
       },
@@ -1589,21 +1823,24 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "zones",
         name: "SafeZones (Güvenli Ticaret Alanı)",
-        description: "Hasar almanın kapalı olduğu güvenli pazar ve spawn bölgeleri.",
+        description:
+          "Hasar almanın kapalı olduğu güvenli pazar ve spawn bölgeleri.",
         category: "Koruma",
         defaultEnabled: true,
       },
       {
         id: "airdrop",
         name: "Custom Airdrop (Özel Destek Uçağı)",
-        description: "Oyuncuların işaret fişeğiyle askeri helikopter ve tank çağırmasını sağlar.",
+        description:
+          "Oyuncuların işaret fişeğiyle askeri helikopter ve tank çağırmasını sağlar.",
         category: "Etkinlik",
         defaultEnabled: false,
       },
       {
         id: "turkey-map",
         name: "Türkiye Harita Paketi",
-        description: "Boğaz Köprüsü, Ayasofya ve askeri kışlalar içeren Türk haritası.",
+        description:
+          "Boğaz Köprüsü, Ayasofya ve askeri kışlalar içeren Türk haritası.",
         category: "Harita",
         defaultEnabled: true,
       },
@@ -1627,7 +1864,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       maxPlayers: 24,
       autoRestart: true,
       serverName: "🇹🇷 [TR] XIVIZLEY Unturned | Askeri Loot & PVP & Ekonomi",
-      serverDesc: "Askeri araçlar, zombi kıyameti, Türkiye haritası ve özel tüccarlar.",
+      serverDesc:
+        "Askeri araçlar, zombi kıyameti, Türkiye haritası ve özel tüccarlar.",
       map: "Washington",
     },
   },
@@ -1688,70 +1926,80 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "awesome-spyglass",
         name: "Awesome SpyGlass (Dino Analiz Dürbünü)",
-        description: "Dinozor statlarını, sağlık durumunu ve gerekli evcilleştirme gıdalarını gösterir.",
+        description:
+          "Dinozor statlarını, sağlık durumunu ve gerekli evcilleştirme gıdalarını gösterir.",
         category: "Arayüz",
         defaultEnabled: true,
       },
       {
         id: "automated-ark",
         name: "Automated Ark (Çiftlik Otomasyonu)",
-        description: "Gübreleme, yumurta toplama ve fırınları tam otomatik hale getirir.",
+        description:
+          "Gübreleme, yumurta toplama ve fırınları tam otomatik hale getirir.",
         category: "Otomasyon",
         defaultEnabled: true,
       },
       {
         id: "ark-teleport",
         name: "Awesome Teleporters (Işınlanma)",
-        description: "Kabile üyeleri ve dinozorlar arasında anlık güvenli ışınlanma sağlar.",
+        description:
+          "Kabile üyeleri ve dinozorlar arasında anlık güvenli ışınlanma sağlar.",
         category: "Konfor",
         defaultEnabled: true,
       },
       {
         id: "structures-plus",
         name: "Structures Plus (S+ Hatasız İnşa)",
-        description: "Hatasız yapı yerleştirme, kablosuz elektrik ve boru hatları.",
+        description:
+          "Hatasız yapı yerleştirme, kablosuz elektrik ve boru hatları.",
         category: "İnşa",
         defaultEnabled: true,
       },
       {
         id: "ultra-stacks",
         name: "Ultra Stacks (10.000x İstifleme)",
-        description: "Tüm kaynakları 10.000 adetlik istifler ve ağırlıklarını %90 azaltır.",
+        description:
+          "Tüm kaynakları 10.000 adetlik istifler ve ağırlıklarını %90 azaltır.",
         category: "Envanter",
         defaultEnabled: true,
       },
       {
         id: "dino-storage",
         name: "Dino Storage v2 (Soul Ball)",
-        description: "Dinozorları top içine alıp cebinizde veya dondurucuda saklamanızı sağlar.",
+        description:
+          "Dinozorları top içine alıp cebinizde veya dondurucuda saklamanızı sağlar.",
         category: "Konfor",
         defaultEnabled: true,
       },
       {
         id: "upgrade-station",
         name: "Upgrade Station (Eşya Geliştirme)",
-        description: "İlkel silah ve zırhları Usta (Mastercraft) seviyeye yükseltir.",
+        description:
+          "İlkel silah ve zırhları Usta (Mastercraft) seviyeye yükseltir.",
         category: "Gelişim",
         defaultEnabled: true,
       },
       {
         id: "classic-flyers",
         name: "Classic Flyers (Hızlı Uçanlar)",
-        description: "Pteranodon ve Wyvern gibi uçan dinozorlarda hız statını açar.",
+        description:
+          "Pteranodon ve Wyvern gibi uçan dinozorlarda hız statını açar.",
         category: "Oynanış",
         defaultEnabled: true,
       },
       {
         id: "primal-fear",
         name: "Primal Fear (Apex Canavarlar)",
-        description: "Zehir, ateş ve elektrik elementi saçan efsanevi vahşi bosslar.",
+        description:
+          "Zehir, ateş ve elektrik elementi saçan efsanevi vahşi bosslar.",
         category: "Boss",
         defaultEnabled: false,
       },
       {
         id: "solo-farm",
         name: "Solo Farm Mod (Otomatik Taş/Odun)",
-        description: "Dinozorların sırtına binmeden kendi kendilerine kaynak kazmasını sağlar.",
+        description:
+          "Dinozorların sırtına binmeden kendi kendilerine kaynak kazmasını sağlar.",
         category: "Otomasyon",
         defaultEnabled: false,
       },
@@ -1774,7 +2022,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       maxPlayers: 20,
       autoRestart: true,
       serverName: "🇹🇷 [TR] XIVIZLEY ARK 10x Boosted | S+ & Spyglass | PvP",
-      serverDesc: "10x taming, ultra stack, S+ yapıları ve dengeli kabile PvP deneyimi.",
+      serverDesc:
+        "10x taming, ultra stack, S+ yapıları ve dengeli kabile PvP deneyimi.",
       map: "TheIsland",
     },
   },
@@ -1826,14 +2075,16 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "ter-protect",
         name: "🛡️ Şehir & Sandık Koruma (Anti-Grief)",
-        description: "Oyuncu sandıklarını ve NPC kasabalarını koruma altına alır.",
+        description:
+          "Oyuncu sandıklarını ve NPC kasabalarını koruma altına alır.",
         estimatedRamMb: 128,
         tags: ["Koruma", "Güvenlik"],
       },
       {
         id: "ter-rpg",
         name: "📜 RPG Seviye & Yetenek Ağacı",
-        description: "Canavarları yendikçe kazanılan seviye puanları ve beceriler.",
+        description:
+          "Canavarları yendikçe kazanılan seviye puanları ve beceriler.",
         estimatedRamMb: 256,
         tags: ["RPG", "Gelişim"],
       },
@@ -1850,63 +2101,72 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "magic-storage",
         name: "Magic Storage (Merkezi Depo)",
-        description: "Tüm sandıkları tek bir merkezi ve aranabilir ekranda toplar.",
+        description:
+          "Tüm sandıkları tek bir merkezi ve aranabilir ekranda toplar.",
         category: "Konfor",
         defaultEnabled: true,
       },
       {
         id: "boss-checklist",
         name: "Boss Checklist (Boss Rehberi)",
-        description: "Boss sıralamasını ve gerekli çağırma eşyalarını listeler.",
+        description:
+          "Boss sıralamasını ve gerekli çağırma eşyalarını listeler.",
         category: "Arayüz",
         defaultEnabled: true,
       },
       {
         id: "calamity",
         name: "Calamity Mod (24 Yeni Boss & Biyom)",
-        description: "Yüzlerce yeni eşya, büyü, intikam modu ve efsanevi boss dövüşleri.",
+        description:
+          "Yüzlerce yeni eşya, büyü, intikam modu ve efsanevi boss dövüşleri.",
         category: "İçerik",
         defaultEnabled: true,
       },
       {
         id: "thorium",
         name: "Thorium Mod (Şifacı & Ozan Sınıfları)",
-        description: "Co-op takım oyunu için yeni karakter sınıfları ve derinlik.",
+        description:
+          "Co-op takım oyunu için yeni karakter sınıfları ve derinlik.",
         category: "İçerik",
         defaultEnabled: false,
       },
       {
         id: "fargos-mutant",
         name: "Fargo's Mutant Mod (Hızlı Boss Çağırma)",
-        description: "NPC köylülerden doğrudan boss çağırma materyalleri satın alma.",
+        description:
+          "NPC köylülerden doğrudan boss çağırma materyalleri satın alma.",
         category: "Konfor",
         defaultEnabled: true,
       },
       {
         id: "alchemist-npc",
         name: "AlchemistNPC Lite (İksir & Maden)",
-        description: "Madencilik ve savaş iksirlerini satan yardımcı NPC tüccarlar.",
+        description:
+          "Madencilik ve savaş iksirlerini satan yardımcı NPC tüccarlar.",
         category: "Ekonomi",
         defaultEnabled: true,
       },
       {
         id: "recipe-browser",
         name: "Recipe Browser (Tarif Arama)",
-        description: "Oyun içindeki tüm eşyaların hangi malzemelerle üretildiğini arama motoru.",
+        description:
+          "Oyun içindeki tüm eşyaların hangi malzemelerle üretildiğini arama motoru.",
         category: "Arayüz",
         defaultEnabled: true,
       },
       {
         id: "anti-grief",
         name: "TShock Anti-Grief (Şehir Koruma)",
-        description: "Oyuncu evlerini patlayıcılara ve yetkisiz blok kırmaya karşı kilitler.",
+        description:
+          "Oyuncu evlerini patlayıcılara ve yetkisiz blok kırmaya karşı kilitler.",
         category: "Koruma",
         defaultEnabled: true,
       },
       {
         id: "wing-slot",
         name: "Wing Slot Extra (Ekstra Kanat Yuvası)",
-        description: "Kanatlar için aksesuar slotlarını işgal etmeyen bağımsız yuva.",
+        description:
+          "Kanatlar için aksesuar slotlarını işgal etmeyen bağımsız yuva.",
         category: "Kozmetik",
         defaultEnabled: true,
       },
@@ -1930,7 +2190,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       maxPlayers: 16,
       autoRestart: true,
       serverName: "🇹🇷 XIVIZLEY Terraria TR | Calamity & TShock",
-      serverDesc: "TShock korumalı, Calamity bossları ve Magic Storage destekli.",
+      serverDesc:
+        "TShock korumalı, Calamity bossları ve Magic Storage destekli.",
       map: "XivizleyWorld",
       difficulty: "normal",
     },
@@ -1976,14 +2237,16 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "val-plus",
         name: "🛠️ Valheim Plus Yaşam Kalitesi",
-        description: "Gelişmiş inşa kılavuzları, otomatik fırın ve geniş envanter.",
+        description:
+          "Gelişmiş inşa kılavuzları, otomatik fırın ve geniş envanter.",
         estimatedRamMb: 384,
         tags: ["Konfor", "İnşa"],
       },
       {
         id: "val-epicloot",
         name: "⚔️ Epic Loot Büyülü Eşya Paketi",
-        description: "Canavarlardan düşen nadir, efsanevi RPG silahları ve parşömenler.",
+        description:
+          "Canavarlardan düşen nadir, efsanevi RPG silahları ve parşömenler.",
         estimatedRamMb: 512,
         tags: ["Loot", "RPG"],
       },
@@ -1999,70 +2262,80 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       {
         id: "valheim-plus",
         name: "ValheimPlus Core (Gelişmiş Kurallar)",
-        description: "Sunucu kurallarını, dayanıklılığı, taşıma kapasitesini ve üretim hızını özelleştirir.",
+        description:
+          "Sunucu kurallarını, dayanıklılığı, taşıma kapasitesini ve üretim hızını özelleştirir.",
         category: "Çekirdek",
         defaultEnabled: true,
       },
       {
         id: "creature-level",
         name: "Creature Level & Loot (Yıldızlı Yaratık)",
-        description: "Gece çıkan yaratıkların yıldız ve ganimet seviyesini artırır.",
+        description:
+          "Gece çıkan yaratıkların yıldız ve ganimet seviyesini artırır.",
         category: "Zorluk",
         defaultEnabled: true,
       },
       {
         id: "epic-loot",
         name: "Epic Loot (Sihirli & Efsanevi Eşyalar)",
-        description: "Canavarlardan düşen büyülü RPG silahları ve efsunlama masası.",
+        description:
+          "Canavarlardan düşen büyülü RPG silahları ve efsunlama masası.",
         category: "Loot",
         defaultEnabled: true,
       },
       {
         id: "server-chars",
         name: "ServerCharacters (Hileli Eşya Koruması)",
-        description: "Oyuncuların tek oyunculudan hileli eşya getirmesini engeller.",
+        description:
+          "Oyuncuların tek oyunculudan hileli eşya getirmesini engeller.",
         category: "Güvenlik",
         defaultEnabled: true,
       },
       {
         id: "better-archery",
         name: "Better Archery (Ok Kılıfları & Yay)",
-        description: "Ok kılıfı çantaları, fırlatılan okları yerden geri alma mekaniği.",
+        description:
+          "Ok kılıfı çantaları, fırlatılan okları yerden geri alma mekaniği.",
         category: "Oynanış",
         defaultEnabled: true,
       },
       {
         id: "plant-easily",
         name: "Plant Easily (Toplu Tarım)",
-        description: "Geniş tarlalara tek tıkla ızgara düzeninde havuç ve soğan ekme.",
+        description:
+          "Geniş tarlalara tek tıkla ızgara düzeninde havuç ve soğan ekme.",
         category: "Tarım",
         defaultEnabled: true,
       },
       {
         id: "quick-stack",
         name: "Quick Stack & Store (1-Tuşla Depolama)",
-        description: "Envanterdeki eşyaları etraftaki uygun sandıklara tek tıkla boşaltır.",
+        description:
+          "Envanterdeki eşyaları etraftaki uygun sandıklara tek tıkla boşaltır.",
         category: "Konfor",
         defaultEnabled: true,
       },
       {
         id: "craft-containers",
         name: "Craft from Containers (Sandıktan Üretim)",
-        description: "Sandıkları tek tek açmadan menzil içindeki malzemelerle üretim yapma.",
+        description:
+          "Sandıkları tek tek açmadan menzil içindeki malzemelerle üretim yapma.",
         category: "Konfor",
         defaultEnabled: true,
       },
       {
         id: "equipment-quickslot",
         name: "Equipment & Quick Slots (Ekstra Yuvalar)",
-        description: "Zırh ve iksirler için ana çantayı işgal etmeyen özel kısayol slotları.",
+        description:
+          "Zırh ve iksirler için ana çantayı işgal etmeyen özel kısayol slotları.",
         category: "Arayüz",
         defaultEnabled: true,
       },
       {
         id: "auto-repair",
         name: "Auto Repair (Otomatik Tamir)",
-        description: "Tezgaha yaklaşıldığında tüm alet ve zırhları otomatik onarır.",
+        description:
+          "Tezgaha yaklaşıldığında tüm alet ve zırhları otomatik onarır.",
         category: "Konfor",
         defaultEnabled: true,
       },
@@ -2087,7 +2360,8 @@ export const GAME_CATALOG: Record<GameId, GameDefinition> = {
       maxPlayers: 16,
       autoRestart: true,
       serverName: "🇹🇷 [TR] XIVIZLEY Valheim | Viking Efsanesi | Epic Loot",
-      serverDesc: "Yıldızlı yaratıklar, büyülü silahlar ve 64 oyunculu kesintisiz macera.",
+      serverDesc:
+        "Yıldızlı yaratıklar, büyülü silahlar ve 64 oyunculu kesintisiz macera.",
       map: "Dedicated",
       difficulty: "normal",
     },

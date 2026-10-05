@@ -2,11 +2,12 @@
 
 **Target Subreddit:** [r/selfhosted](https://reddit.com/r/selfhosted)  
 **Post Type:** Text Post  
-**Flair:** `[Self-Promotion]` or `[Software]`  
+**Flair:** `[Self-Promotion]` or `[Software]`
 
 ---
 
 ## 📌 Post Title
+
 `XIVIZLEY Suite v0.2: An open-source private cloud & 115-app Docker catalog with Nextcloud aesthetics, pre-flight port resolver & telemetry`
 
 ---
@@ -15,11 +16,12 @@
 
 Hey r/selfhosted,
 
-I wanted to share **XIVIZLEY Suite**, an open-source, modular self-hosted platform I’ve been developing. 
+I wanted to share **XIVIZLEY Suite**, an open-source, modular self-hosted platform I’ve been developing.
 
 Most self-hosted dashboards are either strictly bookmark launchers (like Homepage/Flame) or complete OS distributions (like CasaOS/Umbrel) that demand full control over your server. I wanted something in the middle: a platform that feels like **Nextcloud Hub**, provides integrated native modules (SSO, Cloud Drive, Vaultwarden-compatible Passwords, Host Telemetry), while letting you deploy 115 standalone Docker applications without locking you into proprietary formats.
 
 ### 🔗 Links
+
 - **Live Demo (Instant Guest Mode):** [https://suite.xivizley.com.tr](https://suite.xivizley.com.tr)
 - **Visual Canvas Architect:** [https://xivizley.com.tr/architect](https://xivizley.com.tr/architect)
 - **GitHub Repository (MIT):** [github.com/Xivizley/xivizley-suite](https://github.com/Xivizley/xivizley-suite)
@@ -61,10 +63,11 @@ curl -fsSL https://suite.xivizley.com.tr/install.sh | bash
 ```
 
 ### 🔒 Privacy & Open Source
+
 - 100% MIT Licensed.
 - Zero tracking scripts, zero telemetry phone-home calls, and zero external SaaS dependencies.
 - Runs entirely on your own hardware or VDS.
 
-I would love to get your feedback on the architecture, features you'd like to see added, and any compatibility issues. 
+I would love to get your feedback on the architecture, features you'd like to see added, and any compatibility issues.
 
-*Alperen Celal (14, Bursa)*
+_Alperen Celal (14, Bursa)_

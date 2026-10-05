@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 // ============================================================
 // XIVIZLEY Pulse — Main Dashboard (Aurora Night Uptime Center)
 // Real-time server heartbeat monitor, latency graphs & incident tracking
 // ============================================================
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Activity,
   Plus,
@@ -22,9 +22,9 @@ import {
   Zap,
   CheckCircle2,
   X,
-} from 'lucide-react';
-import type { PulseMonitor } from '@/server/services/pulseService';
-import { NextcloudHeader } from '@xivizley/aurora-ui';
+} from "lucide-react";
+import type { PulseMonitor } from "@/server/services/pulseService";
+import { NextcloudHeader } from "@xivizley/aurora-ui";
 
 export default function PulseDashboard() {
   const [monitors, setMonitors] = useState<PulseMonitor[]>([]);
@@ -35,9 +35,9 @@ export default function PulseDashboard() {
 
   // Form State
   const [formData, setFormData] = useState({
-    name: '',
-    type: 'http' as 'http' | 'tcp',
-    target: '',
+    name: "",
+    type: "http" as "http" | "tcp",
+    target: "",
     intervalSeconds: 30,
   });
   const [formSubmitting, setFormSubmitting] = useState(false);
@@ -46,13 +46,13 @@ export default function PulseDashboard() {
   const fetchMonitors = async (quiet = false) => {
     if (!quiet) setIsLoading(true);
     try {
-      const res = await fetch('/api/monitors');
+      const res = await fetch("/api/monitors");
       const data = await res.json();
       if (data.ok && Array.isArray(data.data)) {
         setMonitors(data.data);
       }
     } catch (err) {
-      console.error('Monitörler alınamadı', err);
+      console.error("Monitörler alınamadı", err);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -69,52 +69,57 @@ export default function PulseDashboard() {
   const handleManualCheck = async (id: string) => {
     setCheckingId(id);
     try {
-      const res = await fetch(`/api/monitors/${id}/check`, { method: 'POST' });
+      const res = await fetch(`/api/monitors/${id}/check`, { method: "POST" });
       const data = await res.json();
       if (data.ok) {
         await fetchMonitors(true);
       }
     } catch (err) {
-      console.error('Ping hatası', err);
+      console.error("Ping hatası", err);
     } finally {
       setCheckingId(null);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Bu monitörü silmek istediğinize emin misiniz?')) return;
+    if (!confirm("Bu monitörü silmek istediğinize emin misiniz?")) return;
     try {
-      await fetch(`/api/monitors/${id}`, { method: 'DELETE' });
+      await fetch(`/api/monitors/${id}`, { method: "DELETE" });
       setMonitors((prev) => prev.filter((m) => m.id !== id));
     } catch (err) {
-      console.error('Silme hatası', err);
+      console.error("Silme hatası", err);
     }
   };
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.target.trim()) {
-      setFormError('Lütfen servis adı ve hedef adresini girin.');
+      setFormError("Lütfen servis adı ve hedef adresini girin.");
       return;
     }
     setFormSubmitting(true);
     setFormError(null);
     try {
-      const res = await fetch('/api/monitors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/monitors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
       if (data.ok) {
         setIsAddOpen(false);
-        setFormData({ name: '', type: 'http', target: '', intervalSeconds: 30 });
+        setFormData({
+          name: "",
+          type: "http",
+          target: "",
+          intervalSeconds: 30,
+        });
         await fetchMonitors();
       } else {
-        setFormError(data.error || 'Monitör oluşturulamadı.');
+        setFormError(data.error || "Monitör oluşturulamadı.");
       }
     } catch (err: any) {
-      setFormError(err.message || 'Bağlantı hatası.');
+      setFormError(err.message || "Bağlantı hatası.");
     } finally {
       setFormSubmitting(false);
     }
@@ -122,19 +127,19 @@ export default function PulseDashboard() {
 
   // Hesaplanan Özet İstatistikler
   const totalMonitors = monitors.length;
-  const onlineCount = monitors.filter((m) => m.status === 'up').length;
+  const onlineCount = monitors.filter((m) => m.status === "up").length;
   const globalUptime =
     totalMonitors > 0
       ? (
           monitors.reduce((acc, m) => acc + (m.uptimePercentage || 100), 0) /
           totalMonitors
         ).toFixed(2)
-      : '100.00';
+      : "100.00";
   const avgLatency =
     totalMonitors > 0
       ? Math.round(
           monitors.reduce((acc, m) => acc + (m.lastLatencyMs || 0), 0) /
-            totalMonitors
+            totalMonitors,
         )
       : 0;
 
@@ -166,7 +171,7 @@ export default function PulseDashboard() {
               title="Şimdi Yenile"
             >
               <RefreshCw
-                className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
               />
             </button>
 
@@ -197,9 +202,13 @@ export default function PulseDashboard() {
               <span className="text-2xl font-bold text-slate-100 tracking-tight">
                 %{globalUptime}
               </span>
-              <span className="text-xs font-medium text-emerald-400">Uptime</span>
+              <span className="text-xs font-medium text-emerald-400">
+                Uptime
+              </span>
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">Son 30 günlük ortalama</p>
+            <p className="mt-1 text-[11px] text-slate-400">
+              Son 30 günlük ortalama
+            </p>
           </div>
 
           {/* Card 2: Online / Offline Count */}
@@ -218,7 +227,7 @@ export default function PulseDashboard() {
             </div>
             <p className="mt-1 text-[11px] text-slate-400">
               {totalMonitors - onlineCount === 0
-                ? 'Tüm hedefler ayakta'
+                ? "Tüm hedefler ayakta"
                 : `${totalMonitors - onlineCount} servis ulaşılamıyor`}
             </p>
           </div>
@@ -237,7 +246,9 @@ export default function PulseDashboard() {
               </span>
               <span className="text-xs font-medium text-amber-400">ms</span>
             </div>
-            <p className="mt-1 text-[11px] text-slate-400">Anlık ping yanıt süresi</p>
+            <p className="mt-1 text-[11px] text-slate-400">
+              Anlık ping yanıt süresi
+            </p>
           </div>
 
           {/* Card 4: Incident Status */}
@@ -252,7 +263,9 @@ export default function PulseDashboard() {
               <span className="text-2xl font-bold text-emerald-400 tracking-tight">
                 0
               </span>
-              <span className="text-xs font-medium text-slate-400">Aktif Olay</span>
+              <span className="text-xs font-medium text-slate-400">
+                Aktif Olay
+              </span>
             </div>
             <p className="mt-1 text-[11px] text-emerald-400/90 font-medium">
               Telegram bildirimleri aktif
@@ -275,7 +288,9 @@ export default function PulseDashboard() {
           {isLoading ? (
             <div className="p-12 text-center text-slate-400 rounded-xl border border-[#2d3748] bg-[#222933]">
               <RefreshCw className="h-6 w-6 animate-spin mx-auto text-[#0082c9] mb-2" />
-              <p className="text-xs font-medium">Servis durumları taranıyor...</p>
+              <p className="text-xs font-medium">
+                Servis durumları taranıyor...
+              </p>
             </div>
           ) : monitors.length === 0 ? (
             <div className="p-12 text-center rounded-xl border border-[#2d3748] bg-[#222933] space-y-3">
@@ -284,7 +299,8 @@ export default function PulseDashboard() {
                 Henüz izlenen bir servis yok
               </h3>
               <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                İlk web sitenizi veya sunucu servisinizi ekleyerek gerçek zamanlı izlemeyi başlatın.
+                İlk web sitenizi veya sunucu servisinizi ekleyerek gerçek
+                zamanlı izlemeyi başlatın.
               </p>
               <button
                 onClick={() => setIsAddOpen(true)}
@@ -297,7 +313,7 @@ export default function PulseDashboard() {
           ) : (
             <div className="grid grid-cols-1 gap-3.5">
               {monitors.map((mon) => {
-                const isUp = mon.status === 'up';
+                const isUp = mon.status === "up";
                 const isChecking = checkingId === mon.id;
 
                 return (
@@ -311,8 +327,8 @@ export default function PulseDashboard() {
                         <div
                           className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-bold text-xs ${
                             isUp
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                              : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
                           }`}
                         >
                           {isUp ? (
@@ -333,11 +349,11 @@ export default function PulseDashboard() {
                             <span
                               className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                                 isUp
-                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                                  : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                  : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
                               }`}
                             >
-                              {isUp ? 'OPERASYONEL' : 'ULAŞILAMIYOR'}
+                              {isUp ? "OPERASYONEL" : "ULAŞILAMIYOR"}
                             </span>
                           </div>
 
@@ -367,9 +383,9 @@ export default function PulseDashboard() {
                           title="Anında Ping At"
                         >
                           <RefreshCw
-                            className={`h-3.5 w-3.5 ${isChecking ? 'animate-spin text-[#0082c9]' : 'text-slate-400'}`}
+                            className={`h-3.5 w-3.5 ${isChecking ? "animate-spin text-[#0082c9]" : "text-slate-400"}`}
                           />
-                          <span>{isChecking ? 'Kontrol...' : 'Ping Test'}</span>
+                          <span>{isChecking ? "Kontrol..." : "Ping Test"}</span>
                         </button>
 
                         <button
@@ -393,11 +409,11 @@ export default function PulseDashboard() {
                           <div
                             key={hb.id || idx}
                             className={`flex-1 min-w-[6px] h-6 rounded-sm transition-all hover:scale-125 cursor-pointer ${
-                              hb.status === 'up'
-                                ? 'bg-emerald-500/80 hover:bg-emerald-400'
-                                : 'bg-rose-500 hover:bg-rose-400'
+                              hb.status === "up"
+                                ? "bg-emerald-500/80 hover:bg-emerald-400"
+                                : "bg-rose-500 hover:bg-rose-400"
                             }`}
-                            title={`${hb.status === 'up' ? 'Online' : 'Offline'} — ${hb.latencyMs} ms`}
+                            title={`${hb.status === "up" ? "Online" : "Offline"} — ${hb.latencyMs} ms`}
                           />
                         ))}
                       </div>
@@ -420,7 +436,9 @@ export default function PulseDashboard() {
                   <Plus className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-white">Yeni Monitör Ekle</h3>
+                  <h3 className="text-sm font-semibold text-white">
+                    Yeni Monitör Ekle
+                  </h3>
                   <p className="text-[11px] text-slate-400">
                     Sunucunu veya web siteni anlık izlemeye al
                   </p>
@@ -467,7 +485,7 @@ export default function PulseDashboard() {
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        type: e.target.value as 'http' | 'tcp',
+                        type: e.target.value as "http" | "tcp",
                       })
                     }
                     className="w-full rounded-lg border border-[#2d3748] bg-[#181e24] px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-[#0082c9]"
@@ -505,9 +523,9 @@ export default function PulseDashboard() {
                 <input
                   type="text"
                   placeholder={
-                    formData.type === 'http'
-                      ? 'https://xivizley.com.tr'
-                      : '178.210.168.163:25565'
+                    formData.type === "http"
+                      ? "https://xivizley.com.tr"
+                      : "178.210.168.163:25565"
                   }
                   value={formData.target}
                   onChange={(e) =>
@@ -517,9 +535,9 @@ export default function PulseDashboard() {
                   required
                 />
                 <p className="mt-1 text-[11px] text-slate-400">
-                  {formData.type === 'http'
-                    ? 'Tam site URL adresini girin (http:// veya https://)'
-                    : 'Sunucu IP ve portunu araya iki nokta koyarak girin (Örn: 178.210.168.163:25565)'}
+                  {formData.type === "http"
+                    ? "Tam site URL adresini girin (http:// veya https://)"
+                    : "Sunucu IP ve portunu araya iki nokta koyarak girin (Örn: 178.210.168.163:25565)"}
                 </p>
               </div>
 
@@ -537,7 +555,9 @@ export default function PulseDashboard() {
                   className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-xs font-semibold text-white transition-all shadow-sm active:scale-95 disabled:opacity-50"
                 >
                   <Plus className="h-4 w-4" />
-                  <span>{formSubmitting ? 'Kaydediliyor...' : 'Monitörü Başlat'}</span>
+                  <span>
+                    {formSubmitting ? "Kaydediliyor..." : "Monitörü Başlat"}
+                  </span>
                 </button>
               </div>
             </form>

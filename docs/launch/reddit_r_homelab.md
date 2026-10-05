@@ -2,11 +2,12 @@
 
 **Target Subreddit:** [r/homelab](https://reddit.com/r/homelab)  
 **Post Type:** Text Post (with embedded screenshots / image gallery)  
-**Flair:** `[Showoff Saturday]` or `[Software]`  
+**Flair:** `[Showoff Saturday]` or `[Software]`
 
 ---
 
 ## 📌 Post Title
+
 `[Showoff Saturday] XIVIZLEY Suite v0.2: An open-source, Nextcloud-styled homelab cloud with 115 standalone Docker apps, hardware telemetry & port radar`
 
 ---
@@ -15,12 +16,13 @@
 
 Hey r/homelab!
 
-Over the past few months, I got tired of stitching together disjointed web UIs, debugging port conflicts manually, and dealing with over-bloated homelab dashboards that look like 2012 control panels. 
+Over the past few months, I got tired of stitching together disjointed web UIs, debugging port conflicts manually, and dealing with over-bloated homelab dashboards that look like 2012 control panels.
 
 I’ve been building **XIVIZLEY Suite**—an open-source, unified private cloud platform designed around the clean aesthetic of Nextcloud Hub, but engineered with a modern Fastify/Next.js stack, automated Docker orchestration, and hardware telemetry.
 
 ### 🌐 Live Demo & GitHub
-- **Live Demo (No registration required):** [https://suite.xivizley.com.tr](https://suite.xivizley.com.tr) *(Click "Canlı Demo Olarak Keşfet" / Explore Live Demo)*
+
+- **Live Demo (No registration required):** [https://suite.xivizley.com.tr](https://suite.xivizley.com.tr) _(Click "Canlı Demo Olarak Keşfet" / Explore Live Demo)_
 - **Interactive Visual Architect:** [https://xivizley.com.tr/architect](https://xivizley.com.tr/architect)
 - **GitHub Repository (MIT):** [github.com/Xivizley/xivizley-suite](https://github.com/Xivizley/xivizley-suite)
 - **CLI Engine:** `npx xivizley`
@@ -60,11 +62,13 @@ curl -fsSL https://suite.xivizley.com.tr/install.sh | bash
 ```
 
 ### 🔒 Security & Data Isolation
+
 The live demo instance runs behind a strict **Global Demo Mutation Guard** (`HTTP 403 Forbidden` on any modifying verbs like `POST`/`DELETE` for guest tokens) with zero access to administrator records or production storage volumes.
 
 ---
 
 ### 💬 Feedback Welcome!
+
 I'd love to hear your thoughts on the workflow, app catalog additions, or any edge cases in your homelab setups. Feel free to roast the architecture or open an issue on GitHub!
 
-*Built with passion by Alperen Celal (14, Bursa, Turkey).*
+_Built with passion by Alperen Celal (14, Bursa, Turkey)._

@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 import {
   generateSecurePassword,
   calculatePasswordStrength,
-} from '@/server/crypto/vaultCrypto';
+} from "@/server/crypto/vaultCrypto";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
@@ -26,6 +26,9 @@ export async function POST(request: Request) {
       },
     });
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err?.message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: err?.message },
+      { status: 500 },
+    );
   }
 }

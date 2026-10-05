@@ -71,110 +71,140 @@ function getFallbackCert(domain: string): SslCertificateInfo {
 /**
  * Inspects a single domain over a real TLS socket on port 443
  */
-export async function inspectDomainSsl(domain: string, timeoutMs = 4000): Promise<SslCertificateInfo> {
+export async function inspectDomainSsl(
+  domain: string,
+  timeoutMs = 4000,
+): Promise<SslCertificateInfo> {
   return new Promise((resolve) => {
     let settled = false;
+    let socket: tls.TLSSocket | null = null;
 
     const timer = setTimeout(() => {
       if (!settled) {
         settled = true;
         try {
-          socket.destroy();
+          socket?.destroy();
         } catch {}
         resolve(getFallbackCert(domain));
       }
     }, timeoutMs);
 
-    const socket = tls.connect(
-      {
-        host: domain,
-        port: 443,
-        servername: domain,
-        rejectUnauthorized: false,
-      },
-      () => {
-        if (settled) return;
-        settled = true;
-        clearTimeout(timer);
+    try {
+      socket = tls.connect(
+        {
+          host: domain,
+          port: 443,
+          servername: domain,
+          rejectUnauthorized: false,
+        },
+        () => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
 
-        try {
-          const cert = socket.getPeerCertificate();
-          const protocol = socket.getProtocol() || "TLSv1.3";
-          const authorized = socket.authorized;
-          socket.end();
-
-          if (!cert || !cert.valid_to) {
-            resolve(getFallbackCert(domain));
-            return;
-          }
-
-          const validToDate = new Date(cert.valid_to);
-          const validFromDate = new Date(cert.valid_from);
-          const now = Date.now();
-          const diffMs = validToDate.getTime() - now;
-          const daysRemaining = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
-
-          let status: SslCertificateInfo["status"] = "valid";
-          if (daysRemaining <= 0) {
-            status = "expired";
-          } else if (daysRemaining <= 15) {
-            status = "expiring_soon";
-          }
-
-          let issuerStr = "Let's Encrypt";
-          if (cert.issuer && typeof cert.issuer === "object") {
-            const org = cert.issuer.O ?? cert.issuer.CN;
-            if (Array.isArray(org)) {
-              issuerStr = org.join(", ");
-            } else if (typeof org === "string") {
-              issuerStr = org;
+          try {
+            if (!socket) {
+              resolve(getFallbackCert(domain));
+              return;
             }
-          } else if (typeof cert.issuer === "string") {
-            issuerStr = cert.issuer;
-          }
+            const cert = socket.getPeerCertificate();
+            const protocol = socket.getProtocol() || "TLSv1.3";
+            const authorized = socket.authorized;
+            socket.end();
 
-          resolve({
-            domain,
-            ip: SERVER_IP,
-            status,
-            issuer: issuerStr,
-            validFrom: validFromDate.toISOString(),
-            validTo: validToDate.toISOString(),
-            daysRemaining,
-            protocol,
-            authorized,
-            checkedAt: new Date().toISOString(),
-          });
-        } catch {
+            if (!cert || !cert.valid_to) {
+              resolve(getFallbackCert(domain));
+              return;
+            }
+
+            const validToDate = new Date(cert.valid_to);
+            const validFromDate = new Date(cert.valid_from);
+            const now = Date.now();
+            const diffMs = validToDate.getTime() - now;
+            const daysRemaining = Math.max(
+              0,
+              Math.ceil(diffMs / (1000 * 60 * 60 * 24)),
+            );
+
+            let status: SslCertificateInfo["status"] = "valid";
+            if (daysRemaining <= 0) {
+              status = "expired";
+            } else if (daysRemaining <= 15) {
+              status = "expiring_soon";
+            }
+
+            let issuerStr = "Let's Encrypt";
+            if (cert.issuer && typeof cert.issuer === "object") {
+              const o = Array.isArray(cert.issuer.O)
+                ? cert.issuer.O.join(", ")
+                : cert.issuer.O;
+              const cn = Array.isArray(cert.issuer.CN)
+                ? cert.issuer.CN.join(", ")
+                : cert.issuer.CN;
+              if (o && cn) {
+                issuerStr = `${o} (${cn})`;
+              } else if (o) {
+                issuerStr = o;
+              } else if (cn) {
+                issuerStr = cn;
+              }
+            } else if (typeof cert.issuer === "string") {
+              issuerStr = cert.issuer;
+            }
+
+            resolve({
+              domain,
+              ip: SERVER_IP,
+              status,
+              issuer: issuerStr,
+              validFrom: validFromDate.toISOString(),
+              validTo: validToDate.toISOString(),
+              daysRemaining,
+              protocol,
+              authorized,
+              checkedAt: new Date().toISOString(),
+            });
+          } catch {
+            resolve(getFallbackCert(domain));
+          }
+        },
+      );
+
+      socket.on("error", () => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timer);
+          try {
+            socket?.destroy();
+          } catch {}
           resolve(getFallbackCert(domain));
         }
-      }
-    );
-
-    socket.on("error", () => {
+      });
+    } catch {
       if (!settled) {
         settled = true;
         clearTimeout(timer);
-        try {
-          socket.destroy();
-        } catch {}
         resolve(getFallbackCert(domain));
       }
-    });
+    }
   });
 }
 
 /**
  * Runs SSL Radar scan across all monitored XIVIZLEY domains
  */
-export async function getSslRadarReport(forceRefresh = false): Promise<SslRadarReport> {
+export async function getSslRadarReport(
+  forceRefresh = false,
+): Promise<SslRadarReport> {
   const now = Date.now();
   if (!forceRefresh && cachedReport && now - lastCheckTime < CACHE_TTL_MS) {
     return cachedReport;
   }
 
   // Scan domains concurrently
-  const domainPromises = MONITORED_DOMAINS.map((domain) => inspectDomainSsl(domain));
+  const domainPromises = MONITORED_DOMAINS.map((domain) =>
+    inspectDomainSsl(domain),
+  );
   const domains = await Promise.all(domainPromises);
 
   const report: SslRadarReport = {

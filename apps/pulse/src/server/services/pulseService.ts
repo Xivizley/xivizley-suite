@@ -3,24 +3,24 @@
 // Dual-mode: PostgreSQL (Drizzle) with Resilient In-Memory Fallback
 // ============================================================
 
-import { getDb, monitors, heartbeats, incidents } from '@xivizley/db';
-import { eq, desc } from 'drizzle-orm';
-import { runMonitorCheck, type CheckResult } from '../engine/checker';
-import { sendTelegramAlert } from '../notifications/telegram';
+import { getDb, monitors, heartbeats, incidents } from "@xivizley/db";
+import { eq, desc } from "drizzle-orm";
+import { runMonitorCheck, type CheckResult } from "../engine/checker";
+import { sendTelegramAlert } from "../notifications/telegram";
 
 export interface PulseMonitor {
   id: string;
   name: string;
-  type: 'http' | 'tcp' | 'ping';
+  type: "http" | "tcp" | "ping";
   target: string;
   intervalSeconds: number;
-  status: 'up' | 'down' | 'pending';
+  status: "up" | "down" | "pending";
   lastCheckAt?: string;
   lastLatencyMs?: number;
   uptimePercentage: number;
   recentHeartbeats: Array<{
     id: string;
-    status: 'up' | 'down';
+    status: "up" | "down";
     latencyMs: number;
     createdAt: string;
   }>;
@@ -29,69 +29,69 @@ export interface PulseMonitor {
 // ─── Resilient Fallback In-Memory Seed (Sunucu A, Sunucu B Minecraft, XIVIZLEY) ───
 const inMemoryMonitors: PulseMonitor[] = [
   {
-    id: 'mon-minecraft',
-    name: '🎮 Minecraft PaperMC (Sunucu B)',
-    type: 'tcp',
-    target: '178.210.168.163:25565',
+    id: "mon-minecraft",
+    name: "🎮 Minecraft PaperMC (Sunucu B)",
+    type: "tcp",
+    target: "178.210.168.163:25565",
     intervalSeconds: 30,
-    status: 'up',
+    status: "up",
     lastCheckAt: new Date().toISOString(),
     lastLatencyMs: 18,
     uptimePercentage: 99.95,
     recentHeartbeats: Array.from({ length: 30 }, (_, i) => ({
       id: `hb-mc-${i}`,
-      status: 'up',
+      status: "up",
       latencyMs: Math.floor(15 + Math.random() * 8),
       createdAt: new Date(Date.now() - (30 - i) * 30000).toISOString(),
     })),
   },
   {
-    id: 'mon-xivizley',
-    name: '🌐 XIVIZLEY Ana Platform',
-    type: 'http',
-    target: 'https://xivizley.com.tr',
+    id: "mon-xivizley",
+    name: "🌐 XIVIZLEY Ana Platform",
+    type: "http",
+    target: "https://xivizley.com.tr",
     intervalSeconds: 30,
-    status: 'up',
+    status: "up",
     lastCheckAt: new Date().toISOString(),
     lastLatencyMs: 42,
     uptimePercentage: 100.0,
     recentHeartbeats: Array.from({ length: 30 }, (_, i) => ({
       id: `hb-xiv-${i}`,
-      status: 'up',
+      status: "up",
       latencyMs: Math.floor(35 + Math.random() * 15),
       createdAt: new Date(Date.now() - (30 - i) * 30000).toISOString(),
     })),
   },
   {
-    id: 'mon-sunucu-a',
-    name: '⚡ Sunucu A (Odeaweb Test VDS)',
-    type: 'tcp',
-    target: '109.104.120.126:80',
+    id: "mon-sunucu-a",
+    name: "⚡ Sunucu A (Odeaweb Test VDS)",
+    type: "tcp",
+    target: "109.104.120.126:80",
     intervalSeconds: 30,
-    status: 'up',
+    status: "up",
     lastCheckAt: new Date().toISOString(),
     lastLatencyMs: 14,
     uptimePercentage: 99.8,
     recentHeartbeats: Array.from({ length: 30 }, (_, i) => ({
       id: `hb-sa-${i}`,
-      status: 'up',
+      status: "up",
       latencyMs: Math.floor(12 + Math.random() * 6),
       createdAt: new Date(Date.now() - (30 - i) * 30000).toISOString(),
     })),
   },
   {
-    id: 'mon-sso',
-    name: '🔐 XIVIZLEY SSO & Suite',
-    type: 'http',
-    target: 'https://suite.xivizley.com.tr',
+    id: "mon-sso",
+    name: "🔐 XIVIZLEY SSO & Suite",
+    type: "http",
+    target: "https://suite.xivizley.com.tr",
     intervalSeconds: 30,
-    status: 'up',
+    status: "up",
     lastCheckAt: new Date().toISOString(),
     lastLatencyMs: 38,
     uptimePercentage: 99.9,
     recentHeartbeats: Array.from({ length: 30 }, (_, i) => ({
       id: `hb-sso-${i}`,
-      status: 'up',
+      status: "up",
       latencyMs: Math.floor(30 + Math.random() * 12),
       createdAt: new Date(Date.now() - (30 - i) * 30000).toISOString(),
     })),
@@ -104,7 +104,10 @@ const inMemoryMonitors: PulseMonitor[] = [
 export async function getAllMonitors(): Promise<PulseMonitor[]> {
   try {
     const db = getDb();
-    const rows = await db.select().from(monitors).orderBy(desc(monitors.createdAt));
+    const rows = await db
+      .select()
+      .from(monitors)
+      .orderBy(desc(monitors.createdAt));
 
     if (rows.length === 0) {
       return inMemoryMonitors;
@@ -122,16 +125,16 @@ export async function getAllMonitors(): Promise<PulseMonitor[]> {
       result.push({
         id: row.id,
         name: row.name,
-        type: row.type as 'http' | 'tcp' | 'ping',
+        type: row.type as "http" | "tcp" | "ping",
         target: row.target,
         intervalSeconds: row.intervalSeconds,
-        status: row.status as 'up' | 'down' | 'pending',
+        status: row.status as "up" | "down" | "pending",
         lastCheckAt: row.lastCheckAt?.toISOString(),
         lastLatencyMs: row.lastLatencyMs ?? undefined,
         uptimePercentage: row.uptimePercentage,
         recentHeartbeats: hbs.reverse().map((h) => ({
           id: h.id,
-          status: h.status as 'up' | 'down',
+          status: h.status as "up" | "down",
           latencyMs: h.latencyMs,
           createdAt: h.createdAt.toISOString(),
         })),
@@ -150,7 +153,7 @@ export async function getAllMonitors(): Promise<PulseMonitor[]> {
  */
 export async function createMonitor(data: {
   name: string;
-  type: 'http' | 'tcp' | 'ping';
+  type: "http" | "tcp" | "ping";
   target: string;
   intervalSeconds?: number;
 }): Promise<PulseMonitor> {
@@ -168,7 +171,7 @@ export async function createMonitor(data: {
         status: initialCheck.status,
         lastCheckAt: new Date(),
         lastLatencyMs: initialCheck.latencyMs,
-        uptimePercentage: initialCheck.status === 'up' ? 100 : 0,
+        uptimePercentage: initialCheck.status === "up" ? 100 : 0,
       })
       .returning();
 
@@ -202,7 +205,10 @@ export async function createMonitor(data: {
       };
     }
   } catch (err) {
-    console.warn('[XIVIZLEY Pulse] DB insert failed, using in-memory store:', err);
+    console.warn(
+      "[XIVIZLEY Pulse] DB insert failed, using in-memory store:",
+      err,
+    );
   }
 
   // In-Memory Fallback
@@ -215,7 +221,7 @@ export async function createMonitor(data: {
     status: initialCheck.status,
     lastCheckAt: new Date().toISOString(),
     lastLatencyMs: initialCheck.latencyMs,
-    uptimePercentage: initialCheck.status === 'up' ? 100 : 0,
+    uptimePercentage: initialCheck.status === "up" ? 100 : 0,
     recentHeartbeats: [
       {
         id: `hb-${Date.now()}`,
@@ -233,7 +239,9 @@ export async function createMonitor(data: {
 /**
  * Belirtilen monitörü anında manuel kontrol eder (Ping).
  */
-export async function checkMonitorById(id: string): Promise<CheckResult | null> {
+export async function checkMonitorById(
+  id: string,
+): Promise<CheckResult | null> {
   const all = await getAllMonitors();
   const monitor = all.find((m) => m.id === id);
   if (!monitor) return null;

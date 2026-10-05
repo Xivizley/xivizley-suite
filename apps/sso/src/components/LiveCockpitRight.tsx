@@ -2,21 +2,35 @@
 
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import { Button, MetricGauge, StatusBadge, type ServerStatus } from "@xivizley/aurora-ui";
-import { useGameStore, checkRamSafety, getContainerMemoryLimitMb } from "@/store/cockpit-store";
+import {
+  Button,
+  MetricGauge,
+  StatusBadge,
+  type ServerStatus,
+} from "@xivizley/aurora-ui";
+import {
+  useGameStore,
+  checkRamSafety,
+  getContainerMemoryLimitMb,
+} from "@/store/cockpit-store";
 import { GAME_CATALOG } from "@/data/game-catalog";
 import type { HostMetrics, ContainerMetrics } from "@xivizley/types";
 
 const TerminalLogViewer = dynamic(
-  () => import("@/components/TerminalLogViewer").then((mod) => mod.TerminalLogViewer),
+  () =>
+    import("@/components/TerminalLogViewer").then(
+      (mod) => mod.TerminalLogViewer,
+    ),
   {
     ssr: false,
     loading: () => (
       <div className="w-full h-80 rounded-xl bg-[#222933] border border-[#2d3748] flex items-center justify-center">
-        <span className="text-xs text-slate-400 font-mono">Terminal yükleniyor...</span>
+        <span className="text-xs text-slate-400 font-mono">
+          Terminal yükleniyor...
+        </span>
       </div>
     ),
-  }
+  },
 );
 
 interface StreamData {
@@ -24,7 +38,9 @@ interface StreamData {
   host: HostMetrics;
 }
 
-export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean } = {}) {
+export function LiveCockpitRight({
+  hideHeader = false,
+}: { hideHeader?: boolean } = {}) {
   const {
     activeGameId,
     configPerGame,
@@ -37,7 +53,8 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
 
   const game = GAME_CATALOG[activeGameId];
   const config = configPerGame[activeGameId] || game.defaultConfig;
-  const currentEngine = game.engines.find((e) => e.id === config.engineId) || game.engines[0];
+  const currentEngine =
+    game.engines.find((e) => e.id === config.engineId) || game.engines[0];
   const [metrics, setMetrics] = useState<StreamData | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -49,13 +66,18 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
   const draftCommandRef = useRef<string>("");
   const [isSendingCommand, setIsSendingCommand] = useState(false);
   const [commandFeedback, setCommandFeedback] = useState<string | null>(null);
-  const termRef = useRef<{ write: (text: string) => void; writeln: (text: string) => void } | null>(null);
+  const termRef = useRef<{
+    write: (text: string) => void;
+    writeln: (text: string) => void;
+  } | null>(null);
 
   // localStorage'dan komut geçmişini yükle (oyun bazında)
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const stored = localStorage.getItem(`xivizley_cmd_history_${activeGameId}`);
+      const stored = localStorage.getItem(
+        `xivizley_cmd_history_${activeGameId}`,
+      );
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed)) {
@@ -107,7 +129,9 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
 
   // SSE Metrik Akışı
   useEffect(() => {
-    const sse = new EventSource(`/api/metrics/stream?gameId=${encodeURIComponent(activeGameId)}`);
+    const sse = new EventSource(
+      `/api/metrics/stream?gameId=${encodeURIComponent(activeGameId)}`,
+    );
 
     sse.onmessage = (e) => {
       try {
@@ -162,7 +186,8 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
       } else {
         if (action === "start") {
           setActiveServer({
-            containerId: json.data?.container || `xivizley-${activeGameId}-server`,
+            containerId:
+              json.data?.container || `xivizley-${activeGameId}-server`,
             gameId: activeGameId,
             status: "starting",
           });
@@ -192,7 +217,10 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
       const filtered = prev.filter((c) => c !== cmdToSend);
       const updated = [cmdToSend, ...filtered].slice(0, 50);
       try {
-        localStorage.setItem(`xivizley_cmd_history_${activeGameId}`, JSON.stringify(updated));
+        localStorage.setItem(
+          `xivizley_cmd_history_${activeGameId}`,
+          JSON.stringify(updated),
+        );
       } catch {
         // storage quota
       }
@@ -217,7 +245,8 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
 
       const json = await res.json();
       if (res.ok && json.ok) {
-        const resp = json.data?.response || `[Başarılı] Komut iletildi: ${cmdToSend}`;
+        const resp =
+          json.data?.response || `[Başarılı] Komut iletildi: ${cmdToSend}`;
         setCommandFeedback(resp);
         // Çok satırlı yanıtı terminale düzgün yazdır
         const lines = resp.split("\n");
@@ -251,7 +280,9 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-bold text-white">{game.name} Sunucusu</h2>
+                  <h2 className="text-lg font-bold text-white">
+                    {game.name} Sunucusu
+                  </h2>
                   <StatusBadge status={currentStatus} size="sm" />
                   <span className="text-[11px] font-mono text-[#1AD76F] bg-[#1AD76F]/10 px-2 py-0.5 rounded-full border border-[#1AD76F]/30">
                     {currentEngine?.name.split(" ")[0]} v{config.version}
@@ -285,7 +316,12 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
                 <Button
                   variant="primary"
                   size="sm"
-                  disabled={!isAdmin || isRunning || !startEligibility.allowed || !!actionLoading}
+                  disabled={
+                    !isAdmin ||
+                    isRunning ||
+                    !startEligibility.allowed ||
+                    !!actionLoading
+                  }
                   isLoading={actionLoading === "start"}
                   onClick={() => handleServerAction("start")}
                   className="bg-[#1AD76F] text-black font-extrabold hover:bg-[#18c465] shadow-sm"
@@ -322,7 +358,9 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
             <div className="p-4 rounded-xl bg-[#141d2a] border border-[#1f2d40] shadow-sm flex flex-col gap-2.5">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-semibold text-slate-200">Bellek Dağılımı & Güvenlik</span>
+                  <span className="font-semibold text-slate-200">
+                    Bellek Dağılımı & Güvenlik
+                  </span>
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-mono">
                     +%15 Headroom Buffer
                   </span>
@@ -338,17 +376,23 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
                   {/* Taban Tahmin Arka Planı */}
                   <div
                     className="absolute top-0 bottom-0 left-0 bg-blue-500/10 border-r border-blue-400/40"
-                    style={{ width: `${Math.min(100, Math.round((estimatedRam / containerMemLimit) * 100))}%` }}
+                    style={{
+                      width: `${Math.min(100, Math.round((estimatedRam / containerMemLimit) * 100))}%`,
+                    }}
                     title={`Taban Tahmin: ${estimatedRam} MB`}
                   />
                   {/* Canlı Kullanılan RAM */}
                   <div
                     className={`h-full rounded-full transition-all duration-500 relative z-10 ${
-                      ((metrics?.container?.memUsageMb || 0) / containerMemLimit) > 0.9
+                      (metrics?.container?.memUsageMb || 0) /
+                        containerMemLimit >
+                      0.9
                         ? "bg-gradient-to-r from-rose-500 to-red-600 shadow-[0_0_8px_rgba(244,63,94,0.5)]"
-                        : ((metrics?.container?.memUsageMb || 0) / containerMemLimit) > 0.75
-                        ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                        : "bg-gradient-to-r from-emerald-500 to-[#1AD76F] shadow-[0_0_8px_rgba(26,215,111,0.3)]"
+                        : (metrics?.container?.memUsageMb || 0) /
+                              containerMemLimit >
+                            0.75
+                          ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"
+                          : "bg-gradient-to-r from-emerald-500 to-[#1AD76F] shadow-[0_0_8px_rgba(26,215,111,0.3)]"
                     }`}
                     style={{
                       width: `${Math.min(100, Math.round(((metrics?.container?.memUsageMb || 0) / containerMemLimit) * 100))}%`,
@@ -378,16 +422,27 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
 
               {/* Host Emniyet Durumu */}
               <div className="flex items-center justify-between pt-1 border-t border-[#1f2d40]/60 text-[11px]">
-                <span className="text-slate-400">Host Güvenli Sınırı (%80):</span>
-                <span className={`font-mono font-semibold ${ramSafety.isSafe ? "text-emerald-400" : "text-rose-400 font-bold"}`}>
-                  {containerMemLimit} / {ramSafety.hostSafeLimitMb} MB ({Math.round((containerMemLimit / ramSafety.hostSafeLimitMb) * 100)}%)
+                <span className="text-slate-400">
+                  Host Güvenli Sınırı (%80):
+                </span>
+                <span
+                  className={`font-mono font-semibold ${ramSafety.isSafe ? "text-emerald-400" : "text-rose-400 font-bold"}`}
+                >
+                  {containerMemLimit} / {ramSafety.hostSafeLimitMb} MB (
+                  {Math.round(
+                    (containerMemLimit / ramSafety.hostSafeLimitMb) * 100,
+                  )}
+                  %)
                 </span>
               </div>
 
               {!ramSafety.isSafe && (
                 <div className="text-[10px] text-rose-400 bg-rose-500/15 p-2 rounded-lg border border-rose-500/30 flex items-start gap-1.5">
                   <span className="text-sm">🚨</span>
-                  <span>{ramSafety.reason || `Host Güvenli Sınırı (${ramSafety.hostSafeLimitMb} MB) aşıldı! Çökme riskine karşı kaynak azaltın.`}</span>
+                  <span>
+                    {ramSafety.reason ||
+                      `Host Güvenli Sınırı (${ramSafety.hostSafeLimitMb} MB) aşıldı! Çökme riskine karşı kaynak azaltın.`}
+                  </span>
                 </div>
               )}
             </div>
@@ -395,7 +450,9 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
             {/* CPU Göstergesi */}
             <div className="p-4 rounded-xl bg-[#141d2a] border border-[#1f2d40] shadow-sm flex flex-col gap-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-slate-300">İşlemci Kullanımı</span>
+                <span className="font-semibold text-slate-300">
+                  İşlemci Kullanımı
+                </span>
                 <span className="font-mono text-white font-bold">
                   {metrics?.container?.cpuPercent || 0}%
                 </span>
@@ -455,7 +512,10 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
         </div>
 
         {/* 5. KOMUT GÖNDERME ÇUBUĞU (CommandAdapter ile Senkronize & Geçmiş Destekli) */}
-        <form onSubmit={handleSendCommand} className="flex items-center gap-2 mt-1">
+        <form
+          onSubmit={handleSendCommand}
+          className="flex items-center gap-2 mt-1"
+        >
           <div className="relative flex-1">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-[#1AD76F] font-bold">
               &gt;
@@ -488,7 +548,11 @@ export function LiveCockpitRight({ hideHeader = false }: { hideHeader?: boolean 
             disabled={!isAdmin || !commandInput.trim() || isSendingCommand}
             className="px-5 py-2 bg-[#1AD76F] hover:bg-[#18c465] text-black rounded-xl text-xs font-extrabold shadow-[0_0_15px_rgba(26,215,111,0.25)] transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
           >
-            {isSendingCommand ? <span>İletiliyor...</span> : <span>{!isAdmin ? "🔒 Kilitli" : "Gönder ↵"}</span>}
+            {isSendingCommand ? (
+              <span>İletiliyor...</span>
+            ) : (
+              <span>{!isAdmin ? "🔒 Kilitli" : "Gönder ↵"}</span>
+            )}
           </button>
         </form>
 

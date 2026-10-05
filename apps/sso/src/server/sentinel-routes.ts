@@ -21,11 +21,14 @@ export const sentinelRoutes: FastifyPluginAsync = async (fastify) => {
   // ─── 1. GET /api/sentinel/status ──────────────────────────────
   fastify.get("/api/sentinel/status", async (request, reply) => {
     try {
-      const cookies = (request.cookies || {}) as Record<string, string | undefined>;
+      const cookies = (request.cookies || {}) as Record<
+        string,
+        string | undefined
+      >;
       const isAuthed = Boolean(
         cookies["xivizley_access_token"] ||
         cookies["xivizley_refresh_token"] ||
-        request.headers?.authorization
+        request.headers?.authorization,
       );
       const status = await getSentinelStatus(isAuthed);
       return reply.send({ ok: true, data: status });
@@ -38,34 +41,40 @@ export const sentinelRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // ─── 2. POST /api/sentinel/test-telegram ─────────────────────
-  fastify.post<{ Body: TestTelegramBody }>("/api/sentinel/test-telegram", async (request, reply) => {
-    try {
-      const chatId = request.body?.chatId;
-      const res = await sendTestTelegramAlert(chatId);
-      return reply.send(res);
-    } catch (err: any) {
-      return reply.status(500).send({
-        ok: false,
-        message: err?.message || "Test bildirimi gönderilemedi.",
-      });
-    }
-  });
+  fastify.post<{ Body: TestTelegramBody }>(
+    "/api/sentinel/test-telegram",
+    async (request, reply) => {
+      try {
+        const chatId = request.body?.chatId;
+        const res = await sendTestTelegramAlert(chatId);
+        return reply.send(res);
+      } catch (err: any) {
+        return reply.status(500).send({
+          ok: false,
+          message: err?.message || "Test bildirimi gönderilemedi.",
+        });
+      }
+    },
+  );
 
   // ─── 3. POST /api/sentinel/config ─────────────────────────────
-  fastify.post<{ Body: SentinelConfigBody }>("/api/sentinel/config", async (request, reply) => {
-    try {
-      const body = request.body || {};
-      const updated = updateSentinelConfig(body);
-      return reply.send({
-        ok: true,
-        message: "Sentinel alarm eşikleri ve Telegram ayarları güncellendi.",
-        config: updated,
-      });
-    } catch (err: any) {
-      return reply.status(500).send({
-        ok: false,
-        message: err?.message || "Ayarlar kaydedilemedi.",
-      });
-    }
-  });
+  fastify.post<{ Body: SentinelConfigBody }>(
+    "/api/sentinel/config",
+    async (request, reply) => {
+      try {
+        const body = request.body || {};
+        const updated = updateSentinelConfig(body);
+        return reply.send({
+          ok: true,
+          message: "Sentinel alarm eşikleri ve Telegram ayarları güncellendi.",
+          config: updated,
+        });
+      } catch (err: any) {
+        return reply.status(500).send({
+          ok: false,
+          message: err?.message || "Ayarlar kaydedilemedi.",
+        });
+      }
+    },
+  );
 };

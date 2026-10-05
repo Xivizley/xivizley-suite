@@ -1,14 +1,18 @@
-import { NextResponse } from 'next/server';
-import { getAllMonitors } from '@/server/services/pulseService';
+import { NextResponse } from "next/server";
+import { getAllMonitors } from "@/server/services/pulseService";
 
 export async function GET() {
   try {
     const list = await getAllMonitors();
-    const upCount = list.filter((m) => m.status === 'up').length;
+    const upCount = list.filter((m) => m.status === "up").length;
     const totalCount = list.length;
-    const avgLatency = list.length > 0
-      ? Math.round(list.reduce((acc, m) => acc + (m.lastLatencyMs || 0), 0) / list.length)
-      : 0;
+    const avgLatency =
+      list.length > 0
+        ? Math.round(
+            list.reduce((acc, m) => acc + (m.lastLatencyMs || 0), 0) /
+              list.length,
+          )
+        : 0;
 
     return NextResponse.json({
       ok: true,
@@ -17,7 +21,10 @@ export async function GET() {
         upCount,
         downCount: totalCount - upCount,
         totalCount,
-        uptimePercentage: totalCount > 0 ? Math.round((upCount / totalCount) * 10000) / 100 : 100,
+        uptimePercentage:
+          totalCount > 0
+            ? Math.round((upCount / totalCount) * 10000) / 100
+            : 100,
         avgLatencyMs: avgLatency,
       },
       monitors: list.map((m) => ({
@@ -31,6 +38,9 @@ export async function GET() {
       })),
     });
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err?.message }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: err?.message },
+      { status: 500 },
+    );
   }
 }

@@ -73,8 +73,8 @@ XIVIZLEY implements an enterprise-grade stateless authentication pipeline:
 
 To ensure maximum host cleanliness, data predictability, and seamless backup automation:
 
-* **App Installations:** Every application installed via the Store or CLI is provisioned strictly inside `/opt/xivizley-apps/<app-id>/`.
-* **Directory Structure:**
+- **App Installations:** Every application installed via the Store or CLI is provisioned strictly inside `/opt/xivizley-apps/<app-id>/`.
+- **Directory Structure:**
   ```text
   /opt/xivizley-apps/<app-id>/
   ├── docker-compose.yml     # Deterministic, self-contained service definition
@@ -82,16 +82,16 @@ To ensure maximum host cleanliness, data predictability, and seamless backup aut
   ├── data/                  # Persistent database and app storage volume
   └── config/                # Service configurations
   ```
-* **Port Conflict Detection:** Pre-flight scanning inspects host socket availability before launching any container, resolving collisions automatically or notifying the operator.
+- **Port Conflict Detection:** Pre-flight scanning inspects host socket availability before launching any container, resolving collisions automatically or notifying the operator.
 
 ---
 
 ## 4. Disaster Recovery & Non-blocking Automation
 
-* **Nightly Automated Backup (`scripts/backup-daily.sh`):**
+- **Nightly Automated Backup (`scripts/backup-daily.sh`):**
   - Runs daily via cron at `03:00`.
   - Non-blocking database cluster dump executed directly inside the database container (`docker exec -i xivizley-postgres pg_dumpall -U xivizley`).
   - Gzip compressed archive saved to `/var/backups/xivizley/db_YYYYMMDD_HHMMSS.sql.gz`.
   - Automated 7-day retention cleanup.
-* **Disaster Recovery (`scripts/restore.sh`):**
+- **Disaster Recovery (`scripts/restore.sh`):**
   - 1-command decompression and database restoration into the active database container.

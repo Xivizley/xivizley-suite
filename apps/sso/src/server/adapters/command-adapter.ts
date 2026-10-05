@@ -25,7 +25,7 @@ export interface CommandAdapter {
 export async function runExecInContainer(
   container: Docker.Container,
   cmd: string[],
-  timeoutMs = 4000
+  timeoutMs = 4000,
 ): Promise<{ ok: boolean; exitCode: number | null; output: string }> {
   try {
     const exec = await container.exec({
@@ -94,7 +94,7 @@ export async function runExecInContainer(
 export class MinecraftAdapter implements CommandAdapter {
   constructor(
     private containerId: string,
-    private docker: Docker
+    private docker: Docker,
   ) {}
 
   async send(command: string): Promise<CommandResult> {
@@ -104,7 +104,8 @@ export class MinecraftAdapter implements CommandAdapter {
       if (!info.State.Running) {
         return {
           ok: false,
-          error: "Minecraft sunucusu şu anda çalışmıyor veya başlatılıyor. Lütfen durumun ONLINE olmasını bekleyin.",
+          error:
+            "Minecraft sunucusu şu anda çalışmıyor veya başlatılıyor. Lütfen durumun ONLINE olmasını bekleyin.",
         };
       }
 
@@ -115,8 +116,15 @@ export class MinecraftAdapter implements CommandAdapter {
       }
 
       // 2. Birincil Yöntem: itzg/minecraft-server içindeki rcon-cli aracı
-      const rconRes = await runExecInContainer(container, ["rcon-cli", cleanCmd]);
-      if (rconRes.ok && rconRes.output && !rconRes.output.includes("Failed to connect to RCON")) {
+      const rconRes = await runExecInContainer(container, [
+        "rcon-cli",
+        cleanCmd,
+      ]);
+      if (
+        rconRes.ok &&
+        rconRes.output &&
+        !rconRes.output.includes("Failed to connect to RCON")
+      ) {
         return {
           ok: true,
           response: rconRes.output,
@@ -124,7 +132,10 @@ export class MinecraftAdapter implements CommandAdapter {
       }
 
       // 3. İkincil Yöntem: itzg mc-send-to-console
-      const mcSendRes = await runExecInContainer(container, ["mc-send-to-console", cleanCmd]);
+      const mcSendRes = await runExecInContainer(container, [
+        "mc-send-to-console",
+        cleanCmd,
+      ]);
       if (mcSendRes.ok && mcSendRes.output) {
         return {
           ok: true,
@@ -182,7 +193,7 @@ export class MinecraftAdapter implements CommandAdapter {
 export class StdinAdapter implements CommandAdapter {
   constructor(
     private containerId: string,
-    private docker: Docker
+    private docker: Docker,
   ) {}
 
   async send(command: string): Promise<CommandResult> {
@@ -245,7 +256,7 @@ export class RconAdapter implements CommandAdapter {
     private port: number,
     private password: string,
     private containerId?: string,
-    private docker?: Docker
+    private docker?: Docker,
   ) {}
 
   private async connect(): Promise<void> {
@@ -254,10 +265,13 @@ export class RconAdapter implements CommandAdapter {
     }
 
     return new Promise((resolve, reject) => {
-      const socket = net.createConnection({ host: this.host, port: this.port }, () => {
-        const authPacket = this.encodePacket(1, 3, this.password);
-        socket.write(authPacket);
-      });
+      const socket = net.createConnection(
+        { host: this.host, port: this.port },
+        () => {
+          const authPacket = this.encodePacket(1, 3, this.password);
+          socket.write(authPacket);
+        },
+      );
 
       socket.setTimeout(4000);
 
@@ -320,7 +334,10 @@ export class RconAdapter implements CommandAdapter {
 
         setTimeout(() => {
           this.socket?.removeListener("data", onData);
-          resolve({ ok: true, response: `[RCON] Komut gönderildi: ${command}` });
+          resolve({
+            ok: true,
+            response: `[RCON] Komut gönderildi: ${command}`,
+          });
         }, 2500);
       });
     } catch (err: any) {
@@ -364,7 +381,9 @@ export class RconAdapter implements CommandAdapter {
     return buffer;
   }
 
-  private decodePacket(data: Buffer): { length: number; id: number; type: number; body: string } | null {
+  private decodePacket(
+    data: Buffer,
+  ): { length: number; id: number; type: number; body: string } | null {
     if (data.length < 12) return null;
     const length = data.readInt32LE(0);
     const id = data.readInt32LE(4);
@@ -380,7 +399,7 @@ const rconInstances = new Map<GameId, RconAdapter>();
 export function getCommandAdapter(
   gameId: GameId,
   containerId: string,
-  docker: Docker
+  docker: Docker,
 ): CommandAdapter {
   switch (gameId) {
     case "minecraft":
@@ -393,9 +412,11 @@ export function getCommandAdapter(
       let rcon = rconInstances.get(gameId);
       if (!rcon) {
         const port = getGameRconPort(gameId);
-        const pass = process.env.XIVIZLEY_RCON_PASSWORD || "xivizley_secure_rcon_2026";
+        const pass =
+          process.env.XIVIZLEY_RCON_PASSWORD || "xivizley_secure_rcon_2026";
         // Docker ağı üzerinde konteyner adı veya localhost
-        const host = process.env.NODE_ENV === "production" ? containerId : "127.0.0.1";
+        const host =
+          process.env.NODE_ENV === "production" ? containerId : "127.0.0.1";
         rcon = new RconAdapter(host, port, pass, containerId, docker);
         rconInstances.set(gameId, rcon);
       }

@@ -76,7 +76,9 @@ export const ConsoleViewer = forwardRef<HTMLDivElement, ConsoleViewerProps>(
     }, [isFullscreen]);
 
     const isAutoScrollActive =
-      externalAutoScroll !== undefined ? externalAutoScroll : internalAutoScroll;
+      externalAutoScroll !== undefined
+        ? externalAutoScroll
+        : internalAutoScroll;
 
     const toggleAutoScroll = () => {
       const next = !isAutoScrollActive;
@@ -113,7 +115,10 @@ export const ConsoleViewer = forwardRef<HTMLDivElement, ConsoleViewerProps>(
           {/* Sol: Başlık + Durum Rozeti */}
           <div className="flex items-center gap-2.5 min-w-0">
             {/* Terminal Pencere Noktaları */}
-            <div className="flex items-center gap-1.5 mr-1 shrink-0" aria-hidden="true">
+            <div
+              className="flex items-center gap-1.5 mr-1 shrink-0"
+              aria-hidden="true"
+            >
               <span className="w-2.5 h-2.5 rounded-full bg-aurora-rose/80" />
               <span className="w-2.5 h-2.5 rounded-full bg-aurora-amber/80" />
               <span className="w-2.5 h-2.5 rounded-full bg-aurora-green/80" />
@@ -205,7 +210,9 @@ export const ConsoleViewer = forwardRef<HTMLDivElement, ConsoleViewerProps>(
                 <rect x="5" y="5" width="8" height="8" rx="1.5" />
                 <path d="M3 11V3a1.5 1.5 0 0 1 1.5-1.5H11" />
               </svg>
-              <span className="hidden sm:inline">{copied ? "Kopyalandı" : "Kopyala"}</span>
+              <span className="hidden sm:inline">
+                {copied ? "Kopyalandı" : "Kopyala"}
+              </span>
             </Button>
 
             {/* Temizle */}

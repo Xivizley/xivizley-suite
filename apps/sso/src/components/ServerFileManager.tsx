@@ -59,11 +59,16 @@ export function ServerFileManager() {
   const [error, setError] = useState<string | null>(null);
 
   // Editör State'leri
-  const [editingFile, setEditingFile] = useState<ContainerFileItem | null>(null);
+  const [editingFile, setEditingFile] = useState<ContainerFileItem | null>(
+    null,
+  );
   const [fileContent, setFileContent] = useState("");
   const [isContentLoading, setIsContentLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [saveStatus, setSaveStatus] = useState<{ ok: boolean; message: string } | null>(null);
+  const [saveStatus, setSaveStatus] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
 
   // Klasör içeriğini yükle
   const loadFiles = async (folderPath = "") => {
@@ -71,7 +76,7 @@ export function ServerFileManager() {
     setError(null);
     try {
       const res = await fetch(
-        `/api/server/files?gameId=${activeGameId}&path=${encodeURIComponent(folderPath)}`
+        `/api/server/files?gameId=${activeGameId}&path=${encodeURIComponent(folderPath)}`,
       );
       const data = await res.json();
       if (res.ok && data.ok) {
@@ -100,13 +105,16 @@ export function ServerFileManager() {
     setSaveStatus(null);
     try {
       const res = await fetch(
-        `/api/server/files/content?gameId=${activeGameId}&path=${encodeURIComponent(item.path)}`
+        `/api/server/files/content?gameId=${activeGameId}&path=${encodeURIComponent(item.path)}`,
       );
       const data = await res.json();
       if (res.ok && data.ok) {
         setFileContent(data.content || "");
       } else {
-        setSaveStatus({ ok: false, message: data.message || "Dosya okunamadı." });
+        setSaveStatus({
+          ok: false,
+          message: data.message || "Dosya okunamadı.",
+        });
       }
     } catch (err: any) {
       setSaveStatus({ ok: false, message: err.message || "Dosya okunamadı." });
@@ -141,7 +149,10 @@ export function ServerFileManager() {
         });
         loadFiles(currentPath);
       } else {
-        setSaveStatus({ ok: false, message: data.message || "Kayıt başarısız." });
+        setSaveStatus({
+          ok: false,
+          message: data.message || "Kayıt başarısız.",
+        });
       }
     } catch (err: any) {
       setSaveStatus({ ok: false, message: err.message || "Bağlantı hatası." });
@@ -156,7 +167,9 @@ export function ServerFileManager() {
     if (!searchQuery.trim()) return files;
     const q = searchQuery.toLowerCase();
     return files.filter(
-      (f) => f.name.toLowerCase().includes(q) || f.extension.toLowerCase().includes(q)
+      (f) =>
+        f.name.toLowerCase().includes(q) ||
+        f.extension.toLowerCase().includes(q),
     );
   }, [files, searchQuery]);
 
@@ -186,7 +199,8 @@ export function ServerFileManager() {
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
-            Sunucu yapılandırmalarını, eklenti ayarlarını ve logları doğrudan tarayıcıdan düzenleyin.
+            Sunucu yapılandırmalarını, eklenti ayarlarını ve logları doğrudan
+            tarayıcıdan düzenleyin.
           </p>
         </div>
 
@@ -261,7 +275,9 @@ export function ServerFileManager() {
       {/* İki Panel: Sol Dosya Listesi, Sağ (Varsa) Canlı Kod Editörü */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         {/* Dosya Tablosu */}
-        <div className={`w-full ${editingFile ? "lg:col-span-5" : "lg:col-span-12"}`}>
+        <div
+          className={`w-full ${editingFile ? "lg:col-span-5" : "lg:col-span-12"}`}
+        >
           <div className="rounded-xl border border-[#2d3748] bg-[#181e24] overflow-hidden">
             <div className="px-3.5 py-2 border-b border-[#2d3748] bg-[#1e252d] flex items-center justify-between text-[11px] font-semibold text-slate-400">
               <span>İsim ({filteredFiles.length} öğe)</span>
@@ -271,7 +287,8 @@ export function ServerFileManager() {
             <div className="max-h-[500px] overflow-y-auto divide-y divide-[#2d3748]/60">
               {isLoading ? (
                 <div className="p-8 text-center text-xs text-slate-400 flex flex-col items-center gap-2">
-                  <span className="animate-spin text-lg">⏳</span> Dosyalar taranıyor...
+                  <span className="animate-spin text-lg">⏳</span> Dosyalar
+                  taranıyor...
                 </div>
               ) : filteredFiles.length === 0 ? (
                 <div className="p-8 text-center text-xs text-slate-400">
@@ -302,10 +319,14 @@ export function ServerFileManager() {
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="text-base shrink-0">{getFileIcon(item)}</span>
+                        <span className="text-base shrink-0">
+                          {getFileIcon(item)}
+                        </span>
                         <span
                           className={`truncate font-mono ${
-                            item.type === "dir" ? "font-bold text-[#1AD76F]" : ""
+                            item.type === "dir"
+                              ? "font-bold text-[#1AD76F]"
+                              : ""
                           }`}
                         >
                           {item.name}
@@ -318,7 +339,9 @@ export function ServerFileManager() {
                       </div>
 
                       <span className="text-[11px] font-mono text-slate-400 shrink-0 ml-2">
-                        {item.type === "dir" ? "Klasör" : formatBytes(item.size)}
+                        {item.type === "dir"
+                          ? "Klasör"
+                          : formatBytes(item.size)}
                       </span>
                     </div>
                   );
@@ -333,7 +356,9 @@ export function ServerFileManager() {
           <div className="lg:col-span-7 w-full flex flex-col gap-2 p-4 rounded-xl bg-[#0e141f] border border-[#1c2838]">
             <div className="flex items-center justify-between pb-2 border-b border-[#1c2838]">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="text-lg shrink-0">{getFileIcon(editingFile)}</span>
+                <span className="text-lg shrink-0">
+                  {getFileIcon(editingFile)}
+                </span>
                 <div className="flex flex-col min-w-0">
                   <span className="font-mono text-xs font-bold text-white truncate">
                     {editingFile.name}
@@ -359,7 +384,8 @@ export function ServerFileManager() {
             <div className="relative">
               {isContentLoading ? (
                 <div className="h-96 flex flex-col items-center justify-center gap-2 text-xs text-slate-400">
-                  <span className="animate-spin text-lg">⏳</span> Dosya içeriği yükleniyor...
+                  <span className="animate-spin text-lg">⏳</span> Dosya içeriği
+                  yükleniyor...
                 </div>
               ) : (
                 <textarea
@@ -375,7 +401,8 @@ export function ServerFileManager() {
             {/* Kaydetme Butonları & Feedback */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-[#1c2838]">
               <div className="text-[11px] font-mono text-slate-400">
-                {fileContent.split("\n").length} satır • {formatBytes(new Blob([fileContent]).size)}
+                {fileContent.split("\n").length} satır •{" "}
+                {formatBytes(new Blob([fileContent]).size)}
               </div>
 
               <div className="flex items-center gap-2 w-full sm:w-auto">

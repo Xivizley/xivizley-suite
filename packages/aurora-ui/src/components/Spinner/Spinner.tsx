@@ -6,7 +6,8 @@ import { clsx } from "clsx";
 // ─── Props ──────────────────────────────────────────────────
 
 export type SpinnerSize = "xs" | "sm" | "md" | "lg" | "xl";
-export type SpinnerColor = "cyan" | "white" | "green" | "amber" | "rose" | "current";
+export type SpinnerColor =
+  "cyan" | "white" | "green" | "amber" | "rose" | "current";
 
 export interface SpinnerProps extends HTMLAttributes<HTMLDivElement> {
   size?: SpinnerSize;
@@ -34,11 +35,11 @@ const strokeMap: Record<SpinnerSize, number> = {
 };
 
 const colorMap: Record<SpinnerColor, string> = {
-  cyan:    "text-aurora-cyan",
-  white:   "text-white",
-  green:   "text-aurora-green",
-  amber:   "text-aurora-amber",
-  rose:    "text-aurora-rose",
+  cyan: "text-aurora-cyan",
+  white: "text-white",
+  green: "text-aurora-green",
+  amber: "text-aurora-amber",
+  rose: "text-aurora-rose",
   current: "text-current",
 };
 
@@ -46,13 +47,7 @@ const colorMap: Record<SpinnerColor, string> = {
 
 export const Spinner = forwardRef<HTMLDivElement, SpinnerProps>(
   function Spinner(
-    {
-      size = "md",
-      color = "cyan",
-      label = "Yükleniyor",
-      className,
-      ...rest
-    },
+    { size = "md", color = "cyan", label = "Yükleniyor", className, ...rest },
     ref,
   ) {
     const dim = sizeMap[size];

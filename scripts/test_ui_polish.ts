@@ -3,7 +3,7 @@ import assert from "node:assert";
 // 1. Password Strength Logic Test
 function calculatePasswordStrength(pass: string) {
   if (!pass) {
-    return { score: 0, label: 'Çok Zayıf' };
+    return { score: 0, label: "Çok Zayıf" };
   }
 
   const hasLower = /[a-z]/.test(pass);
@@ -18,7 +18,9 @@ function calculatePasswordStrength(pass: string) {
   if (hasNumber) poolSize += 10;
   if (hasSpecial) poolSize += 33;
 
-  const entropyBits = Math.round(pass.length * (poolSize > 0 ? Math.log2(poolSize) : 0));
+  const entropyBits = Math.round(
+    pass.length * (poolSize > 0 ? Math.log2(poolSize) : 0),
+  );
 
   let score = 0;
   if (hasMinLength) score++;
@@ -33,11 +35,11 @@ function calculatePasswordStrength(pass: string) {
     score = Math.min(score, 2);
   }
 
-  let label: 'Çok Zayıf' | 'Zayıf' | 'Orta' | 'Çok Güçlü' = 'Çok Zayıf';
-  if (score <= 1) label = 'Çok Zayıf';
-  else if (score === 2) label = 'Zayıf';
-  else if (score === 3) label = 'Orta';
-  else label = 'Çok Güçlü';
+  let label: "Çok Zayıf" | "Zayıf" | "Orta" | "Çok Güçlü" = "Çok Zayıf";
+  if (score <= 1) label = "Çok Zayıf";
+  else if (score === 2) label = "Zayıf";
+  else if (score === 3) label = "Orta";
+  else label = "Çok Güçlü";
 
   return { score, entropyBits, label };
 }
@@ -45,15 +47,29 @@ function calculatePasswordStrength(pass: string) {
 // Tests
 console.log("Testing Password Strength meter...");
 const shortComplex = calculatePasswordStrength("Ab1!");
-assert.strictEqual(shortComplex.score, 1, "Short password should not be score > 1");
+assert.strictEqual(
+  shortComplex.score,
+  1,
+  "Short password should not be score > 1",
+);
 assert.strictEqual(shortComplex.label, "Çok Zayıf");
 
 const mediumComplex = calculatePasswordStrength("Abc123$!x");
-assert.strictEqual(mediumComplex.score, 2, "10-char password should be capped at 2 (Zayıf)");
+assert.strictEqual(
+  mediumComplex.score,
+  2,
+  "10-char password should be capped at 2 (Zayıf)",
+);
 assert.strictEqual(mediumComplex.label, "Zayıf");
 
-const strongPass = calculatePasswordStrength("Correct-Horse-Battery-Staple-2026!");
-assert.strictEqual(strongPass.score, 4, "Long complex password should be score 4 (Çok Güçlü)");
+const strongPass = calculatePasswordStrength(
+  "Correct-Horse-Battery-Staple-2026!",
+);
+assert.strictEqual(
+  strongPass.score,
+  4,
+  "Long complex password should be score 4 (Çok Güçlü)",
+);
 assert.strictEqual(strongPass.label, "Çok Güçlü");
 console.log("✅ Password Strength tests passed!");
 

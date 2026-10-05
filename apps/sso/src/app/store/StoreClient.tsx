@@ -32,8 +32,17 @@ export interface StoreApp {
   category: string;
   dockerImage: string;
   defaultTag: string;
-  ports: Array<{ internal: number; default: number; label: string; protocol?: string }>;
-  environment: Array<{ key: string; defaultValue?: string; description?: string }>;
+  ports: Array<{
+    internal: number;
+    default: number;
+    label: string;
+    protocol?: string;
+  }>;
+  environment: Array<{
+    key: string;
+    defaultValue?: string;
+    description?: string;
+  }>;
   volumes: Array<{ hostPath: string; containerPath: string; label: string }>;
   resources: { ramMB: number; cpuCores: number; diskGB: number };
   notes: string[];
@@ -49,7 +58,11 @@ export interface StoreCategory {
   icon: string;
 }
 
-export function StoreClient({ initialAppId }: { initialAppId?: string | undefined }) {
+export function StoreClient({
+  initialAppId,
+}: {
+  initialAppId?: string | undefined;
+}) {
   const [apps, setApps] = useState<StoreApp[]>([]);
   const [categories, setCategories] = useState<StoreCategory[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -59,11 +72,18 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
   const [selectedApp, setSelectedApp] = useState<StoreApp | null>(null);
   const [drawerApp, setDrawerApp] = useState<StoreApp | null>(null);
   const [appDetails, setAppDetails] = useState<any | null>(null);
-  const [activeTab, setActiveTab] = useState<"docker" | "cli" | "yaml">("docker");
+  const [activeTab, setActiveTab] = useState<"docker" | "cli" | "yaml">(
+    "docker",
+  );
   const [installingAppId, setInstallingAppId] = useState<string | null>(null);
-  const [uninstallingAppId, setUninstallingAppId] = useState<string | null>(null);
+  const [uninstallingAppId, setUninstallingAppId] = useState<string | null>(
+    null,
+  );
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [actionMessage, setActionMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   // Uygulamaları çek
   const fetchApps = async () => {
@@ -78,7 +98,9 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
 
           // URL'den gelen app varsa aç
           if (initialAppId && !selectedApp) {
-            const found = json.data?.find((a: StoreApp) => a.id === initialAppId);
+            const found = json.data?.find(
+              (a: StoreApp) => a.id === initialAppId,
+            );
             if (found) {
               openAppModal(found);
             }
@@ -103,7 +125,9 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
     setActiveTab("docker");
     setActionMessage(null);
     try {
-      const res = await fetch(`/api/store/apps/${app.id}`, { credentials: "include" });
+      const res = await fetch(`/api/store/apps/${app.id}`, {
+        credentials: "include",
+      });
       if (res.ok) {
         const json = await res.json();
         if (json.ok) {
@@ -133,7 +157,12 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
         await fetchApps();
         // Detayı da güncelle
         if (selectedApp?.id === appId) {
-          openAppModal({ ...selectedApp, isInstalled: true, isRunning: true, assignedPort: json.port });
+          openAppModal({
+            ...selectedApp,
+            isInstalled: true,
+            isRunning: true,
+            assignedPort: json.port,
+          });
         }
       } else {
         setActionMessage({
@@ -153,7 +182,12 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
 
   // Konteyneri Kaldır
   const handleUninstallApp = async (appId: string) => {
-    if (!confirm(`${appId} uygulamasını durdurup kaldırmak istediğinize emin misiniz?`)) return;
+    if (
+      !confirm(
+        `${appId} uygulamasını durdurup kaldırmak istediğinize emin misiniz?`,
+      )
+    )
+      return;
     try {
       setUninstallingAppId(appId);
       setActionMessage(null);
@@ -171,7 +205,11 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
         });
         await fetchApps();
         if (selectedApp?.id === appId) {
-          openAppModal({ ...selectedApp, isInstalled: false, isRunning: false });
+          openAppModal({
+            ...selectedApp,
+            isInstalled: false,
+            isRunning: false,
+          });
         }
       } else {
         setActionMessage({
@@ -198,7 +236,8 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
   // Filtrelenmiş uygulamalar
   const filteredApps = useMemo(() => {
     return apps.filter((app) => {
-      if (activeCategory !== "all" && app.category !== activeCategory) return false;
+      if (activeCategory !== "all" && app.category !== activeCategory)
+        return false;
       if (filterInstalled && !app.isInstalled) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
@@ -233,8 +272,9 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
               Uygulama Mağazası & Pazar Yeri
             </h1>
             <p className="text-slate-400 text-sm leading-relaxed">
-              115+ küratörlü açık kaynaklı bulut, medya, güvenlik ve veritabanı uygulaması. 1-tıkla Docker kurulumu,
-              kopyalanabilir Compose YAML ve CLI komut desteği.
+              115+ küratörlü açık kaynaklı bulut, medya, güvenlik ve veritabanı
+              uygulaması. 1-tıkla Docker kurulumu, kopyalanabilir Compose YAML
+              ve CLI komut desteği.
             </p>
           </div>
 
@@ -285,7 +325,9 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                 }`}
               >
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Yüklü Olanlar ({apps.filter((a) => a.isInstalled).length})</span>
+                <span>
+                  Yüklü Olanlar ({apps.filter((a) => a.isInstalled).length})
+                </span>
               </button>
               <button
                 type="button"
@@ -293,7 +335,9 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                 className="p-2.5 rounded-lg bg-[#222933] text-slate-400 hover:text-white border border-[#2d3748] hover:bg-[#2b3442] transition-colors"
                 title="Listeyi Yenile"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
+                />
               </button>
             </div>
           </div>
@@ -330,13 +374,19 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
         {isLoading && apps.length === 0 ? (
           <div className="p-16 text-center space-y-3">
             <div className="w-8 h-8 border-2 border-[#0082c9] border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-xs text-slate-400">115+ uygulama kataloğu ve Docker durumu taranıyor...</p>
+            <p className="text-xs text-slate-400">
+              115+ uygulama kataloğu ve Docker durumu taranıyor...
+            </p>
           </div>
         ) : filteredApps.length === 0 ? (
           <div className="p-16 text-center rounded-xl border border-[#2d3748] bg-[#222933] space-y-2">
             <Package className="w-10 h-10 text-slate-500 mx-auto" />
-            <p className="text-sm font-semibold text-slate-300">Eşleşen uygulama bulunamadı</p>
-            <p className="text-xs text-slate-400">Arama kriterlerinizi veya kategori filtrenizi değiştirin.</p>
+            <p className="text-sm font-semibold text-slate-300">
+              Eşleşen uygulama bulunamadı
+            </p>
+            <p className="text-xs text-slate-400">
+              Arama kriterlerinizi veya kategori filtrenizi değiştirin.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -380,7 +430,9 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                       <h3 className="font-semibold text-slate-100 text-sm flex items-center justify-between">
                         <span>{app.name}</span>
                         {app.assignedPort && (
-                          <span className="text-[11px] text-sky-400 font-mono">:{app.assignedPort}</span>
+                          <span className="text-[11px] text-sky-400 font-mono">
+                            :{app.assignedPort}
+                          </span>
                         )}
                       </h3>
                       <p className="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
@@ -389,7 +441,10 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                     </div>
 
                     <div className="pt-2 flex items-center gap-3 text-[11px] text-slate-400 font-mono">
-                      <span className="flex items-center gap-1 truncate max-w-[160px]" title={app.dockerImage}>
+                      <span
+                        className="flex items-center gap-1 truncate max-w-[160px]"
+                        title={app.dockerImage}
+                      >
                         <Package className="w-3 h-3 text-slate-500 shrink-0" />
                         <span className="truncate">{app.dockerImage}</span>
                       </span>
@@ -443,7 +498,11 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                         ) : (
                           <Play className="w-3.5 h-3.5 fill-current" />
                         )}
-                        <span>{installingAppId === app.id ? "Başlatılıyor..." : "Hızlı Kur"}</span>
+                        <span>
+                          {installingAppId === app.id
+                            ? "Başlatılıyor..."
+                            : "Hızlı Kur"}
+                        </span>
                       </button>
                     )}
                   </div>
@@ -471,12 +530,16 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-lg font-bold text-white">{selectedApp.name}</h2>
+                      <h2 className="text-lg font-bold text-white">
+                        {selectedApp.name}
+                      </h2>
                       <span className="text-[11px] px-2 py-0.5 rounded bg-[#2b3442] text-slate-300 font-mono">
                         {selectedApp.category}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">{selectedApp.description}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {selectedApp.description}
+                    </p>
                   </div>
                 </div>
                 <button
@@ -498,7 +561,10 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                   }`}
                 >
                   <span>{actionMessage.text}</span>
-                  <button onClick={() => setActionMessage(null)} className="text-slate-400 hover:text-white">
+                  <button
+                    onClick={() => setActionMessage(null)}
+                    className="text-slate-400 hover:text-white"
+                  >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -509,27 +575,42 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                 {/* Meta Specs Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
                   <div className="p-3 rounded-lg bg-[#181e24] border border-[#2d3748]">
-                    <span className="text-slate-400 block text-[10px]">DOCKER İMAJI</span>
+                    <span className="text-slate-400 block text-[10px]">
+                      DOCKER İMAJI
+                    </span>
                     <span className="font-semibold text-slate-200 truncate block mt-0.5">
-                      {selectedApp.dockerImage}:{selectedApp.defaultTag || "latest"}
+                      {selectedApp.dockerImage}:
+                      {selectedApp.defaultTag || "latest"}
                     </span>
                   </div>
                   <div className="p-3 rounded-lg bg-[#181e24] border border-[#2d3748]">
-                    <span className="text-slate-400 block text-[10px]">VARSAYILAN PORT</span>
+                    <span className="text-slate-400 block text-[10px]">
+                      VARSAYILAN PORT
+                    </span>
                     <span className="font-semibold text-sky-400 block mt-0.5">
-                      {selectedApp.ports[0]?.default ? `:${selectedApp.ports[0].default}` : "Portsuz"}
+                      {selectedApp.ports[0]?.default
+                        ? `:${selectedApp.ports[0].default}`
+                        : "Portsuz"}
                     </span>
                   </div>
                   <div className="p-3 rounded-lg bg-[#181e24] border border-[#2d3748]">
-                    <span className="text-slate-400 block text-[10px]">MİNİMUM BELLEK</span>
+                    <span className="text-slate-400 block text-[10px]">
+                      MİNİMUM BELLEK
+                    </span>
                     <span className="font-semibold text-emerald-400 block mt-0.5">
                       {selectedApp.resources?.ramMB || 256} MB RAM
                     </span>
                   </div>
                   <div className="p-3 rounded-lg bg-[#181e24] border border-[#2d3748]">
-                    <span className="text-slate-400 block text-[10px]">DURUM</span>
+                    <span className="text-slate-400 block text-[10px]">
+                      DURUM
+                    </span>
                     <span className="font-semibold text-slate-200 block mt-0.5">
-                      {selectedApp.isInstalled ? (selectedApp.isRunning ? "🟢 Çalışıyor" : "🟡 Durduruldu") : "⚪ Kurulu Değil"}
+                      {selectedApp.isInstalled
+                        ? selectedApp.isRunning
+                          ? "🟢 Çalışıyor"
+                          : "🟡 Durduruldu"
+                        : "⚪ Kurulu Değil"}
                     </span>
                   </div>
                 </div>
@@ -538,12 +619,17 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                 <div className="p-3.5 rounded-lg bg-[#151c24] border border-[#2d3748] flex items-start gap-3 text-xs">
                   <HardDrive className="w-4 h-4 text-[#0082c9] shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold text-slate-200">İzole Uygulama Depolama Standardı:</span>
+                    <span className="font-semibold text-slate-200">
+                      İzole Uygulama Depolama Standardı:
+                    </span>
                     <p className="text-slate-400 text-[11px] mt-0.5 font-mono">
-                      {selectedApp.volumes[0]?.hostPath || `/opt/xivizley-apps/${selectedApp.id}/data`}
+                      {selectedApp.volumes[0]?.hostPath ||
+                        `/opt/xivizley-apps/${selectedApp.id}/data`}
                     </p>
                     <p className="text-slate-500 text-[10px] mt-0.5">
-                      Tüm veriler ve konfigürasyonlar kesin olarak <code>/opt/xivizley-apps/{selectedApp.id}/</code> dizininde saklanır.
+                      Tüm veriler ve konfigürasyonlar kesin olarak{" "}
+                      <code>/opt/xivizley-apps/{selectedApp.id}/</code>{" "}
+                      dizininde saklanır.
                     </p>
                   </div>
                 </div>
@@ -553,10 +639,14 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                   <div className="p-3.5 rounded-lg bg-amber-950/40 border border-amber-500/40 flex items-start gap-3 text-xs text-amber-200">
                     <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                     <div>
-                      <span className="font-semibold">Port Çakışması Önlendi:</span>
+                      <span className="font-semibold">
+                        Port Çakışması Önlendi:
+                      </span>
                       <p className="text-[11px] mt-0.5">
-                        Varsayılan port (:{selectedApp.ports[0]?.default}) sistemde kullanımda.
-                        Otomatik güvenli boş port <strong>:{appDetails?.suggestedPort}</strong> olarak tayin edildi.
+                        Varsayılan port (:{selectedApp.ports[0]?.default})
+                        sistemde kullanımda. Otomatik güvenli boş port{" "}
+                        <strong>:{appDetails?.suggestedPort}</strong> olarak
+                        tayin edildi.
                       </p>
                     </div>
                   </div>
@@ -607,7 +697,8 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                   {activeTab === "docker" && (
                     <div className="space-y-4 pt-2">
                       <p className="text-xs text-slate-400">
-                        Sunucu üzerindeki yerel Docker soketi aracılığıyla <code>xivizley-app-{selectedApp.id}</code> konteynerini
+                        Sunucu üzerindeki yerel Docker soketi aracılığıyla{" "}
+                        <code>xivizley-app-{selectedApp.id}</code> konteynerini
                         arka planda başlatın.
                       </p>
 
@@ -616,7 +707,13 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                           <>
                             <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
                               <CheckCircle2 className="w-4 h-4" />
-                              <span>Konteyner Aktif ({selectedApp.assignedPort ? `:${selectedApp.assignedPort}` : "Yayında"})</span>
+                              <span>
+                                Konteyner Aktif (
+                                {selectedApp.assignedPort
+                                  ? `:${selectedApp.assignedPort}`
+                                  : "Yayında"}
+                                )
+                              </span>
                             </span>
                             <button
                               type="button"
@@ -636,14 +733,23 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                               className="px-3.5 py-2 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-xs font-medium border border-rose-500/40 transition-colors flex items-center gap-1.5 disabled:opacity-50"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
-                              <span>{uninstallingAppId === selectedApp.id ? "Kaldırılıyor..." : "Konteyneri Kaldır"}</span>
+                              <span>
+                                {uninstallingAppId === selectedApp.id
+                                  ? "Kaldırılıyor..."
+                                  : "Konteyneri Kaldır"}
+                              </span>
                             </button>
                           </>
                         ) : (
                           <button
                             type="button"
                             disabled={installingAppId === selectedApp.id}
-                            onClick={() => handleInstallApp(selectedApp.id, appDetails?.suggestedPort)}
+                            onClick={() =>
+                              handleInstallApp(
+                                selectedApp.id,
+                                appDetails?.suggestedPort,
+                              )
+                            }
                             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold shadow transition-colors disabled:opacity-50"
                           >
                             {installingAppId === selectedApp.id ? (
@@ -666,17 +772,29 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                   {activeTab === "cli" && (
                     <div className="space-y-3 pt-2">
                       <p className="text-xs text-slate-400">
-                        SSH terminalinizde veya yerel makinenizde XIVIZLEY CLI ile tek komutla kurun:
+                        SSH terminalinizde veya yerel makinenizde XIVIZLEY CLI
+                        ile tek komutla kurun:
                       </p>
                       <div className="relative rounded-lg bg-[#141a22] border border-[#2d3748] p-3 text-xs font-mono text-emerald-400 flex items-center justify-between">
                         <code>xivizley install {selectedApp.id}</code>
                         <button
                           type="button"
-                          onClick={() => copyToClipboard(`xivizley install ${selectedApp.id}`, "cli")}
+                          onClick={() =>
+                            copyToClipboard(
+                              `xivizley install ${selectedApp.id}`,
+                              "cli",
+                            )
+                          }
                           className="p-1.5 rounded bg-[#222933] hover:bg-[#2b3442] text-slate-300 transition-colors flex items-center gap-1 text-[11px]"
                         >
-                          {copiedKey === "cli" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                          <span>{copiedKey === "cli" ? "Kopyalandı" : "Kopyala"}</span>
+                          {copiedKey === "cli" ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                          <span>
+                            {copiedKey === "cli" ? "Kopyalandı" : "Kopyala"}
+                          </span>
                         </button>
                       </div>
                     </div>
@@ -686,7 +804,9 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                   {activeTab === "yaml" && (
                     <div className="space-y-3 pt-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-slate-400">Standardize Docker Compose Manifesti:</span>
+                        <span className="text-xs text-slate-400">
+                          Standardize Docker Compose Manifesti:
+                        </span>
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
@@ -696,8 +816,16 @@ export function StoreClient({ initialAppId }: { initialAppId?: string | undefine
                             }}
                             className="p-1.5 px-2.5 rounded bg-[#222933] hover:bg-[#2b3442] text-slate-300 transition-colors flex items-center gap-1.5 text-xs font-medium border border-[#2d3748]"
                           >
-                            {copiedKey === "yaml" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                            <span>{copiedKey === "yaml" ? "Kopyalandı" : "YAML Kopyala"}</span>
+                            {copiedKey === "yaml" ? (
+                              <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                            <span>
+                              {copiedKey === "yaml"
+                                ? "Kopyalandı"
+                                : "YAML Kopyala"}
+                            </span>
                           </button>
                           <a
                             href={`/api/store/yaml/${selectedApp.id}`}

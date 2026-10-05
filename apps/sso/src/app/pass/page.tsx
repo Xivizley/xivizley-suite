@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 // ============================================================
 // XIVIZLEY Pass — Zero-Knowledge Password, Secret & 2FA Manager
 // Aurora Night 3-Column Cockpit
 // ============================================================
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Key,
   ShieldCheck,
@@ -36,11 +36,11 @@ import {
   Smartphone,
   Download,
   Upload,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { NextcloudHeader, useToast } from '@xivizley/aurora-ui';
-import type { VaultItem } from '@/server/services/passService';
-import { PassImportExportModal } from '@/components/PassImportExportModal';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { NextcloudHeader, useToast } from "@xivizley/aurora-ui";
+import type { VaultItem } from "@/server/services/passService";
+import { PassImportExportModal } from "@/components/PassImportExportModal";
 
 // ─── 30s Dairesel SVG TOTP Geri Sayım Halkası ───────────────
 function TotpCountdownRing({ remainingSeconds }: { remainingSeconds: number }) {
@@ -53,16 +53,16 @@ function TotpCountdownRing({ remainingSeconds }: { remainingSeconds: number }) {
   const isWarning = remainingSeconds <= 7 && !isCritical;
 
   const strokeColor = isCritical
-    ? '#f43f5e' // rose-500
+    ? "#f43f5e" // rose-500
     : isWarning
-    ? '#f59e0b' // amber-500
-    : '#10b981'; // emerald-500
+      ? "#f59e0b" // amber-500
+      : "#10b981"; // emerald-500
 
   const textColor = isCritical
-    ? 'text-rose-400'
+    ? "text-rose-400"
     : isWarning
-    ? 'text-amber-400'
-    : 'text-emerald-400';
+      ? "text-amber-400"
+      : "text-emerald-400";
 
   return (
     <div className="flex items-center gap-2.5">
@@ -89,7 +89,10 @@ function TotpCountdownRing({ remainingSeconds }: { remainingSeconds: number }) {
             strokeDasharray={circumference}
             strokeDashoffset={offset}
             style={{
-              transition: remainingSeconds >= 30 ? 'none' : 'stroke-dashoffset 1s linear, stroke 0.3s ease',
+              transition:
+                remainingSeconds >= 30
+                  ? "none"
+                  : "stroke-dashoffset 1s linear, stroke 0.3s ease",
             }}
           />
         </svg>
@@ -103,7 +106,9 @@ function TotpCountdownRing({ remainingSeconds }: { remainingSeconds: number }) {
         <span className={`text-xs font-mono font-bold ${textColor}`}>
           {remainingSeconds}s
         </span>
-        <span className="text-[9px] text-slate-400 block font-sans">kalan süre</span>
+        <span className="text-[9px] text-slate-400 block font-sans">
+          kalan süre
+        </span>
       </div>
     </div>
   );
@@ -113,7 +118,7 @@ function TotpCountdownRing({ remainingSeconds }: { remainingSeconds: number }) {
 interface PasswordStrength {
   score: number;
   entropyBits: number;
-  label: 'Çok Zayıf' | 'Zayıf' | 'Orta' | 'Çok Güçlü';
+  label: "Çok Zayıf" | "Zayıf" | "Orta" | "Çok Güçlü";
   colorClass: string;
   hasMinLength: boolean;
   hasLower: boolean;
@@ -127,8 +132,8 @@ function calculatePasswordStrength(pass: string): PasswordStrength {
     return {
       score: 0,
       entropyBits: 0,
-      label: 'Çok Zayıf',
-      colorClass: 'bg-rose-500',
+      label: "Çok Zayıf",
+      colorClass: "bg-rose-500",
       hasMinLength: false,
       hasLower: false,
       hasUpper: false,
@@ -149,7 +154,9 @@ function calculatePasswordStrength(pass: string): PasswordStrength {
   if (hasNumber) poolSize += 10;
   if (hasSpecial) poolSize += 33;
 
-  const entropyBits = Math.round(pass.length * (poolSize > 0 ? Math.log2(poolSize) : 0));
+  const entropyBits = Math.round(
+    pass.length * (poolSize > 0 ? Math.log2(poolSize) : 0),
+  );
 
   let score = 0;
   if (hasMinLength) score++;
@@ -165,21 +172,21 @@ function calculatePasswordStrength(pass: string): PasswordStrength {
     score = Math.min(score, 2);
   }
 
-  let label: 'Çok Zayıf' | 'Zayıf' | 'Orta' | 'Çok Güçlü' = 'Çok Zayıf';
-  let colorClass = 'bg-rose-500';
+  let label: "Çok Zayıf" | "Zayıf" | "Orta" | "Çok Güçlü" = "Çok Zayıf";
+  let colorClass = "bg-rose-500";
 
   if (score <= 1) {
-    label = 'Çok Zayıf';
-    colorClass = 'bg-rose-500';
+    label = "Çok Zayıf";
+    colorClass = "bg-rose-500";
   } else if (score === 2) {
-    label = 'Zayıf';
-    colorClass = 'bg-amber-500';
+    label = "Zayıf";
+    colorClass = "bg-amber-500";
   } else if (score === 3) {
-    label = 'Orta';
-    colorClass = 'bg-sky-400';
+    label = "Orta";
+    colorClass = "bg-sky-400";
   } else {
-    label = 'Çok Güçlü';
-    colorClass = 'bg-emerald-500';
+    label = "Çok Güçlü";
+    colorClass = "bg-emerald-500";
   }
 
   return {
@@ -207,12 +214,12 @@ function PasswordStrengthBar({ password }: { password: string }) {
           <span
             className={
               strength.score <= 1
-                ? 'text-rose-400 font-semibold'
+                ? "text-rose-400 font-semibold"
                 : strength.score === 2
-                ? 'text-amber-400 font-semibold'
-                : strength.score === 3
-                ? 'text-sky-400 font-semibold'
-                : 'text-emerald-400 font-semibold'
+                  ? "text-amber-400 font-semibold"
+                  : strength.score === 3
+                    ? "text-sky-400 font-semibold"
+                    : "text-emerald-400 font-semibold"
             }
           >
             {strength.label}
@@ -229,7 +236,7 @@ function PasswordStrengthBar({ password }: { password: string }) {
           <div
             key={step}
             className={`h-full rounded-full transition-all duration-300 ${
-              step <= strength.score ? strength.colorClass : 'bg-slate-700/60'
+              step <= strength.score ? strength.colorClass : "bg-slate-700/60"
             }`}
           />
         ))}
@@ -240,38 +247,38 @@ function PasswordStrengthBar({ password }: { password: string }) {
         <span
           className={`px-1.5 py-0.5 rounded border transition-colors ${
             strength.hasMinLength
-              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-              : 'bg-slate-800/60 text-slate-400 border-slate-700/60'
+              ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
+              : "bg-slate-800/60 text-slate-400 border-slate-700/60"
           }`}
         >
-          {strength.hasMinLength ? '✓' : '○'} 12+ Karakter
+          {strength.hasMinLength ? "✓" : "○"} 12+ Karakter
         </span>
         <span
           className={`px-1.5 py-0.5 rounded border transition-colors ${
             strength.hasUpper && strength.hasLower
-              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-              : 'bg-slate-800/60 text-slate-400 border-slate-700/60'
+              ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
+              : "bg-slate-800/60 text-slate-400 border-slate-700/60"
           }`}
         >
-          {strength.hasUpper && strength.hasLower ? '✓' : '○'} Büyük & Küçük
+          {strength.hasUpper && strength.hasLower ? "✓" : "○"} Büyük & Küçük
         </span>
         <span
           className={`px-1.5 py-0.5 rounded border transition-colors ${
             strength.hasNumber
-              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-              : 'bg-slate-800/60 text-slate-400 border-slate-700/60'
+              ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
+              : "bg-slate-800/60 text-slate-400 border-slate-700/60"
           }`}
         >
-          {strength.hasNumber ? '✓' : '○'} Rakam
+          {strength.hasNumber ? "✓" : "○"} Rakam
         </span>
         <span
           className={`px-1.5 py-0.5 rounded border transition-colors ${
             strength.hasSpecial
-              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-              : 'bg-slate-800/60 text-slate-400 border-slate-700/60'
+              ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
+              : "bg-slate-800/60 text-slate-400 border-slate-700/60"
           }`}
         >
-          {strength.hasSpecial ? '✓' : '○'} Sembol
+          {strength.hasSpecial ? "✓" : "○"} Sembol
         </span>
       </div>
     </div>
@@ -282,8 +289,8 @@ export default function PassDashboard() {
   const toast = useToast();
   const [items, setItems] = useState<VaultItem[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
@@ -292,24 +299,29 @@ export default function PassDashboard() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // 2FA TOTP Durumu
-  const [totpData, setTotpData] = useState<{ code: string; remainingSeconds: number } | null>(null);
+  const [totpData, setTotpData] = useState<{
+    code: string;
+    remainingSeconds: number;
+  } | null>(null);
 
   // Modallar
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
   const [isImportExportOpen, setIsImportExportOpen] = useState(false);
-  const [importExportTab, setImportExportTab] = useState<'export' | 'import'>('export');
+  const [importExportTab, setImportExportTab] = useState<"export" | "import">(
+    "export",
+  );
 
   // Form State
   const [formData, setFormData] = useState({
-    title: '',
-    type: 'login' as VaultItem['type'],
-    username: '',
-    password: '',
-    url: '',
-    totpSecret: '',
-    folder: 'Sunucular & Altyapı',
-    notes: '',
+    title: "",
+    type: "login" as VaultItem["type"],
+    username: "",
+    password: "",
+    url: "",
+    totpSecret: "",
+    folder: "Sunucular & Altyapı",
+    notes: "",
   });
 
   // Generator State
@@ -317,13 +329,13 @@ export default function PassDashboard() {
   const [genSymbols, setGenSymbols] = useState(true);
   const [genNumbers, setGenNumbers] = useState(true);
   const [genUppercase, setGenUppercase] = useState(true);
-  const [generatedPassword, setGeneratedPassword] = useState('');
+  const [generatedPassword, setGeneratedPassword] = useState("");
 
   // ─── Veri Çekme ───────────────────────────────────────────
   const fetchItems = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/vault');
+      const res = await fetch("/api/vault");
       const data = await res.json();
       if (data.ok && Array.isArray(data.data)) {
         setItems(data.data);
@@ -332,7 +344,7 @@ export default function PassDashboard() {
         }
       }
     } catch (err) {
-      console.error('Kasa yüklenemedi', err);
+      console.error("Kasa yüklenemedi", err);
     } finally {
       setIsLoading(false);
     }
@@ -379,7 +391,7 @@ export default function PassDashboard() {
   }, [selectedItem]);
 
   // ─── Kopyalama Yardımcısı ──────────────────────────────────
-  const copyToClipboard = (text: string, key: string, label = 'Değer') => {
+  const copyToClipboard = (text: string, key: string, label = "Değer") => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
     toast.success(`${label} panoya kopyalandı.`);
@@ -390,18 +402,18 @@ export default function PassDashboard() {
 
   // ─── Parola Üretici Motoru ─────────────────────────────────
   const generatePassword = () => {
-    let chars = 'abcdefghijkmnopqrstuvwxyz';
-    if (genUppercase) chars += 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-    if (genNumbers) chars += '23456789';
-    if (genSymbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+    let chars = "abcdefghijkmnopqrstuvwxyz";
+    if (genUppercase) chars += "ABCDEFGHJKLMNPQRSTUVWXYZ";
+    if (genNumbers) chars += "23456789";
+    if (genSymbols) chars += "!@#$%^&*()_+-=[]{}|;:,.<>?";
 
-    let res = '';
+    let res = "";
     const array = new Uint32Array(genLength);
     crypto.getRandomValues(array);
     for (let i = 0; i < genLength; i++) {
       const val = array[i];
       if (val !== undefined) {
-        res += chars[val % chars.length] || '';
+        res += chars[val % chars.length] || "";
       }
     }
     setGeneratedPassword(res);
@@ -418,37 +430,46 @@ export default function PassDashboard() {
     e.stopPropagation();
     try {
       const res = await fetch(`/api/vault/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ toggleFavorite: true }),
       });
       const data = await res.json();
       if (data.ok) {
         setItems((prev) =>
-          prev.map((i) => (i.id === id ? { ...i, isFavorite: data.isFavorite } : i))
+          prev.map((i) =>
+            i.id === id ? { ...i, isFavorite: data.isFavorite } : i,
+          ),
         );
-        toast.success(data.isFavorite ? 'Favorilere eklendi.' : 'Favorilerden çıkarıldı.');
+        toast.success(
+          data.isFavorite ? "Favorilere eklendi." : "Favorilerden çıkarıldı.",
+        );
       }
     } catch {
-      toast.error('Favori güncellenemedi.');
+      toast.error("Favori güncellenemedi.");
     }
   };
 
   // ─── Öğe Silme ─────────────────────────────────────────────
   const handleDelete = async (id: string) => {
     const itemToDelete = items.find((i) => i.id === id);
-    if (!confirm(`"${itemToDelete?.title || 'Bu öğeyi'}" kasanızdan silmek istediğinize emin misiniz?`)) return;
+    if (
+      !confirm(
+        `"${itemToDelete?.title || "Bu öğeyi"}" kasanızdan silmek istediğinize emin misiniz?`,
+      )
+    )
+      return;
     try {
-      const res = await fetch(`/api/vault/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/vault/${id}`, { method: "DELETE" });
       if (res.ok) {
         setItems((prev) => prev.filter((i) => i.id !== id));
         if (selectedId === id) {
           setSelectedId(null);
         }
-        toast.success(`"${itemToDelete?.title || 'Öğe'}" kasanızdan silindi.`);
+        toast.success(`"${itemToDelete?.title || "Öğe"}" kasanızdan silindi.`);
       }
     } catch (err) {
-      toast.error('Öğe silinemedi.');
+      toast.error("Öğe silinemedi.");
     }
   };
 
@@ -458,9 +479,9 @@ export default function PassDashboard() {
     if (!formData.title) return;
 
     try {
-      const res = await fetch('/api/vault', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/vault", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
       const data = await res.json();
@@ -469,23 +490,23 @@ export default function PassDashboard() {
         setSelectedId(data.data.id);
         setIsAddOpen(false);
         toast.success(`"${formData.title}" başarıyla kasaya kaydedildi.`, {
-          title: 'Kasa Güncellendi',
+          title: "Kasa Güncellendi",
         });
         setFormData({
-          title: '',
-          type: 'login',
-          username: '',
-          password: '',
-          url: '',
-          totpSecret: '',
-          folder: 'Sunucular & Altyapı',
-          notes: '',
+          title: "",
+          type: "login",
+          username: "",
+          password: "",
+          url: "",
+          totpSecret: "",
+          folder: "Sunucular & Altyapı",
+          notes: "",
         });
       } else {
-        toast.error(data.error || data.message || 'Kayıt oluşturulamadı.');
+        toast.error(data.error || data.message || "Kayıt oluşturulamadı.");
       }
     } catch (err: any) {
-      toast.error(err?.message || 'Kayıt oluşturulamadı.');
+      toast.error(err?.message || "Kayıt oluşturulamadı.");
     }
   };
 
@@ -493,13 +514,15 @@ export default function PassDashboard() {
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       // Filtre kontrolü
-      if (selectedFilter === 'favorites' && !item.isFavorite) return false;
-      if (selectedFilter === 'login' && item.type !== 'login') return false;
-      if (selectedFilter === 'server_ssh' && item.type !== 'server_ssh') return false;
-      if (selectedFilter === 'api_key' && item.type !== 'api_key') return false;
-      if (selectedFilter === 'secure_note' && item.type !== 'secure_note') return false;
-      if (selectedFilter.startsWith('folder:')) {
-        const folderName = selectedFilter.replace('folder:', '');
+      if (selectedFilter === "favorites" && !item.isFavorite) return false;
+      if (selectedFilter === "login" && item.type !== "login") return false;
+      if (selectedFilter === "server_ssh" && item.type !== "server_ssh")
+        return false;
+      if (selectedFilter === "api_key" && item.type !== "api_key") return false;
+      if (selectedFilter === "secure_note" && item.type !== "secure_note")
+        return false;
+      if (selectedFilter.startsWith("folder:")) {
+        const folderName = selectedFilter.replace("folder:", "");
         if (item.folder !== folderName) return false;
       }
 
@@ -515,17 +538,17 @@ export default function PassDashboard() {
     });
   }, [items, selectedFilter, searchQuery]);
 
-  const getItemIcon = (type: VaultItem['type']) => {
+  const getItemIcon = (type: VaultItem["type"]) => {
     switch (type) {
-      case 'server_ssh':
+      case "server_ssh":
         return <Terminal className="h-4 w-4 text-emerald-400" />;
-      case 'api_key':
+      case "api_key":
         return <Zap className="h-4 w-4 text-amber-400" />;
-      case 'secure_note':
+      case "secure_note":
         return <FileText className="h-4 w-4 text-indigo-400" />;
-      case 'card':
+      case "card":
         return <ShieldCheck className="h-4 w-4 text-purple-400" />;
-      case 'login':
+      case "login":
       default:
         return <Globe className="h-4 w-4 text-[#0082c9]" />;
     }
@@ -544,7 +567,7 @@ export default function PassDashboard() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                setImportExportTab('export');
+                setImportExportTab("export");
                 setIsImportExportOpen(true);
               }}
               className="h-7 px-2.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -556,7 +579,7 @@ export default function PassDashboard() {
 
             <button
               onClick={() => {
-                setImportExportTab('import');
+                setImportExportTab("import");
                 setIsImportExportOpen(true);
               }}
               className="h-7 px-2.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -590,9 +613,11 @@ export default function PassDashboard() {
         {/* ─── SOL SIDEBAR: Kasa Filtreleri & Klasörler ──────────── */}
         <aside
           className={cn(
-            'w-60 border-r border-[#2d3748] bg-[#222933] flex flex-col justify-between shrink-0 select-none p-3 transition-transform duration-200 z-40',
-            'fixed inset-y-12 left-0 md:static md:translate-x-0',
-            isMobileFilterOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
+            "w-60 border-r border-[#2d3748] bg-[#222933] flex flex-col justify-between shrink-0 select-none p-3 transition-transform duration-200 z-40",
+            "fixed inset-y-12 left-0 md:static md:translate-x-0",
+            isMobileFilterOpen
+              ? "translate-x-0 shadow-2xl"
+              : "-translate-x-full md:translate-x-0",
           )}
         >
           <div className="space-y-4">
@@ -612,12 +637,12 @@ export default function PassDashboard() {
               </div>
 
               <button
-                onClick={() => setSelectedFilter('all')}
+                onClick={() => setSelectedFilter("all")}
                 className={cn(
-                  'w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all',
-                  selectedFilter === 'all'
-                    ? 'bg-[#0082c9] text-white font-semibold shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-[#2b3442]'
+                  "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                  selectedFilter === "all"
+                    ? "bg-[#0082c9] text-white font-semibold shadow-sm"
+                    : "text-slate-300 hover:text-white hover:bg-[#2b3442]",
                 )}
               >
                 <div className="flex items-center gap-2.5">
@@ -630,12 +655,12 @@ export default function PassDashboard() {
               </button>
 
               <button
-                onClick={() => setSelectedFilter('favorites')}
+                onClick={() => setSelectedFilter("favorites")}
                 className={cn(
-                  'w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all',
-                  selectedFilter === 'favorites'
-                    ? 'bg-[#0082c9] text-white font-semibold shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-[#2b3442]'
+                  "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                  selectedFilter === "favorites"
+                    ? "bg-[#0082c9] text-white font-semibold shadow-sm"
+                    : "text-slate-300 hover:text-white hover:bg-[#2b3442]",
                 )}
               >
                 <div className="flex items-center gap-2.5">
@@ -648,12 +673,12 @@ export default function PassDashboard() {
               </button>
 
               <button
-                onClick={() => setSelectedFilter('server_ssh')}
+                onClick={() => setSelectedFilter("server_ssh")}
                 className={cn(
-                  'w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all',
-                  selectedFilter === 'server_ssh'
-                    ? 'bg-[#0082c9] text-white font-semibold shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-[#2b3442]'
+                  "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                  selectedFilter === "server_ssh"
+                    ? "bg-[#0082c9] text-white font-semibold shadow-sm"
+                    : "text-slate-300 hover:text-white hover:bg-[#2b3442]",
                 )}
               >
                 <div className="flex items-center gap-2.5">
@@ -661,17 +686,17 @@ export default function PassDashboard() {
                   <span>Sunucu & SSH</span>
                 </div>
                 <span className="text-[10px] font-mono opacity-80 font-bold">
-                  {items.filter((i) => i.type === 'server_ssh').length}
+                  {items.filter((i) => i.type === "server_ssh").length}
                 </span>
               </button>
 
               <button
-                onClick={() => setSelectedFilter('api_key')}
+                onClick={() => setSelectedFilter("api_key")}
                 className={cn(
-                  'w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all',
-                  selectedFilter === 'api_key'
-                    ? 'bg-[#0082c9] text-white font-semibold shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-[#2b3442]'
+                  "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                  selectedFilter === "api_key"
+                    ? "bg-[#0082c9] text-white font-semibold shadow-sm"
+                    : "text-slate-300 hover:text-white hover:bg-[#2b3442]",
                 )}
               >
                 <div className="flex items-center gap-2.5">
@@ -679,17 +704,17 @@ export default function PassDashboard() {
                   <span>API Anahtarları</span>
                 </div>
                 <span className="text-[10px] font-mono opacity-80 font-bold">
-                  {items.filter((i) => i.type === 'api_key').length}
+                  {items.filter((i) => i.type === "api_key").length}
                 </span>
               </button>
 
               <button
-                onClick={() => setSelectedFilter('login')}
+                onClick={() => setSelectedFilter("login")}
                 className={cn(
-                  'w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all',
-                  selectedFilter === 'login'
-                    ? 'bg-[#0082c9] text-white font-semibold shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-[#2b3442]'
+                  "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                  selectedFilter === "login"
+                    ? "bg-[#0082c9] text-white font-semibold shadow-sm"
+                    : "text-slate-300 hover:text-white hover:bg-[#2b3442]",
                 )}
               >
                 <div className="flex items-center gap-2.5">
@@ -697,7 +722,7 @@ export default function PassDashboard() {
                   <span>Web Girişleri</span>
                 </div>
                 <span className="text-[10px] font-mono opacity-80 font-bold">
-                  {items.filter((i) => i.type === 'login').length}
+                  {items.filter((i) => i.type === "login").length}
                 </span>
               </button>
             </div>
@@ -708,15 +733,19 @@ export default function PassDashboard() {
                 Klasörler
               </div>
 
-              {['Sunucular & Altyapı', 'E-Posta & İletişim', 'API & Servisler'].map((f) => (
+              {[
+                "Sunucular & Altyapı",
+                "E-Posta & İletişim",
+                "API & Servisler",
+              ].map((f) => (
                 <button
                   key={f}
                   onClick={() => setSelectedFilter(`folder:${f}`)}
                   className={cn(
-                    'w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-all',
+                    "w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-all",
                     selectedFilter === `folder:${f}`
-                      ? 'bg-[#2b3442] text-white font-medium border border-[#2d3748]'
-                      : 'text-slate-300 hover:text-white hover:bg-[#2b3442]'
+                      ? "bg-[#2b3442] text-white font-medium border border-[#2d3748]"
+                      : "text-slate-300 hover:text-white hover:bg-[#2b3442]",
                   )}
                 >
                   <div className="flex items-center gap-2 truncate">
@@ -748,365 +777,391 @@ export default function PassDashboard() {
           </div>
         </aside>
 
-      {/* ─── ORTA LİSTE: Arama & Öğe Kartları ──────────────────── */}
-      <section
-        className={cn(
-          'w-full md:w-80 lg:w-96 border-r border-[#2d3748] bg-[#181e24] flex flex-col shrink-0',
-          selectedId ? 'hidden md:flex' : 'flex'
-        )}
-      >
-        {/* Arama & Ekle Çubuğu */}
-        <div className="h-12 border-b border-[#2d3748] px-3 flex items-center gap-2">
-          {/* Mobil Filtre Açıcı */}
-          <button
-            onClick={() => setIsMobileFilterOpen(true)}
-            className="md:hidden h-8 px-2 rounded-lg bg-[#222933] border border-[#2d3748] text-slate-300 hover:text-white flex items-center gap-1 shrink-0"
-            title="Kasa Filtreleri"
-          >
-            <Sliders className="h-3.5 w-3.5" />
-            <span className="text-xs">Filtre</span>
-          </button>
+        {/* ─── ORTA LİSTE: Arama & Öğe Kartları ──────────────────── */}
+        <section
+          className={cn(
+            "w-full md:w-80 lg:w-96 border-r border-[#2d3748] bg-[#181e24] flex flex-col shrink-0",
+            selectedId ? "hidden md:flex" : "flex",
+          )}
+        >
+          {/* Arama & Ekle Çubuğu */}
+          <div className="h-12 border-b border-[#2d3748] px-3 flex items-center gap-2">
+            {/* Mobil Filtre Açıcı */}
+            <button
+              onClick={() => setIsMobileFilterOpen(true)}
+              className="md:hidden h-8 px-2 rounded-lg bg-[#222933] border border-[#2d3748] text-slate-300 hover:text-white flex items-center gap-1 shrink-0"
+              title="Kasa Filtreleri"
+            >
+              <Sliders className="h-3.5 w-3.5" />
+              <span className="text-xs">Filtre</span>
+            </button>
 
-          <div className="relative flex-1 flex items-center">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Kasada ara... (Cmd+K)"
-              className="w-full h-8 pl-8 pr-16 rounded-lg bg-[#222933] border border-[#2d3748] text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-[#0082c9] transition-all"
-            />
-            {searchQuery && (
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#181e24] text-[#38bdf8] border border-[#2d3748]">
-                  {filteredItems.length}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="text-slate-400 hover:text-white p-0.5 rounded transition-colors"
-                  title="Aramayı Temizle"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            )}
+            <div className="relative flex-1 flex items-center">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Kasada ara... (Cmd+K)"
+                className="w-full h-8 pl-8 pr-16 rounded-lg bg-[#222933] border border-[#2d3748] text-xs text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-[#0082c9] transition-all"
+              />
+              {searchQuery && (
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#181e24] text-[#38bdf8] border border-[#2d3748]">
+                    {filteredItems.length}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="text-slate-400 hover:text-white p-0.5 rounded transition-colors"
+                    title="Aramayı Temizle"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setIsAddOpen(true)}
+              className="h-8 px-2.5 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold flex items-center gap-1 transition-all shadow-sm shrink-0"
+              title="Yeni Şifre / Anahtar Ekle"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Ekle</span>
+            </button>
           </div>
 
-          <button
-            onClick={() => setIsAddOpen(true)}
-            className="h-8 px-2.5 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold flex items-center gap-1 transition-all shadow-sm shrink-0"
-            title="Yeni Şifre / Anahtar Ekle"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span>Ekle</span>
-          </button>
-        </div>
-
-        {/* Öğe Kartları Listesi */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
-          {isLoading ? (
-            <div className="p-8 text-center text-xs text-slate-500">
-              <RefreshCw className="h-5 w-5 animate-spin mx-auto text-[#0082c9] mb-2" />
-              <span>Kasa yükleniyor...</span>
-            </div>
-          ) : filteredItems.length === 0 ? (
-            <div className="p-8 text-center text-xs text-slate-500 space-y-2">
-              <Key className="h-8 w-8 mx-auto text-slate-600 mb-1" />
-              <p>Hiçbir öğe bulunamadı.</p>
-            </div>
-          ) : (
-            filteredItems.map((item) => {
-              const isSelected = item.id === selectedId;
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => setSelectedId(item.id)}
-                  className={cn(
-                    'p-3 rounded-xl border transition-all cursor-pointer group',
-                    isSelected
-                      ? 'bg-[#0082c9]/15 border-[#0082c9] shadow-sm'
-                      : 'bg-[#222933] hover:bg-[#2b3442] border-[#2d3748]'
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-[#181e24] border border-[#2d3748] flex items-center justify-center shrink-0">
-                        {getItemIcon(item.type)}
+          {/* Öğe Kartları Listesi */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            {isLoading ? (
+              <div className="p-8 text-center text-xs text-slate-500">
+                <RefreshCw className="h-5 w-5 animate-spin mx-auto text-[#0082c9] mb-2" />
+                <span>Kasa yükleniyor...</span>
+              </div>
+            ) : filteredItems.length === 0 ? (
+              <div className="p-8 text-center text-xs text-slate-500 space-y-2">
+                <Key className="h-8 w-8 mx-auto text-slate-600 mb-1" />
+                <p>Hiçbir öğe bulunamadı.</p>
+              </div>
+            ) : (
+              filteredItems.map((item) => {
+                const isSelected = item.id === selectedId;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => setSelectedId(item.id)}
+                    className={cn(
+                      "p-3 rounded-xl border transition-all cursor-pointer group",
+                      isSelected
+                        ? "bg-[#0082c9]/15 border-[#0082c9] shadow-sm"
+                        : "bg-[#222933] hover:bg-[#2b3442] border-[#2d3748]",
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-[#181e24] border border-[#2d3748] flex items-center justify-center shrink-0">
+                          {getItemIcon(item.type)}
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-xs font-semibold text-slate-200 truncate group-hover:text-white">
+                            {item.title}
+                          </h4>
+                          <p className="text-[11px] text-slate-400 font-mono truncate mt-0.5">
+                            {item.username || item.url || "Kayıtlı Parola"}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <h4 className="text-xs font-semibold text-slate-200 truncate group-hover:text-white">
-                          {item.title}
-                        </h4>
-                        <p className="text-[11px] text-slate-400 font-mono truncate mt-0.5">
-                          {item.username || item.url || 'Kayıtlı Parola'}
-                        </p>
+
+                      <div className="flex items-center gap-1 shrink-0">
+                        {item.totpSecret && (
+                          <span
+                            className="p-1 text-[9px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold"
+                            title="2FA Authenticator Aktif"
+                          >
+                            2FA
+                          </span>
+                        )}
+                        <button
+                          onClick={(e) => toggleFavorite(item.id, e)}
+                          className={cn(
+                            "p-1 rounded-md transition-colors",
+                            item.isFavorite
+                              ? "text-amber-400"
+                              : "text-slate-600 hover:text-slate-400",
+                          )}
+                          title="Favori"
+                        >
+                          <Star className="h-3 w-3 fill-current" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </section>
+
+        {/* ─── SAĞ DETAY PANELİ: Seçili Parola & 2FA HUD ─────────── */}
+        <main
+          className={cn(
+            "flex-1 flex flex-col bg-[#181e24] overflow-y-auto",
+            !selectedId ? "hidden md:flex" : "flex",
+          )}
+        >
+          {selectedItem ? (
+            <div className="max-w-3xl w-full mx-auto p-4 sm:p-8 space-y-6">
+              {/* Mobil Geri Dön Butonu */}
+              <div className="md:hidden pb-3 border-b border-[#2d3748]">
+                <button
+                  onClick={() => setSelectedId(null)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-[#0082c9] hover:text-[#006aa3]"
+                >
+                  <span>← Parola Listesine Dön</span>
+                </button>
+              </div>
+
+              {/* Header */}
+              <div className="flex items-start justify-between gap-4 border-b border-[#2d3748] pb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-[#0082c9]/15 border border-[#0082c9]/30 flex items-center justify-center shadow-sm">
+                    {getItemIcon(selectedItem.type)}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-xl font-bold text-white tracking-tight">
+                        {selectedItem.title}
+                      </h2>
+                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#222933] border border-[#2d3748] text-slate-300">
+                        {selectedItem.type}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Klasör:{" "}
+                      <span className="text-slate-200 font-medium">
+                        {selectedItem.folder}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleDelete(selectedItem.id)}
+                    className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs transition-colors"
+                    title="Öğeyi Sil"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* 2FA Authenticator Bannerı (Varsa) */}
+              {selectedItem.totpSecret && totpData && (
+                <div className="relative overflow-hidden rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                        <Smartphone className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-emerald-400 font-mono font-bold uppercase tracking-wider block">
+                          2FA Doğrulama Kodu (TOTP)
+                        </span>
+                        <div className="flex items-baseline gap-2 mt-0.5">
+                          <span className="text-2xl sm:text-3xl font-mono font-black text-white tracking-widest">
+                            {totpData.code.slice(0, 3)}{" "}
+                            {totpData.code.slice(3, 6)}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1 shrink-0">
-                      {item.totpSecret && (
-                        <span
-                          className="p-1 text-[9px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold"
-                          title="2FA Authenticator Aktif"
-                        >
-                          2FA
-                        </span>
-                      )}
+                    <div className="flex items-center gap-3">
+                      <TotpCountdownRing
+                        remainingSeconds={totpData.remainingSeconds}
+                      />
+
                       <button
-                        onClick={(e) => toggleFavorite(item.id, e)}
-                        className={cn(
-                          'p-1 rounded-md transition-colors',
-                          item.isFavorite
-                            ? 'text-amber-400'
-                            : 'text-slate-600 hover:text-slate-400'
-                        )}
-                        title="Favori"
+                        onClick={() =>
+                          copyToClipboard(
+                            totpData.code,
+                            "totp",
+                            "2FA Doğrulama Kodu",
+                          )
+                        }
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-sm"
                       >
-                        <Star className="h-3 w-3 fill-current" />
+                        {copiedKey === "totp" ? (
+                          <>
+                            <Check className="h-3.5 w-3.5 text-white" />
+                            <span>Kopyalandı</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3.5 w-3.5" />
+                            <span>Kopyala</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>
                 </div>
-              );
-            })
-          )}
-        </div>
-      </section>
+              )}
 
-      {/* ─── SAĞ DETAY PANELİ: Seçili Parola & 2FA HUD ─────────── */}
-      <main
-        className={cn(
-          'flex-1 flex flex-col bg-[#181e24] overflow-y-auto',
-          !selectedId ? 'hidden md:flex' : 'flex'
-        )}
-      >
-        {selectedItem ? (
-          <div className="max-w-3xl w-full mx-auto p-4 sm:p-8 space-y-6">
-            {/* Mobil Geri Dön Butonu */}
-            <div className="md:hidden pb-3 border-b border-[#2d3748]">
+              {/* Alanlar Kartı */}
+              <div className="rounded-xl border border-[#2d3748] bg-[#222933] divide-y divide-[#2d3748]">
+                {/* Kullanıcı Adı */}
+                {selectedItem.username && (
+                  <div className="p-4 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">
+                        Kullanıcı Adı / Hesap
+                      </span>
+                      <span className="text-sm font-medium text-slate-200 mt-0.5 block font-mono">
+                        {selectedItem.username}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        copyToClipboard(
+                          selectedItem.username!,
+                          "user",
+                          "Kullanıcı Adı",
+                        )
+                      }
+                      className="p-2 rounded-lg hover:bg-[#181e24] text-slate-400 hover:text-slate-100 transition-colors"
+                      title="Kullanıcı Adını Kopyala"
+                    >
+                      {copiedKey === "user" ? (
+                        <Check className="h-4 w-4 text-emerald-400" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* Parola / Gizli Anahtar */}
+                {selectedItem.password && (
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="min-w-0 flex-1 mr-4">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">
+                        Parola / Gizli Anahtar
+                      </span>
+                      <span className="text-sm font-mono font-medium text-slate-200 mt-0.5 block truncate">
+                        {showPassword
+                          ? selectedItem.password
+                          : "••••••••••••••••••••"}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="p-2 rounded-lg hover:bg-[#181e24] text-slate-400 hover:text-slate-100 transition-colors"
+                        title={showPassword ? "Gizle" : "Göster"}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          copyToClipboard(
+                            selectedItem.password!,
+                            "pass",
+                            "Parola",
+                          )
+                        }
+                        className="px-3 py-1.5 rounded-lg bg-[#0082c9]/10 hover:bg-[#0082c9]/20 border border-[#0082c9]/30 text-xs font-medium text-[#0082c9] flex items-center gap-1.5 transition-all"
+                      >
+                        {copiedKey === "pass" ? (
+                          <>
+                            <Check className="h-3.5 w-3.5 text-emerald-400" />
+                            <span>Kopyalandı</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3.5 w-3.5" />
+                            <span>Kopyala</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* URL / Hedef Sunucu */}
+                {selectedItem.url && (
+                  <div className="p-4 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">
+                        Web Sitesi / Sunucu Adresi
+                      </span>
+                      <span className="text-sm font-mono text-[#0082c9] mt-0.5 block hover:underline">
+                        {selectedItem.url}
+                      </span>
+                    </div>
+
+                    <a
+                      href={
+                        selectedItem.url.startsWith("http")
+                          ? selectedItem.url
+                          : `http://${selectedItem.url}`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-2 rounded-lg hover:bg-[#181e24] text-slate-400 hover:text-[#0082c9] transition-colors"
+                      title="Bağlantıyı Aç"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
+                )}
+
+                {/* Notlar */}
+                {selectedItem.notes && (
+                  <div className="p-4">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">
+                      Güvenli Notlar & Talimatlar
+                    </span>
+                    <p className="text-xs text-slate-300 mt-1 whitespace-pre-wrap font-sans">
+                      {selectedItem.notes}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#222933] border border-[#2d3748] flex items-center justify-center text-slate-400">
+                <Key className="w-8 h-8 text-[#0082c9]" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-slate-100">
+                  Bir Öğe Seçin
+                </h3>
+                <p className="text-xs text-slate-400 mt-1 max-w-sm">
+                  Sol listeden görüntülemek istediğiniz şifre veya sunucuyu
+                  seçin, ya da yeni bir kayıt ekleyin.
+                </p>
+              </div>
               <button
-                onClick={() => setSelectedId(null)}
-                className="flex items-center gap-1.5 text-xs font-semibold text-[#0082c9] hover:text-[#006aa3]"
+                onClick={() => setIsAddOpen(true)}
+                className="px-4 py-2 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-all"
               >
-                <span>← Parola Listesine Dön</span>
+                <Plus className="w-4 h-4" />
+                <span>Yeni Şifre / Anahtar Ekle</span>
               </button>
             </div>
-
-            {/* Header */}
-            <div className="flex items-start justify-between gap-4 border-b border-[#2d3748] pb-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#0082c9]/15 border border-[#0082c9]/30 flex items-center justify-center shadow-sm">
-                  {getItemIcon(selectedItem.type)}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold text-white tracking-tight">
-                      {selectedItem.title}
-                    </h2>
-                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#222933] border border-[#2d3748] text-slate-300">
-                      {selectedItem.type}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Klasör:{' '}
-                    <span className="text-slate-200 font-medium">
-                      {selectedItem.folder}
-                    </span>
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleDelete(selectedItem.id)}
-                  className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs transition-colors"
-                  title="Öğeyi Sil"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* 2FA Authenticator Bannerı (Varsa) */}
-            {selectedItem.totpSecret && totpData && (
-              <div className="relative overflow-hidden rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                      <Smartphone className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-emerald-400 font-mono font-bold uppercase tracking-wider block">
-                        2FA Doğrulama Kodu (TOTP)
-                      </span>
-                      <div className="flex items-baseline gap-2 mt-0.5">
-                        <span className="text-2xl sm:text-3xl font-mono font-black text-white tracking-widest">
-                          {totpData.code.slice(0, 3)} {totpData.code.slice(3, 6)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <TotpCountdownRing remainingSeconds={totpData.remainingSeconds} />
-
-                    <button
-                      onClick={() => copyToClipboard(totpData.code, 'totp', '2FA Doğrulama Kodu')}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium flex items-center gap-1.5 transition-all shadow-sm"
-                    >
-                      {copiedKey === 'totp' ? (
-                        <>
-                          <Check className="h-3.5 w-3.5 text-white" />
-                          <span>Kopyalandı</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-3.5 w-3.5" />
-                          <span>Kopyala</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Alanlar Kartı */}
-            <div className="rounded-xl border border-[#2d3748] bg-[#222933] divide-y divide-[#2d3748]">
-              {/* Kullanıcı Adı */}
-              {selectedItem.username && (
-                <div className="p-4 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">
-                      Kullanıcı Adı / Hesap
-                    </span>
-                    <span className="text-sm font-medium text-slate-200 mt-0.5 block font-mono">
-                      {selectedItem.username}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => copyToClipboard(selectedItem.username!, 'user', 'Kullanıcı Adı')}
-                    className="p-2 rounded-lg hover:bg-[#181e24] text-slate-400 hover:text-slate-100 transition-colors"
-                    title="Kullanıcı Adını Kopyala"
-                  >
-                    {copiedKey === 'user' ? (
-                      <Check className="h-4 w-4 text-emerald-400" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {/* Parola / Gizli Anahtar */}
-              {selectedItem.password && (
-                <div className="p-4 flex items-center justify-between">
-                  <div className="min-w-0 flex-1 mr-4">
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">
-                      Parola / Gizli Anahtar
-                    </span>
-                    <span className="text-sm font-mono font-medium text-slate-200 mt-0.5 block truncate">
-                      {showPassword ? selectedItem.password : '••••••••••••••••••••'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="p-2 rounded-lg hover:bg-[#181e24] text-slate-400 hover:text-slate-100 transition-colors"
-                      title={showPassword ? 'Gizle' : 'Göster'}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </button>
-
-                    <button
-                      onClick={() => copyToClipboard(selectedItem.password!, 'pass', 'Parola')}
-                      className="px-3 py-1.5 rounded-lg bg-[#0082c9]/10 hover:bg-[#0082c9]/20 border border-[#0082c9]/30 text-xs font-medium text-[#0082c9] flex items-center gap-1.5 transition-all"
-                    >
-                      {copiedKey === 'pass' ? (
-                        <>
-                          <Check className="h-3.5 w-3.5 text-emerald-400" />
-                          <span>Kopyalandı</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-3.5 w-3.5" />
-                          <span>Kopyala</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* URL / Hedef Sunucu */}
-              {selectedItem.url && (
-                <div className="p-4 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">
-                      Web Sitesi / Sunucu Adresi
-                    </span>
-                    <span className="text-sm font-mono text-[#0082c9] mt-0.5 block hover:underline">
-                      {selectedItem.url}
-                    </span>
-                  </div>
-
-                  <a
-                    href={
-                      selectedItem.url.startsWith('http')
-                        ? selectedItem.url
-                        : `http://${selectedItem.url}`
-                    }
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2 rounded-lg hover:bg-[#181e24] text-slate-400 hover:text-[#0082c9] transition-colors"
-                    title="Bağlantıyı Aç"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </div>
-              )}
-
-              {/* Notlar */}
-              {selectedItem.notes && (
-                <div className="p-4">
-                  <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-medium">
-                    Güvenli Notlar & Talimatlar
-                  </span>
-                  <p className="text-xs text-slate-300 mt-1 whitespace-pre-wrap font-sans">
-                    {selectedItem.notes}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#222933] border border-[#2d3748] flex items-center justify-center text-slate-400">
-              <Key className="w-8 h-8 text-[#0082c9]" />
-            </div>
-            <div>
-              <h3 className="text-base font-semibold text-slate-100">Bir Öğe Seçin</h3>
-              <p className="text-xs text-slate-400 mt-1 max-w-sm">
-                Sol listeden görüntülemek istediğiniz şifre veya sunucuyu seçin, ya da yeni bir kayıt ekleyin.
-              </p>
-            </div>
-            <button
-              onClick={() => setIsAddOpen(true)}
-              className="px-4 py-2 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Yeni Şifre / Anahtar Ekle</span>
-            </button>
-          </div>
-        )}
-      </main>
+          )}
+        </main>
       </div>
 
       {/* ─── MODAL: Yeni Öğe Ekle ──────────────────────────────── */}
@@ -1118,7 +1173,9 @@ export default function PassDashboard() {
                 <div className="w-7 h-7 rounded-lg bg-[#0082c9]/10 border border-[#0082c9]/20 flex items-center justify-center text-[#0082c9]">
                   <Key className="h-4 w-4" />
                 </div>
-                <h3 className="text-sm font-semibold text-slate-100">Yeni Kasa Öğesi Ekle</h3>
+                <h3 className="text-sm font-semibold text-slate-100">
+                  Yeni Kasa Öğesi Ekle
+                </h3>
               </div>
               <button
                 onClick={() => setIsAddOpen(false)}
@@ -1131,7 +1188,9 @@ export default function PassDashboard() {
             <form onSubmit={handleSaveItem} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] text-slate-400 block mb-1">Tür</label>
+                  <label className="text-[11px] text-slate-400 block mb-1">
+                    Tür
+                  </label>
                   <select
                     value={formData.type}
                     onChange={(e) =>
@@ -1147,14 +1206,22 @@ export default function PassDashboard() {
                 </div>
 
                 <div>
-                  <label className="text-[11px] text-slate-400 block mb-1">Klasör</label>
+                  <label className="text-[11px] text-slate-400 block mb-1">
+                    Klasör
+                  </label>
                   <select
                     value={formData.folder}
-                    onChange={(e) => setFormData({ ...formData, folder: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, folder: e.target.value })
+                    }
                     className="w-full h-9 px-3 rounded-lg bg-[#181e24] border border-[#2d3748] text-xs text-slate-100 focus:outline-none focus:border-[#0082c9]"
                   >
-                    <option value="Sunucular & Altyapı">Sunucular & Altyapı</option>
-                    <option value="E-Posta & İletişim">E-Posta & İletişim</option>
+                    <option value="Sunucular & Altyapı">
+                      Sunucular & Altyapı
+                    </option>
+                    <option value="E-Posta & İletişim">
+                      E-Posta & İletişim
+                    </option>
                     <option value="API & Servisler">API & Servisler</option>
                     <option value="Kişisel">Kişisel</option>
                   </select>
@@ -1170,7 +1237,9 @@ export default function PassDashboard() {
                   required
                   placeholder="Örn: Sunucu B SSH veya GitHub"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   className="w-full h-9 px-3 rounded-lg bg-[#181e24] border border-[#2d3748] text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#0082c9]"
                 />
               </div>
@@ -1184,7 +1253,9 @@ export default function PassDashboard() {
                     type="text"
                     placeholder="root veya e-posta"
                     value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, username: e.target.value })
+                    }
                     className="w-full h-9 px-3 rounded-lg bg-[#181e24] border border-[#2d3748] text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#0082c9] font-mono"
                   />
                 </div>
@@ -1197,7 +1268,9 @@ export default function PassDashboard() {
                     type="text"
                     placeholder="Parola girin"
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                     className="w-full h-9 px-3 rounded-lg bg-[#181e24] border border-[#2d3748] text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#0082c9] font-mono"
                   />
                 </div>
@@ -1219,7 +1292,9 @@ export default function PassDashboard() {
                     type="text"
                     placeholder="109.104.120.126:22"
                     value={formData.url}
-                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, url: e.target.value })
+                    }
                     className="w-full h-9 px-3 rounded-lg bg-[#181e24] border border-[#2d3748] text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#0082c9] font-mono"
                   />
                 </div>
@@ -1232,19 +1307,25 @@ export default function PassDashboard() {
                     type="text"
                     placeholder="JBSWY3DPEHPK3PXP"
                     value={formData.totpSecret}
-                    onChange={(e) => setFormData({ ...formData, totpSecret: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, totpSecret: e.target.value })
+                    }
                     className="w-full h-9 px-3 rounded-lg bg-[#181e24] border border-[#2d3748] text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#0082c9] font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[11px] text-slate-400 block mb-1">Notlar</label>
+                <label className="text-[11px] text-slate-400 block mb-1">
+                  Notlar
+                </label>
                 <textarea
                   rows={2}
                   placeholder="Ek güvenlik detayları..."
                   value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, notes: e.target.value })
+                  }
                   className="w-full p-2.5 rounded-lg bg-[#181e24] border border-[#2d3748] text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-[#0082c9] resize-none"
                 />
               </div>
@@ -1278,7 +1359,9 @@ export default function PassDashboard() {
                 <div className="w-7 h-7 rounded-lg bg-[#0082c9]/10 border border-[#0082c9]/20 flex items-center justify-center text-[#0082c9]">
                   <Sparkles className="h-4 w-4" />
                 </div>
-                <h3 className="text-sm font-semibold text-slate-100">Süper Parola Üretici</h3>
+                <h3 className="text-sm font-semibold text-slate-100">
+                  Süper Parola Üretici
+                </h3>
               </div>
               <button
                 onClick={() => setIsGeneratorOpen(false)}
@@ -1294,11 +1377,13 @@ export default function PassDashboard() {
                 {generatedPassword}
               </span>
               <button
-                onClick={() => copyToClipboard(generatedPassword, 'gen', 'Üretilen parola')}
+                onClick={() =>
+                  copyToClipboard(generatedPassword, "gen", "Üretilen parola")
+                }
                 className="p-2 rounded-lg bg-[#0082c9]/10 hover:bg-[#0082c9]/20 text-[#0082c9] transition-colors shrink-0"
                 title="Kopyala"
               >
-                {copiedKey === 'gen' ? (
+                {copiedKey === "gen" ? (
                   <Check className="h-4 w-4 text-emerald-400" />
                 ) : (
                   <Copy className="h-4 w-4" />
@@ -1316,7 +1401,9 @@ export default function PassDashboard() {
               <div>
                 <div className="flex justify-between text-xs text-slate-300 mb-1.5 font-mono">
                   <span>Uzunluk</span>
-                  <span className="text-[#0082c9] font-bold">{genLength} Karakter</span>
+                  <span className="text-[#0082c9] font-bold">
+                    {genLength} Karakter
+                  </span>
                 </div>
                 <input
                   type="range"
@@ -1372,7 +1459,7 @@ export default function PassDashboard() {
 
               <button
                 onClick={() => {
-                  copyToClipboard(generatedPassword, 'gen');
+                  copyToClipboard(generatedPassword, "gen");
                   setIsGeneratorOpen(false);
                 }}
                 className="px-4 py-2 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold shadow-sm transition-all"

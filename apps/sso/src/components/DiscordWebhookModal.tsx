@@ -24,7 +24,10 @@ interface DiscordWebhookModalProps {
   onClose: () => void;
 }
 
-export function DiscordWebhookModal({ isOpen, onClose }: DiscordWebhookModalProps) {
+export function DiscordWebhookModal({
+  isOpen,
+  onClose,
+}: DiscordWebhookModalProps) {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [maskedUrl, setMaskedUrl] = useState<string | null>(null);
   const [hasWebhook, setHasWebhook] = useState(false);
@@ -34,8 +37,14 @@ export function DiscordWebhookModal({ isOpen, onClose }: DiscordWebhookModalProp
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
-  const [saveResult, setSaveResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [testResult, setTestResult] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
+  const [saveResult, setSaveResult] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
 
   const fetchConfig = async () => {
     setIsLoading(true);
@@ -78,7 +87,11 @@ export function DiscordWebhookModal({ isOpen, onClose }: DiscordWebhookModalProp
       const data = await res.json();
       setTestResult({
         ok: res.ok && data.ok,
-        message: data.message || (res.ok ? "Discord test alarmı başarıyla gönderildi!" : "Gönderim başarısız."),
+        message:
+          data.message ||
+          (res.ok
+            ? "Discord test alarmı başarıyla gönderildi!"
+            : "Gönderim başarısız."),
       });
       if (res.ok && data.ok) {
         fetchConfig();
@@ -109,14 +122,23 @@ export function DiscordWebhookModal({ isOpen, onClose }: DiscordWebhookModalProp
       });
       const data = await res.json();
       if (data.ok) {
-        setSaveResult({ ok: true, message: "Discord alarm ayarları başarıyla kaydedildi." });
+        setSaveResult({
+          ok: true,
+          message: "Discord alarm ayarları başarıyla kaydedildi.",
+        });
         setWebhookUrl("");
         fetchConfig();
       } else {
-        setSaveResult({ ok: false, message: data.message || "Kaydetme başarısız oldu." });
+        setSaveResult({
+          ok: false,
+          message: data.message || "Kaydetme başarısız oldu.",
+        });
       }
     } catch (err: any) {
-      setSaveResult({ ok: false, message: err.message || "Ağ hatası: Ayarlar kaydedilemedi." });
+      setSaveResult({
+        ok: false,
+        message: err.message || "Ağ hatası: Ayarlar kaydedilemedi.",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -143,7 +165,8 @@ export function DiscordWebhookModal({ isOpen, onClose }: DiscordWebhookModalProp
                 </span>
               </h3>
               <p className="text-xs text-slate-400">
-                Bursa PenDC VDS arızaları ve RAM/CPU darboğazlarını Discord kanalınıza iletin.
+                Bursa PenDC VDS arızaları ve RAM/CPU darboğazlarını Discord
+                kanalınıza iletin.
               </p>
             </div>
           </div>
@@ -203,7 +226,8 @@ export function DiscordWebhookModal({ isOpen, onClose }: DiscordWebhookModalProp
               className="w-full px-3.5 py-2.5 rounded-xl bg-[#181e24] border border-[#2d3748] text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#0082c9] transition-colors"
             />
             <p className="text-[11px] text-slate-400">
-              Kanal ayarları ➔ Entegrasyonlar ➔ Webhook Oluştur adımından bağlantıyı kopyalayabilirsiniz.
+              Kanal ayarları ➔ Entegrasyonlar ➔ Webhook Oluştur adımından
+              bağlantıyı kopyalayabilirsiniz.
             </p>
           </div>
 
@@ -223,9 +247,13 @@ export function DiscordWebhookModal({ isOpen, onClose }: DiscordWebhookModalProp
                   onChange={(e) => setDebounceMinutes(Number(e.target.value))}
                   className="w-full px-3 py-2 rounded-xl bg-[#181e24] border border-[#2d3748] text-xs font-mono text-white focus:outline-none focus:border-[#0082c9]"
                 />
-                <span className="text-xs font-mono text-slate-400 shrink-0">dakika</span>
+                <span className="text-xs font-mono text-slate-400 shrink-0">
+                  dakika
+                </span>
               </div>
-              <p className="text-[10px] text-slate-500">Tekrarlayan arızalar için sessizlik penceresi.</p>
+              <p className="text-[10px] text-slate-500">
+                Tekrarlayan arızalar için sessizlik penceresi.
+              </p>
             </div>
 
             <div className="space-y-1.5 flex flex-col justify-end">
@@ -305,8 +333,12 @@ export function DiscordWebhookModal({ isOpen, onClose }: DiscordWebhookModalProp
               disabled={isTesting || (!webhookUrl && !hasWebhook)}
               className="px-3.5 py-2 rounded-xl bg-[#5865F2] hover:bg-[#4752c4] disabled:opacity-50 text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-sm cursor-pointer"
             >
-              <Send className={`w-3.5 h-3.5 ${isTesting ? "animate-spin" : ""}`} />
-              <span>{isTesting ? "Gönderiliyor..." : "Test Alarmı Gönder"}</span>
+              <Send
+                className={`w-3.5 h-3.5 ${isTesting ? "animate-spin" : ""}`}
+              />
+              <span>
+                {isTesting ? "Gönderiliyor..." : "Test Alarmı Gönder"}
+              </span>
             </button>
 
             <div className="flex items-center gap-2">

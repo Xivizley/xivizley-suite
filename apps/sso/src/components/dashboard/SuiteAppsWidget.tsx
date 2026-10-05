@@ -83,11 +83,17 @@ export function SuiteAppsWidget() {
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="font-semibold text-sm text-slate-100">Bulut Uygulamaları</h3>
-            <p className="text-[10px] text-slate-400">XIVIZLEY Ekosistem servisleri</p>
+            <h3 className="font-semibold text-sm text-slate-100">
+              Bulut Uygulamaları
+            </h3>
+            <p className="text-[10px] text-slate-400">
+              XIVIZLEY Ekosistem servisleri
+            </p>
           </div>
         </div>
-        <span className="text-xs text-slate-400 font-mono">8 Servis Entegre</span>
+        <span className="text-xs text-slate-400 font-mono">
+          8 Servis Entegre
+        </span>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

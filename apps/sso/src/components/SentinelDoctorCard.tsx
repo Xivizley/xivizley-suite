@@ -13,13 +13,20 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import type { DiagnosticIssue, SystemDiagnosticReport } from "../server/services/doctorService";
+import type {
+  DiagnosticIssue,
+  SystemDiagnosticReport,
+} from "../server/services/doctorService";
 
 export function SentinelDoctorCard() {
   const [report, setReport] = useState<SystemDiagnosticReport | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [remediatingId, setRemediatingId] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ id: string; message: string; ok: boolean } | null>(null);
+  const [feedback, setFeedback] = useState<{
+    id: string;
+    message: string;
+    ok: boolean;
+  } | null>(null);
   const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
 
   const fetchDiagnostics = async () => {
@@ -57,7 +64,8 @@ export function SentinelDoctorCard() {
       if (res.status === 403) {
         setFeedback({
           id: issue.id,
-          message: "Canlı demo sandbox modunda onarım simüle edildi (salt-okunur koruma).",
+          message:
+            "Canlı demo sandbox modunda onarım simüle edildi (salt-okunur koruma).",
           ok: true,
         });
       } else if (json.ok) {
@@ -115,7 +123,8 @@ export function SentinelDoctorCard() {
               )}
             </h3>
             <p className="text-[11px] text-slate-400">
-              Docker konteyner logları ve çekirdek telemetrisi üzerinden kök neden tespiti
+              Docker konteyner logları ve çekirdek telemetrisi üzerinden kök
+              neden tespiti
             </p>
           </div>
         </div>
@@ -126,14 +135,18 @@ export function SentinelDoctorCard() {
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#12161c] hover:bg-[#2b3442] text-xs text-slate-300 hover:text-white border border-[#2d3748] transition-colors"
           title="Teşhis Taramasını Yenile"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
+          />
           <span className="hidden sm:inline">Yeniden Tara</span>
         </button>
       </div>
 
       {/* Rapor İçeriği */}
       {!report && isLoading ? (
-        <div className="py-8 text-center text-xs text-slate-400">Sistem logları taranıyor...</div>
+        <div className="py-8 text-center text-xs text-slate-400">
+          Sistem logları taranıyor...
+        </div>
       ) : !hasIssues ? (
         /* Tüm Sistemler Sağlıklı Durumu */
         <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
@@ -142,15 +155,20 @@ export function SentinelDoctorCard() {
               <CheckCircle2 className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-bold text-emerald-300">Tüm Servisler ve Konteynerler Sağlıklı</p>
+              <p className="text-xs font-bold text-emerald-300">
+                Tüm Servisler ve Konteynerler Sağlıklı
+              </p>
               <p className="text-[11px] text-slate-400 mt-0.5">
-                0 çökme, 0 port çakışması tespit edildi. Tüm konteynerler kararlı çalışıyor.
+                0 çökme, 0 port çakışması tespit edildi. Tüm konteynerler
+                kararlı çalışıyor.
               </p>
             </div>
           </div>
           <div className="text-right hidden sm:block font-mono text-[11px] text-slate-400">
             <span>{report?.healthyContainers || 0} Aktif Konteyner</span>
-            <span className="block text-emerald-400 font-semibold">[✓ DIN 40719 ONAYLI]</span>
+            <span className="block text-emerald-400 font-semibold">
+              [✓ DIN 40719 ONAYLI]
+            </span>
           </div>
         </div>
       ) : (
@@ -168,16 +186,22 @@ export function SentinelDoctorCard() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-white">{issue.title}</span>
+                      <span className="text-xs font-bold text-white">
+                        {issue.title}
+                      </span>
                       <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-rose-950/60 text-rose-300 border border-rose-500/30">
                         {issue.severity}
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-300 mt-1">
-                      <strong className="text-slate-400">Kök Neden:</strong> {issue.rootCause}
+                      <strong className="text-slate-400">Kök Neden:</strong>{" "}
+                      {issue.rootCause}
                     </p>
                     <p className="text-[11px] text-slate-400 mt-0.5">
-                      <strong className="text-[#38bdf8]">Önerilen Onarım:</strong> {issue.suggestedFix}
+                      <strong className="text-[#38bdf8]">
+                        Önerilen Onarım:
+                      </strong>{" "}
+                      {issue.suggestedFix}
                     </p>
                   </div>
                 </div>
@@ -188,8 +212,14 @@ export function SentinelDoctorCard() {
                   disabled={remediatingId === issue.containerId}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] disabled:opacity-50 text-white text-xs font-semibold shadow-md transition-colors shrink-0"
                 >
-                  <Wrench className={`w-3.5 h-3.5 ${remediatingId === issue.containerId ? "animate-spin" : ""}`} />
-                  <span>{remediatingId === issue.containerId ? "Onarılıyor..." : "1-Tıkla Onar"}</span>
+                  <Wrench
+                    className={`w-3.5 h-3.5 ${remediatingId === issue.containerId ? "animate-spin" : ""}`}
+                  />
+                  <span>
+                    {remediatingId === issue.containerId
+                      ? "Onarılıyor..."
+                      : "1-Tıkla Onar"}
+                  </span>
                 </button>
               </div>
 
@@ -214,8 +244,14 @@ export function SentinelDoctorCard() {
                   className="text-[11px] text-slate-400 hover:text-white flex items-center gap-1 font-mono transition-colors"
                 >
                   <Terminal className="w-3 h-3" />
-                  <span>Son Çökme Logları ({issue.logSnippet.length} satır)</span>
-                  {expandedLogs[issue.id] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  <span>
+                    Son Çökme Logları ({issue.logSnippet.length} satır)
+                  </span>
+                  {expandedLogs[issue.id] ? (
+                    <ChevronUp className="w-3 h-3" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3" />
+                  )}
                 </button>
 
                 {expandedLogs[issue.id] && (

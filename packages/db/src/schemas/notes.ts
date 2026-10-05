@@ -3,7 +3,9 @@ import { users } from "./sso";
 
 export const notes = pgTable("notes", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   title: text("title").notNull().default("Başlıksız Not"),
   content: text("content").notNull().default(""),
   category: text("category").notNull().default("Genel"),

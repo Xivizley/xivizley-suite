@@ -5,12 +5,18 @@
 
 export interface WafInspectionResult {
   isThreat: boolean;
-  threatType?: 'SQL_INJECTION' | 'PATH_TRAVERSAL' | 'MALICIOUS_SCANNER' | 'RCE_PROBE' | 'BRUTE_FORCE' | undefined;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  threatType?:
+    | "SQL_INJECTION"
+    | "PATH_TRAVERSAL"
+    | "MALICIOUS_SCANNER"
+    | "RCE_PROBE"
+    | "BRUTE_FORCE"
+    | undefined;
+  severity: "low" | "medium" | "high" | "critical";
   score: number; // 0 (temiz) - 100 (kesin saldırı)
   reason?: string | undefined;
   matchedPattern?: string | undefined;
-  action: 'allow' | 'block' | 'challenge';
+  action: "allow" | "block" | "challenge";
 }
 
 const SQLI_PATTERNS = [
@@ -46,8 +52,8 @@ const RCE_PATTERNS = [
  * URL, sorgu parametresi veya gövde içeriğini WAF kurallarına göre inceler.
  */
 export function inspectPayload(input: string): WafInspectionResult {
-  if (!input || input.trim() === '') {
-    return { isThreat: false, severity: 'low', score: 0, action: 'allow' };
+  if (!input || input.trim() === "") {
+    return { isThreat: false, severity: "low", score: 0, action: "allow" };
   }
 
   const decoded = decodeURIComponentSafe(input);
@@ -57,12 +63,12 @@ export function inspectPayload(input: string): WafInspectionResult {
     if (pattern.test(decoded)) {
       return {
         isThreat: true,
-        threatType: 'RCE_PROBE',
-        severity: 'critical',
+        threatType: "RCE_PROBE",
+        severity: "critical",
         score: 100,
-        reason: 'Uzaktan Kod Yürütme (RCE) komut deseni tespit edildi',
+        reason: "Uzaktan Kod Yürütme (RCE) komut deseni tespit edildi",
         matchedPattern: pattern.toString(),
-        action: 'block',
+        action: "block",
       };
     }
   }
@@ -72,12 +78,12 @@ export function inspectPayload(input: string): WafInspectionResult {
     if (pattern.test(decoded)) {
       return {
         isThreat: true,
-        threatType: 'SQL_INJECTION',
-        severity: 'critical',
+        threatType: "SQL_INJECTION",
+        severity: "critical",
         score: 95,
-        reason: 'Kötü niyetli SQL enjeksiyon sorgusu tespit edildi',
+        reason: "Kötü niyetli SQL enjeksiyon sorgusu tespit edildi",
         matchedPattern: pattern.toString(),
-        action: 'block',
+        action: "block",
       };
     }
   }
@@ -87,12 +93,12 @@ export function inspectPayload(input: string): WafInspectionResult {
     if (pattern.test(decoded)) {
       return {
         isThreat: true,
-        threatType: 'PATH_TRAVERSAL',
-        severity: 'high',
+        threatType: "PATH_TRAVERSAL",
+        severity: "high",
         score: 85,
-        reason: 'Dizin atlama (Path Traversal / LFI) denemesi engellendi',
+        reason: "Dizin atlama (Path Traversal / LFI) denemesi engellendi",
         matchedPattern: pattern.toString(),
-        action: 'block',
+        action: "block",
       };
     }
   }
@@ -102,21 +108,21 @@ export function inspectPayload(input: string): WafInspectionResult {
     if (pattern.test(decoded)) {
       return {
         isThreat: true,
-        threatType: 'MALICIOUS_SCANNER',
-        severity: 'medium',
+        threatType: "MALICIOUS_SCANNER",
+        severity: "medium",
         score: 75,
-        reason: 'Otomatik zaafiyet ve admin paneli tarayıcı botu yakalandı',
+        reason: "Otomatik zaafiyet ve admin paneli tarayıcı botu yakalandı",
         matchedPattern: pattern.toString(),
-        action: 'block',
+        action: "block",
       };
     }
   }
 
   return {
     isThreat: false,
-    severity: 'low',
+    severity: "low",
     score: 0,
-    action: 'allow',
+    action: "allow",
   };
 }
 

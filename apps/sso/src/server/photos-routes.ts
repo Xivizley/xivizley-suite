@@ -31,8 +31,8 @@ export const photosRoutes: FastifyPluginAsync = async (fastify) => {
         and(
           eq(files.userId, userId),
           eq(files.isTrashed, false),
-          sql`(${files.mimeType} LIKE 'image/%' OR ${files.mimeType} LIKE 'video/%')`
-        )
+          sql`(${files.mimeType} LIKE 'image/%' OR ${files.mimeType} LIKE 'video/%')`,
+        ),
       )
       .orderBy(desc(files.createdAt));
 
@@ -53,7 +53,9 @@ export const photosRoutes: FastifyPluginAsync = async (fastify) => {
       .limit(1);
 
     if (!file || !fs.existsSync(file.storagePath)) {
-      return reply.status(404).send({ ok: false, message: "Medya bulunamadı." });
+      return reply
+        .status(404)
+        .send({ ok: false, message: "Medya bulunamadı." });
     }
 
     reply.header("Content-Type", file.mimeType || "image/jpeg");

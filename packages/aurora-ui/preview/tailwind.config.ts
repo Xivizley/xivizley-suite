@@ -3,11 +3,7 @@ import baseConfig from "../tailwind.config.js";
 
 const config: Config = {
   ...baseConfig,
-  content: [
-    "./src/**/*.{ts,tsx,html}",
-    "../src/**/*.{ts,tsx}",
-    "./index.html",
-  ],
+  content: ["./src/**/*.{ts,tsx,html}", "../src/**/*.{ts,tsx}", "./index.html"],
 };
 
 export default config;

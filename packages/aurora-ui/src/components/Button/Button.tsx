@@ -5,7 +5,8 @@ import { clsx } from "clsx";
 
 // ─── Varyant ve Boyut Tanımları ─────────────────────────────
 
-export type ButtonVariant = "primary" | "secondary" | "danger" | "ghost" | "icon";
+export type ButtonVariant =
+  "primary" | "secondary" | "danger" | "ghost" | "icon";
 export type ButtonSize = "sm" | "md" | "lg";
 
 // ─── Props ──────────────────────────────────────────────────
@@ -149,9 +150,17 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           <LoadingSpinner />
         ) : (
           <>
-            {leftIcon && <span className="shrink-0" aria-hidden="true">{leftIcon}</span>}
+            {leftIcon && (
+              <span className="shrink-0" aria-hidden="true">
+                {leftIcon}
+              </span>
+            )}
             {children}
-            {rightIcon && <span className="shrink-0" aria-hidden="true">{rightIcon}</span>}
+            {rightIcon && (
+              <span className="shrink-0" aria-hidden="true">
+                {rightIcon}
+              </span>
+            )}
           </>
         )}
       </button>

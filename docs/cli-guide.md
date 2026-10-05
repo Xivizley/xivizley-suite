@@ -48,17 +48,20 @@ Parametresiz `npx xivizley` çalıştırıldığında `@clack/prompts` destekli 
 ```
 
 ### 1. 👑 XIVIZLEY Cloud Suite Kurulumu
+
 - Alan adı veya yerel IP adresi tanımlama (`suite.ornek.com` veya `192.168.1.100`)
 - Otomatik güvenli parola ve JWT RS256 anahtar üretimi
 - Caddy otomatik TLS/SSL ters vekil yapılandırması
 - PostgreSQL veritabanı konteyneri ve kalıcı volüm bağlamaları
 
 ### 2. 📦 Tekil Uygulama Mağazası (Standalone App Store)
+
 - 10 kategoride 115 uygulama arasında arama (Fuzzy search)
 - Port çakışmalarını önceden tespit edip alternatif port atama
 - Gerekli ortam değişkenlerini (`.env`) interaktif sorma
 
 ### 3. ☑️ Çoklu Uygulama Bestecisi (Multi-Select Composer)
+
 - Listeden birden fazla uygulama seçme (örneğin: `Nginx Proxy Manager` + `Nextcloud` + `Vaultwarden` + `Portainer`)
 - Seçilen uygulamaların portlarını analiz etme; çakışan portları otomatik olarak sonraki boş porta taşıma
 - Tek bir birleşik `docker-compose.yml` ve `.env` üretme
@@ -70,6 +73,7 @@ Parametresiz `npx xivizley` çalıştırıldığında `@clack/prompts` destekli 
 TUI moduna girmeden doğrudan script veya CI/CD boru hatlarında çalıştırmak için alt komutlar:
 
 ### `xivizley suite`
+
 Amiral gemisi XIVIZLEY Cloud Suite dağıtımını başlatır.
 
 ```bash
@@ -81,6 +85,7 @@ npx xivizley suite --domain suite.homelab.local --email admin@homelab.local --di
 ```
 
 ### `xivizley install <app-id>`
+
 Katalogdaki 115 uygulamadan herhangi birini tek komutla kurar.
 
 ```bash
@@ -95,6 +100,7 @@ npx xivizley install postgres --dir ./db-data
 ```
 
 ### `xivizley apps`
+
 115 uygulamalık kataloğu kategorilerine göre listeler veya terminal üzerinden filtreleme sağlar.
 
 ```bash
@@ -104,6 +110,7 @@ npx xivizley apps --category ai
 ```
 
 ### `xivizley templates`
+
 DIN 40719 standartlarındaki 31 hazır yığını inceler ve dağıtır.
 
 ```bash
@@ -115,6 +122,7 @@ npx xivizley templates --id supabase-selfhost --out ./supabase-stack
 ```
 
 ### `xivizley doctor`
+
 Sunucu soketlerini pre-flight denetiminden geçirir:
 
 - Açık ve kullanımda olan TCP/UDP portlarını tarar.
@@ -126,6 +134,7 @@ npx xivizley doctor
 ```
 
 Çıktı Örneği:
+
 ```text
 [DOKTOR] Soket Taraması Başlatılıyor...
   ✓ Port 80: BOŞ (Caddy HTTP hazır)
@@ -138,6 +147,7 @@ npx xivizley doctor
 ```
 
 ### `xivizley backup`
+
 Otomatik sıcak veritabanı ve Docker volüm yedekleme betiklerini oluşturur:
 
 ```bash
@@ -145,10 +155,12 @@ npx xivizley backup --retention 7 --cron "0 3 * * *"
 ```
 
 Üretilen Dosyalar:
+
 - `backup.sh`: Veritabanı dump'ı alır (`pg_dumpall`, `mariadb-dump`, `sqlite3`), volümleri `tar.gz` ile sıkıştırır, 7 günden eski yedekleri temizler.
 - `restore.sh`: Belirtilen arşivi tek komutla konteynerlere geri yükler.
 
 ### `xivizley sync <blueprint-id>`
+
 [xivizley.com.tr](https://xivizley.com.tr/architect) üzerinde çizdiğiniz tuval mimarisini ID veya URL ile çekip yerel sunucunuza `docker-compose.yml` olarak derler.
 
 ```bash

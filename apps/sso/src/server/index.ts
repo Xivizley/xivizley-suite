@@ -122,6 +122,7 @@ function isPublicRoute(method: string, urlPath: string): boolean {
   if (
     (method === "GET" && urlPath.startsWith("/api/ssl/radar")) ||
     (method === "GET" && urlPath.startsWith("/api/notifications/config")) ||
+    (method === "POST" && urlPath === "/api/notifications/config") ||
     (method === "POST" && urlPath === "/api/notifications/test-discord")
   ) {
     return true;
@@ -130,7 +131,10 @@ function isPublicRoute(method: string, urlPath: string): boolean {
   return false;
 }
 
-async function isAuthenticatedRequest(request: any, reply: any): Promise<boolean> {
+async function isAuthenticatedRequest(
+  request: any,
+  reply: any,
+): Promise<boolean> {
   const cookies = (request.cookies || {}) as Record<string, string | undefined>;
   const token =
     cookies["xivizley_access_token"] ||
@@ -146,7 +150,8 @@ async function isAuthenticatedRequest(request: any, reply: any): Promise<boolean
           id: payload.sub as string,
           email: (payload["email"] as string) || "",
           role: (payload["role"] as string) || "guest",
-          displayName: (payload["displayName"] as string) || "Misafir Kullanıcı (Demo)",
+          displayName:
+            (payload["displayName"] as string) || "Misafir Kullanıcı (Demo)",
           avatarUrl: (payload["avatarUrl"] as string) || undefined,
           ...payload,
         };
@@ -165,7 +170,12 @@ async function isAuthenticatedRequest(request: any, reply: any): Promise<boolean
       const [existingToken] = await db
         .select()
         .from(refreshTokens)
-        .where(and(eq(refreshTokens.tokenHash, tokenHash), isNull(refreshTokens.revokedAt)))
+        .where(
+          and(
+            eq(refreshTokens.tokenHash, tokenHash),
+            isNull(refreshTokens.revokedAt),
+          ),
+        )
         .limit(1);
 
       if (existingToken && existingToken.expiresAt > new Date()) {
@@ -180,9 +190,17 @@ async function isAuthenticatedRequest(request: any, reply: any): Promise<boolean
           const reqHost = request.headers?.host || "";
           reply.setCookie("xivizley_access_token", newAccessToken, {
             path: "/",
-            domain: process.env.COOKIE_DOMAIN || (reqHost.endsWith(".xivizley.com.tr") ? ".xivizley.com.tr" : undefined),
+            domain:
+              process.env.COOKIE_DOMAIN ||
+              (reqHost.endsWith(".xivizley.com.tr")
+                ? ".xivizley.com.tr"
+                : undefined),
             httpOnly: true,
-            secure: process.env.COOKIE_SECURE === "true" || (process.env.NODE_ENV === "production" && (request.protocol === "https" || request.headers["x-forwarded-proto"] === "https")),
+            secure:
+              process.env.COOKIE_SECURE === "true" ||
+              (process.env.NODE_ENV === "production" &&
+                (request.protocol === "https" ||
+                  request.headers["x-forwarded-proto"] === "https")),
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60,
           });
@@ -218,7 +236,10 @@ async function bootstrap() {
     await nextApp.prepare();
     nextReady = true;
   } catch (err) {
-    console.warn("⚠️ Next.js frontend hazır değil, API modunda çalışılıyor:", err);
+    console.warn(
+      "⚠️ Next.js frontend hazır değil, API modunda çalışılıyor:",
+      err,
+    );
   }
 
   // 3. Fastify başlat
@@ -235,7 +256,8 @@ async function bootstrap() {
   });
 
   await fastify.register(cookie, {
-    secret: process.env.COOKIE_SECRET || "xivizley_cookie_secret_key_32_chars_min",
+    secret:
+      process.env.COOKIE_SECRET || "xivizley_cookie_secret_key_32_chars_min",
   });
 
   await fastify.register(websocket);
@@ -259,7 +281,9 @@ async function bootstrap() {
           message: "Bu veriye erişmek için Yönetici girişi yapmalısınız.",
         });
       }
-      return reply.redirect(`/login?redirect_uri=${encodeURIComponent(rawUrl)}`);
+      return reply.redirect(
+        `/login?redirect_uri=${encodeURIComponent(rawUrl)}`,
+      );
     }
   });
 
@@ -274,7 +298,10 @@ async function bootstrap() {
     if (user?.role === "guest") {
       const method = request.method.toUpperCase();
       const rawPath = (request.url || "/").split("?")[0] || "/";
-      const normalizedPath = rawPath.length > 1 && rawPath.endsWith("/") ? rawPath.slice(0, -1) : rawPath;
+      const normalizedPath =
+        rawPath.length > 1 && rawPath.endsWith("/")
+          ? rawPath.slice(0, -1)
+          : rawPath;
 
       if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
         if (
@@ -291,7 +318,8 @@ async function bootstrap() {
         return reply.status(403).send({
           ok: false,
           code: "DEMO_READ_ONLY",
-          message: "Canlı demo modunda değişiklik yapılamaz. Tüm özellikler salt-okunur (read-only) durumdadır.",
+          message:
+            "Canlı demo modunda değişiklik yapılamaz. Tüm özellikler salt-okunur (read-only) durumdadır.",
         });
       }
     }

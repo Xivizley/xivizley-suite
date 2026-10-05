@@ -1,10 +1,25 @@
 import { useState } from "react";
-import { Button, Input, Badge, StatusBadge, Card, Spinner, Tooltip, MetricGauge } from "@xivizley/aurora-ui";
+import {
+  Button,
+  Input,
+  Badge,
+  StatusBadge,
+  Card,
+  Spinner,
+  Tooltip,
+  MetricGauge,
+} from "@xivizley/aurora-ui";
 import type { ServerStatus } from "@xivizley/aurora-ui";
 
 // ─── Section Wrapper ────────────────────────────────────────
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className="mb-12">
       <h2 className="text-xl font-semibold text-aurora-cyan mb-6 pb-2 border-b border-aurora">
@@ -15,10 +30,18 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
+function Row({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="mb-4">
-      <p className="text-aurora-text-muted text-xs uppercase tracking-wider mb-2">{label}</p>
+      <p className="text-aurora-text-muted text-xs uppercase tracking-wider mb-2">
+        {label}
+      </p>
       <div className="flex flex-wrap items-center gap-3">{children}</div>
     </div>
   );
@@ -35,7 +58,14 @@ export function App() {
     setTimeout(() => setLoadingBtn(false), 2000);
   };
 
-  const statuses: ServerStatus[] = ["running", "stopped", "starting", "stopping", "crashed", "unknown"];
+  const statuses: ServerStatus[] = [
+    "running",
+    "stopped",
+    "starting",
+    "stopping",
+    "crashed",
+    "unknown",
+  ];
 
   return (
     <div className="min-h-screen p-8 max-w-5xl mx-auto">
@@ -83,7 +113,12 @@ export function App() {
         <Row label="İkon Desteği">
           <Button
             leftIcon={
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <svg
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
                 <path d="M8 1a.5.5 0 0 1 .5.5V7h5.5a.5.5 0 0 1 0 1H8.5v5.5a.5.5 0 0 1-1 0V8H2a.5.5 0 0 1 0-1h5.5V1.5A.5.5 0 0 1 8 1z" />
               </svg>
             }
@@ -93,7 +128,12 @@ export function App() {
           <Button
             variant="danger"
             rightIcon={
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <svg
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
                 <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
               </svg>
             }
@@ -113,11 +153,7 @@ export function App() {
             onChange={(e) => setInputValue(e.target.value)}
             hint="2–64 karakter arası"
           />
-          <Input
-            label="Port"
-            placeholder="30120"
-            type="number"
-          />
+          <Input label="Port" placeholder="30120" type="number" />
           <Input
             label="E-posta"
             placeholder="admin@xivizley.com.tr"
@@ -135,16 +171,17 @@ export function App() {
             placeholder="Sunucu ara..."
             size="sm"
             leftIcon={
-              <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+              <svg
+                width="14"
+                height="14"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
                 <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85zm-5.242 1.15a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" />
               </svg>
             }
           />
-          <Input
-            label="Büyük Input"
-            placeholder="Açıklama yaz…"
-            size="lg"
-          />
+          <Input label="Büyük Input" placeholder="Açıklama yaz…" size="lg" />
         </div>
       </Section>
 
@@ -160,14 +197,24 @@ export function App() {
         </Row>
 
         <Row label="Pulse Animasyonu">
-          <Badge variant="green" pulse>Canlı</Badge>
-          <Badge variant="amber" pulse>Dikkat</Badge>
-          <Badge variant="rose" pulse>Kritik</Badge>
+          <Badge variant="green" pulse>
+            Canlı
+          </Badge>
+          <Badge variant="amber" pulse>
+            Dikkat
+          </Badge>
+          <Badge variant="rose" pulse>
+            Kritik
+          </Badge>
         </Row>
 
         <Row label="Boyutlar">
-          <Badge variant="cyan" size="sm">Small</Badge>
-          <Badge variant="cyan" size="md">Medium</Badge>
+          <Badge variant="cyan" size="sm">
+            Small
+          </Badge>
+          <Badge variant="cyan" size="md">
+            Medium
+          </Badge>
         </Row>
 
         <Row label="Sunucu Durumları (StatusBadge)">
@@ -180,7 +227,9 @@ export function App() {
       {/* ═══════════════ CARD ═══════════════ */}
       <Section title="Card">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card header={<span className="text-sm font-medium">Default Card</span>}>
+          <Card
+            header={<span className="text-sm font-medium">Default Card</span>}
+          >
             <p className="text-aurora-text-secondary text-sm">
               Aurora glassmorphism arkaplan, ince border, backdrop-blur efekti.
             </p>
@@ -188,10 +237,15 @@ export function App() {
 
           <Card
             variant="neon"
-            header={<span className="text-sm font-medium text-aurora-cyan">Accent Card</span>}
+            header={
+              <span className="text-sm font-medium text-aurora-cyan">
+                Accent Card
+              </span>
+            }
           >
             <p className="text-aurora-text-secondary text-sm">
-              Hover'da Nextcloud mavi vurgusu alır. Game Panel sunucu kartları için ideal.
+              Hover'da Nextcloud mavi vurgusu alır. Game Panel sunucu kartları
+              için ideal.
             </p>
           </Card>
 
@@ -200,7 +254,9 @@ export function App() {
             header={<span className="text-sm font-medium">Elevated Card</span>}
             footer={
               <div className="flex gap-2 ml-auto">
-                <Button size="sm" variant="ghost">İptal</Button>
+                <Button size="sm" variant="ghost">
+                  İptal
+                </Button>
                 <Button size="sm">Kaydet</Button>
               </div>
             }
@@ -238,10 +294,15 @@ export function App() {
         </Row>
 
         <Row label="Kart İçinde Yüklenme">
-          <Card variant="neon" className="w-48 h-32 flex items-center justify-center">
+          <Card
+            variant="neon"
+            className="w-48 h-32 flex items-center justify-center"
+          >
             <div className="flex flex-col items-center gap-2">
               <Spinner size="lg" />
-              <span className="text-xs text-aurora-text-muted">Yükleniyor…</span>
+              <span className="text-xs text-aurora-text-muted">
+                Yükleniyor…
+              </span>
             </div>
           </Card>
         </Row>
@@ -251,23 +312,36 @@ export function App() {
       <Section title="Tooltip">
         <Row label="Konumlar">
           <Tooltip content="Üstte tooltip" position="top">
-            <Button variant="secondary" size="sm">Top</Button>
+            <Button variant="secondary" size="sm">
+              Top
+            </Button>
           </Tooltip>
           <Tooltip content="Altta tooltip" position="bottom">
-            <Button variant="secondary" size="sm">Bottom</Button>
+            <Button variant="secondary" size="sm">
+              Bottom
+            </Button>
           </Tooltip>
           <Tooltip content="Solda tooltip" position="left">
-            <Button variant="secondary" size="sm">Left</Button>
+            <Button variant="secondary" size="sm">
+              Left
+            </Button>
           </Tooltip>
           <Tooltip content="Sağda tooltip" position="right">
-            <Button variant="secondary" size="sm">Right</Button>
+            <Button variant="secondary" size="sm">
+              Right
+            </Button>
           </Tooltip>
         </Row>
 
         <Row label="İkon Butonla Kullanım">
           <Tooltip content="Sunucuyu yeniden başlat">
             <Button variant="icon" aria-label="Yeniden Başlat">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <svg
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
                 <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
                 <path d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
               </svg>
@@ -275,7 +349,12 @@ export function App() {
           </Tooltip>
           <Tooltip content="Konsol loglarını aç" delay={0}>
             <Button variant="icon" aria-label="Konsol">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <svg
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+              >
                 <path d="M6 9a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3A.5.5 0 0 1 6 9zM3.854 4.146a.5.5 0 1 0-.708.708L4.793 6.5 3.146 8.146a.5.5 0 1 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2z" />
                 <path d="M2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2zm12 1a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h12z" />
               </svg>
@@ -287,7 +366,13 @@ export function App() {
       {/* ═══════════════ METRIC GAUGE ═══════════════ */}
       <Section title="MetricGauge">
         <div className="space-y-6 max-w-2xl">
-          <Card header={<span className="text-sm font-medium text-aurora-cyan">Sistem Donanım İzleyici (Resource Governor Uyumlu)</span>}>
+          <Card
+            header={
+              <span className="text-sm font-medium text-aurora-cyan">
+                Sistem Donanım İzleyici (Resource Governor Uyumlu)
+              </span>
+            }
+          >
             <div className="space-y-5">
               {/* Normal Durum (< %80) */}
               <MetricGauge
@@ -346,7 +431,9 @@ export function App() {
                 className="w-16 h-16 rounded-aurora border border-aurora"
                 style={{ background: `var(${c.var})` }}
               />
-              <span className="text-[10px] text-aurora-text-muted">{c.name}</span>
+              <span className="text-[10px] text-aurora-text-muted">
+                {c.name}
+              </span>
             </div>
           ))}
         </Row>
@@ -364,7 +451,9 @@ export function App() {
                 className="w-16 h-16 rounded-aurora"
                 style={{ background: `var(${c.var})` }}
               />
-              <span className="text-[10px] text-aurora-text-muted">{c.name}</span>
+              <span className="text-[10px] text-aurora-text-muted">
+                {c.name}
+              </span>
             </div>
           ))}
         </Row>

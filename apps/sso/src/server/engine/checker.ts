@@ -3,10 +3,10 @@
 // Supports HTTP/HTTPS, TCP Socket (Minecraft, FiveM, SSH) & Ping
 // ============================================================
 
-import net from 'node:net';
+import net from "node:net";
 
 export interface CheckResult {
-  status: 'up' | 'down';
+  status: "up" | "down";
   latencyMs: number;
   statusCode?: number;
   error?: string;
@@ -15,17 +15,21 @@ export interface CheckResult {
 /**
  * HTTP / HTTPS servisini kontrol eder.
  */
-export async function checkHttp(url: string, timeoutMs = 5000): Promise<CheckResult> {
+export async function checkHttp(
+  url: string,
+  timeoutMs = 5000,
+): Promise<CheckResult> {
   const start = performance.now();
   try {
-    const targetUrl = url.startsWith('http://') || url.startsWith('https://')
-      ? url
-      : `http://${url}`;
+    const targetUrl =
+      url.startsWith("http://") || url.startsWith("https://")
+        ? url
+        : `http://${url}`;
 
     const res = await fetch(targetUrl, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'User-Agent': 'XIVIZLEY-Pulse/1.0 (+https://xivizley.com.tr)',
+        "User-Agent": "XIVIZLEY-Pulse/1.0 (+https://xivizley.com.tr)",
       },
       signal: AbortSignal.timeout(timeoutMs),
     });
@@ -34,7 +38,7 @@ export async function checkHttp(url: string, timeoutMs = 5000): Promise<CheckRes
     const isUp = res.status < 400 || res.status === 401 || res.status === 403; // Auth gerektirse bile sunucu ayaktadır
 
     const result: CheckResult = {
-      status: isUp ? 'up' : 'down',
+      status: isUp ? "up" : "down",
       latencyMs,
       statusCode: res.status,
     };
@@ -45,9 +49,9 @@ export async function checkHttp(url: string, timeoutMs = 5000): Promise<CheckRes
   } catch (err: any) {
     const latencyMs = Math.round(performance.now() - start);
     return {
-      status: 'down',
+      status: "down",
       latencyMs: Math.min(latencyMs, timeoutMs),
-      error: err?.message || 'Bağlantı zaman aşımına uğradı veya ulaşılamadı',
+      error: err?.message || "Bağlantı zaman aşımına uğradı veya ulaşılamadı",
     };
   }
 }
@@ -55,15 +59,18 @@ export async function checkHttp(url: string, timeoutMs = 5000): Promise<CheckRes
 /**
  * TCP Soket portunu kontrol eder (Minecraft 25565, FiveM 30120, SSH 22, vb.)
  */
-export async function checkTcp(hostWithPort: string, timeoutMs = 5000): Promise<CheckResult> {
+export async function checkTcp(
+  hostWithPort: string,
+  timeoutMs = 5000,
+): Promise<CheckResult> {
   const start = performance.now();
   let host = hostWithPort;
   let port = 80;
 
-  if (hostWithPort.includes(':')) {
-    const parts = hostWithPort.split(':');
-    host = parts[0] || 'localhost';
-    port = parseInt(parts[1] || '80', 10);
+  if (hostWithPort.includes(":")) {
+    const parts = hostWithPort.split(":");
+    host = parts[0] || "localhost";
+    port = parseInt(parts[1] || "80", 10);
   }
 
   return new Promise((resolve) => {
@@ -80,7 +87,7 @@ export async function checkTcp(hostWithPort: string, timeoutMs = 5000): Promise<
       cleanup();
       const latencyMs = Math.round(performance.now() - start);
       resolve({
-        status: 'down',
+        status: "down",
         latencyMs: Math.min(latencyMs, timeoutMs),
         error: `TCP Port ${port} yanıt vermedi (Zaman aşımı ${timeoutMs}ms)`,
       });
@@ -90,16 +97,16 @@ export async function checkTcp(hostWithPort: string, timeoutMs = 5000): Promise<
       const latencyMs = Math.round(performance.now() - start);
       cleanup();
       resolve({
-        status: 'up',
+        status: "up",
         latencyMs,
       });
     });
 
-    socket.on('error', (err) => {
+    socket.on("error", (err) => {
       const latencyMs = Math.round(performance.now() - start);
       cleanup();
       resolve({
-        status: 'down',
+        status: "down",
         latencyMs,
         error: `TCP Bağlantı Hatası: ${err.message}`,
       });
@@ -113,11 +120,11 @@ export async function checkTcp(hostWithPort: string, timeoutMs = 5000): Promise<
 export async function runMonitorCheck(
   type: string,
   target: string,
-  timeoutMs = 5000
+  timeoutMs = 5000,
 ): Promise<CheckResult> {
-  const cleanType = (type || 'http').toLowerCase();
+  const cleanType = (type || "http").toLowerCase();
 
-  if (cleanType === 'tcp') {
+  if (cleanType === "tcp") {
     return checkTcp(target, timeoutMs);
   }
 

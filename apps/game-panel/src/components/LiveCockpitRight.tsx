@@ -2,21 +2,35 @@
 
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import { Button, MetricGauge, StatusBadge, type ServerStatus } from "@xivizley/aurora-ui";
-import { useGameStore, checkRamSafety, getContainerMemoryLimitMb } from "@/store/cockpit-store";
+import {
+  Button,
+  MetricGauge,
+  StatusBadge,
+  type ServerStatus,
+} from "@xivizley/aurora-ui";
+import {
+  useGameStore,
+  checkRamSafety,
+  getContainerMemoryLimitMb,
+} from "@/store/cockpit-store";
 import { GAME_CATALOG } from "@/data/game-catalog";
 import type { HostMetrics, ContainerMetrics } from "@xivizley/types";
 
 const TerminalLogViewer = dynamic(
-  () => import("@/components/TerminalLogViewer").then((mod) => mod.TerminalLogViewer),
+  () =>
+    import("@/components/TerminalLogViewer").then(
+      (mod) => mod.TerminalLogViewer,
+    ),
   {
     ssr: false,
     loading: () => (
       <div className="w-full h-80 rounded-xl bg-[#222933] border border-[#2d3748] flex items-center justify-center">
-        <span className="text-xs text-slate-400 font-mono">Terminal yükleniyor...</span>
+        <span className="text-xs text-slate-400 font-mono">
+          Terminal yükleniyor...
+        </span>
       </div>
     ),
-  }
+  },
 );
 
 interface StreamData {
@@ -36,7 +50,8 @@ export function LiveCockpitRight() {
 
   const game = GAME_CATALOG[activeGameId];
   const config = configPerGame[activeGameId] || game.defaultConfig;
-  const currentEngine = game.engines.find((e) => e.id === config.engineId) || game.engines[0];
+  const currentEngine =
+    game.engines.find((e) => e.id === config.engineId) || game.engines[0];
   const [metrics, setMetrics] = useState<StreamData | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -45,11 +60,16 @@ export function LiveCockpitRight() {
   const [commandInput, setCommandInput] = useState("");
   const [isSendingCommand, setIsSendingCommand] = useState(false);
   const [commandFeedback, setCommandFeedback] = useState<string | null>(null);
-  const termRef = useRef<{ write: (text: string) => void; writeln: (text: string) => void } | null>(null);
+  const termRef = useRef<{
+    write: (text: string) => void;
+    writeln: (text: string) => void;
+  } | null>(null);
 
   // SSE Metrik Akışı
   useEffect(() => {
-    const sse = new EventSource(`/api/metrics/stream?gameId=${encodeURIComponent(activeGameId)}`);
+    const sse = new EventSource(
+      `/api/metrics/stream?gameId=${encodeURIComponent(activeGameId)}`,
+    );
 
     sse.onmessage = (e) => {
       try {
@@ -103,7 +123,8 @@ export function LiveCockpitRight() {
       } else {
         if (action === "start") {
           setActiveServer({
-            containerId: json.data?.container || `xivizley-${activeGameId}-server`,
+            containerId:
+              json.data?.container || `xivizley-${activeGameId}-server`,
             gameId: activeGameId,
             status: "starting",
           });
@@ -144,7 +165,8 @@ export function LiveCockpitRight() {
 
       const json = await res.json();
       if (res.ok && json.ok) {
-        const resp = json.data?.response || `[Başarılı] Komut iletildi: ${cmdToSend}`;
+        const resp =
+          json.data?.response || `[Başarılı] Komut iletildi: ${cmdToSend}`;
         setCommandFeedback(resp);
         // Çok satırlı yanıtı terminale düzgün yazdır
         const lines = resp.split("\n");
@@ -176,7 +198,9 @@ export function LiveCockpitRight() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-white">{game.name} Sunucusu</h2>
+              <h2 className="text-lg font-bold text-white">
+                {game.name} Sunucusu
+              </h2>
               <StatusBadge status={currentStatus} size="sm" />
               <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
                 {currentEngine?.name.split(" ")[0]} v{config.version}
@@ -211,7 +235,9 @@ export function LiveCockpitRight() {
             <Button
               variant="primary"
               size="sm"
-              disabled={isRunning || !startEligibility.allowed || !!actionLoading}
+              disabled={
+                isRunning || !startEligibility.allowed || !!actionLoading
+              }
               isLoading={actionLoading === "start"}
               onClick={() => handleServerAction("start")}
               className="bg-[#0082c9] text-white hover:bg-[#006aa3] shadow-sm"
@@ -247,8 +273,12 @@ export function LiveCockpitRight() {
         {/* RAM Göstergesi */}
         <div className="p-4 rounded-xl bg-[#222933] border border-[#2d3748] shadow-sm flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-300">Dinamik RAM İhtiyacı</span>
-            <span className="font-mono text-white font-bold">{estimatedRam} MB</span>
+            <span className="font-semibold text-slate-300">
+              Dinamik RAM İhtiyacı
+            </span>
+            <span className="font-mono text-white font-bold">
+              {estimatedRam} MB
+            </span>
           </div>
 
           <MetricGauge
@@ -270,7 +300,9 @@ export function LiveCockpitRight() {
         {/* CPU Göstergesi */}
         <div className="p-4 rounded-xl bg-[#222933] border border-[#2d3748] shadow-sm flex flex-col gap-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-300">İşlemci Kullanımı</span>
+            <span className="font-semibold text-slate-300">
+              İşlemci Kullanımı
+            </span>
             <span className="font-mono text-white font-bold">
               {metrics?.container.cpuPercent || 0}%
             </span>
@@ -299,7 +331,10 @@ export function LiveCockpitRight() {
         />
 
         {/* 4. KOMUT GÖNDERME ÇUBUĞU (CommandAdapter ile Senkronize) */}
-        <form onSubmit={handleSendCommand} className="flex items-center gap-2 mt-1">
+        <form
+          onSubmit={handleSendCommand}
+          className="flex items-center gap-2 mt-1"
+        >
           <div className="relative flex-1">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-mono text-slate-400">
               &gt;
@@ -318,7 +353,11 @@ export function LiveCockpitRight() {
             disabled={!commandInput.trim() || isSendingCommand}
             className="px-4 py-2 bg-[#0082c9] hover:bg-[#006aa3] text-white rounded-lg text-xs font-semibold shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
           >
-            {isSendingCommand ? <span>İletiliyor...</span> : <span>Gönder ↵</span>}
+            {isSendingCommand ? (
+              <span>İletiliyor...</span>
+            ) : (
+              <span>Gönder ↵</span>
+            )}
           </button>
         </form>
 

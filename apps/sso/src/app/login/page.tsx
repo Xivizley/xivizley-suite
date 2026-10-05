@@ -11,7 +11,9 @@ export default function LoginPage() {
         fallback={
           <div className="flex flex-col items-center justify-center gap-3">
             <Spinner size="lg" color="cyan" />
-            <span className="text-xs text-aurora-text-muted">Yükleniyor...</span>
+            <span className="text-xs text-aurora-text-muted">
+              Yükleniyor...
+            </span>
           </div>
         }
       >

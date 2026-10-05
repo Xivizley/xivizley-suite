@@ -4,7 +4,11 @@ import crypto from "crypto";
 import { PassThrough } from "node:stream";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
 import type { ResourceGovernor } from "@xivizley/resource-gov";
-import type { ContainerMetrics, GameId, ActiveServerConfig } from "@xivizley/types";
+import type {
+  ContainerMetrics,
+  GameId,
+  ActiveServerConfig,
+} from "@xivizley/types";
 import { getCommandAdapter } from "./adapters/command-adapter";
 import { GAME_CATALOG } from "../data/game-catalog";
 
@@ -47,7 +51,8 @@ async function ensureImageExists(docker: Docker, image: string): Promise<void> {
 function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
   const env: string[] = [];
   const port = config.port || GAME_CATALOG[gameId].defaultPort;
-  const memMb = (config as any).memLimitMb || GAME_CATALOG[gameId].minRamMb || 2048;
+  const memMb =
+    (config as any).memLimitMb || GAME_CATALOG[gameId].minRamMb || 2048;
 
   switch (gameId) {
     case "minecraft": {
@@ -58,14 +63,14 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
         config.engineId === "purpur"
           ? "PURPUR"
           : config.engineId === "fabric"
-          ? "FABRIC"
-          : config.engineId === "forge"
-          ? "FORGE"
-          : config.engineId === "neoforge"
-          ? "NEOFORGE"
-          : config.engineId === "vanilla"
-          ? "VANILLA"
-          : "PAPER";
+            ? "FABRIC"
+            : config.engineId === "forge"
+              ? "FORGE"
+              : config.engineId === "neoforge"
+                ? "NEOFORGE"
+                : config.engineId === "vanilla"
+                  ? "VANILLA"
+                  : "PAPER";
       env.push(`TYPE=${type}`);
       env.push(`VERSION=${config.version || "LATEST"}`);
       env.push(`MEMORY=${memMb}M`);
@@ -73,7 +78,9 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
 
       // Konsol ve RCON entegrasyonu (rcon-cli & mc-send-to-console için)
       env.push("ENABLE_RCON=true");
-      env.push(`RCON_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      env.push(
+        `RCON_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`,
+      );
       env.push("RCON_PORT=25575");
       env.push("CREATE_CONSOLE_IN_PIPE=true");
 
@@ -104,7 +111,9 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
       // Eklentiler (Doğrudan seçilenler + Seçili mod paketlerinin getirdiği eklentiler)
       const allPluginIds = new Set<string>(config.enabledPluginIds || []);
       for (const packId of config.selectedPackIds || []) {
-        const pack = GAME_CATALOG.minecraft?.modPacks.find((p) => p.id === packId);
+        const pack = GAME_CATALOG.minecraft?.modPacks.find(
+          (p) => p.id === packId,
+        );
         if (pack?.includedPluginIds) {
           for (const incId of pack.includedPluginIds) {
             allPluginIds.add(incId);
@@ -115,7 +124,9 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
       const modrinthProjects: string[] = [];
       const spigetResources: number[] = [];
       for (const pId of allPluginIds) {
-        const p = GAME_CATALOG.minecraft?.plugins.find((item) => item.id === pId);
+        const p = GAME_CATALOG.minecraft?.plugins.find(
+          (item) => item.id === pId,
+        );
         if (p?.modrinthSlug) {
           let slug = p.modrinthSlug;
           // Opsiyonel bayrağı (?) ekleyerek sürüm uyuşmazlığında boot-loop olmasını engelle
@@ -162,13 +173,17 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
       if (config.tickrate) {
         env.push(`SRCDS_TICKRATE=${config.tickrate}`);
       }
-      env.push(`SRCDS_RCONPW=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      env.push(
+        `SRCDS_RCONPW=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`,
+      );
       break;
     }
     case "rust": {
       env.push(`RUST_SERVER_PORT=${port}`);
       env.push("RUST_RCON_PORT=28016");
-      env.push(`RUST_RCON_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      env.push(
+        `RUST_RCON_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`,
+      );
       if (config.serverName) {
         env.push(`RUST_SERVER_NAME=${config.serverName}`);
       }
@@ -184,7 +199,9 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
       env.push(`PORT=${port}`);
       env.push("RCON_ENABLED=true");
       env.push("RCON_PORT=25575");
-      env.push(`ADMIN_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      env.push(
+        `ADMIN_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`,
+      );
       if (config.serverName) {
         env.push(`SERVER_NAME=${config.serverName}`);
       }
@@ -214,7 +231,9 @@ function getGameEnvVars(gameId: GameId, config: ActiveServerConfig): string[] {
     }
     case "ark": {
       env.push(`SERVER_PORT=${port}`);
-      env.push(`ADMIN_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`);
+      env.push(
+        `ADMIN_PASSWORD=${process.env["XIVIZLEY_RCON_PASSWORD"] || "xivizley_secure_rcon_2026"}`,
+      );
       if (config.serverName) {
         env.push(`SESSION_NAME=${config.serverName}`);
       }
@@ -333,21 +352,26 @@ async function ensureContainerExists(
   }
 }
 
-export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async (
-  fastify,
-  opts,
-) => {
+export const gamePanelRoutes: FastifyPluginAsync<
+  GamePanelRoutesOptions
+> = async (fastify, opts) => {
   const docker = new Docker({
     socketPath: process.env["DOCKER_SOCKET_PATH"] || "/var/run/docker.sock",
   });
 
   // Resource Governor olaylarını logla
   opts.governor.on("brain:suspend", (action) => {
-    fastify.log.warn({ action }, "Resource Governor: Brain LLM askıya alındı (Oyun Önceliği)");
+    fastify.log.warn(
+      { action },
+      "Resource Governor: Brain LLM askıya alındı (Oyun Önceliği)",
+    );
   });
 
   opts.governor.on("vault:halt", (action) => {
-    fastify.log.warn({ action }, "Resource Governor: Vault AI durduruldu (Oyun Önceliği)");
+    fastify.log.warn(
+      { action },
+      "Resource Governor: Vault AI durduruldu (Oyun Önceliği)",
+    );
   });
 
   // Tüm /api rotalarını withXivizleyAuth ile koru (canlı test & geçiş için optional)
@@ -396,13 +420,17 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
           const runningOther = containers.find((c) => {
             const names = c.Names.map((n) => n.replace(/^\//, ""));
             return (
-              (names.includes("fivem-server") || names.some((n) => n.startsWith("xivizley-") && n.endsWith("-server"))) &&
+              (names.includes("fivem-server") ||
+                names.some(
+                  (n) => n.startsWith("xivizley-") && n.endsWith("-server"),
+                )) &&
               !names.includes(containerName)
             );
           });
 
           if (runningOther) {
-            const runningName = runningOther.Names[0]?.replace(/^\//, "") || "Bilinmeyen";
+            const runningName =
+              runningOther.Names[0]?.replace(/^\//, "") || "Bilinmeyen";
             return reply.status(409).send({
               ok: false,
               code: "ANOTHER_SERVER_RUNNING",
@@ -427,7 +455,9 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       } else if (action === "restart") {
         await container.restart({ t: 2 });
       } else {
-        return reply.status(400).send({ ok: false, message: "Geçersiz aksiyon." });
+        return reply
+          .status(400)
+          .send({ ok: false, message: "Geçersiz aksiyon." });
       }
 
       return reply.send({
@@ -457,7 +487,9 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
     const gameId = (request.body?.gameId as GameId) || "fivem";
 
     if (!command || typeof command !== "string" || !command.trim()) {
-      return reply.status(400).send({ ok: false, message: "Geçerli bir komut metni girilmelidir." });
+      return reply
+        .status(400)
+        .send({ ok: false, message: "Geçerli bir komut metni girilmelidir." });
     }
 
     const containerName = getContainerName(gameId);
@@ -480,7 +512,8 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       return reply.status(500).send({
         ok: false,
         code: "COMMAND_EXECUTION_FAILED",
-        message: err.message || "Komut yürütme sırasında beklenmeyen bir hata oluştu.",
+        message:
+          err.message || "Komut yürütme sırasında beklenmeyen bir hata oluştu.",
       });
     }
   });
@@ -492,7 +525,12 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
     const { gameId, config } = request.body || {};
 
     if (!gameId || !config || !GAME_CATALOG[gameId]) {
-      return reply.status(400).send({ ok: false, message: "Geçerli bir gameId ve config zorunludur." });
+      return reply
+        .status(400)
+        .send({
+          ok: false,
+          message: "Geçerli bir gameId ve config zorunludur.",
+        });
     }
 
     const gameDef = GAME_CATALOG[gameId];
@@ -517,7 +555,10 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       gameMode: config.gameMode,
       tickrate: config.tickrate,
     });
-    const configHash = crypto.createHash("sha256").update(configString).digest("hex");
+    const configHash = crypto
+      .createHash("sha256")
+      .update(configString)
+      .digest("hex");
 
     const previousHash = appliedConfigHashes.get(gameId);
 
@@ -550,7 +591,10 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
             appliedConfigHashes.set(gameId, configHash);
           })
           .catch((err) => {
-            fastify.log.error({ err }, "Arka plan image pull / container create hatası");
+            fastify.log.error(
+              { err },
+              "Arka plan image pull / container create hatası",
+            );
           })
           .finally(() => {
             pullingGames.delete(gameId);
@@ -581,7 +625,9 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
 
     // Palworld RCON kontrolü (Claude Tavsiyesi: Palworld RCON default kapalı gelir, açılmalı)
     if (gameId === "palworld") {
-      fastify.log.info("Palworld için RCONEnabled=True ve Port=25575 ayarlandı.");
+      fastify.log.info(
+        "Palworld için RCONEnabled=True ve Port=25575 ayarlandı.",
+      );
     }
 
     // 4. ok: true dön
@@ -619,18 +665,25 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
 
           if (status === "running") {
             const stats = await container.stats({ stream: false });
-            const usedBytes = stats.memory_stats.usage - (stats.memory_stats.stats?.cache || 0);
+            const usedBytes =
+              stats.memory_stats.usage - (stats.memory_stats.stats?.cache || 0);
             memUsageMb = Math.round(usedBytes / (1024 * 1024));
             memLimitMb = Math.round(stats.memory_stats.limit / (1024 * 1024));
 
             const cpuDelta =
-              stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+              stats.cpu_stats.cpu_usage.total_usage -
+              stats.precpu_stats.cpu_usage.total_usage;
             const systemDelta =
-              stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
-            const numCpus = stats.cpu_stats.online_cpus || stats.cpu_stats.cpu_usage.percpu_usage?.length || 1;
+              stats.cpu_stats.system_cpu_usage -
+              stats.precpu_stats.system_cpu_usage;
+            const numCpus =
+              stats.cpu_stats.online_cpus ||
+              stats.cpu_stats.cpu_usage.percpu_usage?.length ||
+              1;
 
             if (systemDelta > 0 && cpuDelta > 0) {
-              cpuPercent = Math.round((cpuDelta / systemDelta) * numCpus * 1000) / 10;
+              cpuPercent =
+                Math.round((cpuDelta / systemDelta) * numCpus * 1000) / 10;
             }
           }
         } catch {
@@ -640,7 +693,11 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
         const hostMetrics = opts.governor.getMetrics();
         if (!hostMetrics.serverIp) {
           const hostHeader = (request.headers.host || "").split(":")[0];
-          if (hostHeader && hostHeader !== "localhost" && hostHeader !== "127.0.0.1") {
+          if (
+            hostHeader &&
+            hostHeader !== "localhost" &&
+            hostHeader !== "127.0.0.1"
+          ) {
             hostMetrics.serverIp = hostHeader;
           }
         }
@@ -706,9 +763,15 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       if (isCleanedUp) return;
       isCleanedUp = true;
       clearInterval(keepAliveTimer);
-      try { activeLogStream?.destroy?.(); } catch {}
-      try { stdoutPass?.destroy?.(); } catch {}
-      try { stderrPass?.destroy?.(); } catch {}
+      try {
+        activeLogStream?.destroy?.();
+      } catch {}
+      try {
+        stdoutPass?.destroy?.();
+      } catch {}
+      try {
+        stderrPass?.destroy?.();
+      } catch {}
     };
 
     request.raw.on("close", () => {
@@ -718,7 +781,9 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
     try {
       const inspect = await container.inspect();
       if (!inspect.State?.Running) {
-        reply.raw.write(`data: ${JSON.stringify({ log: `\x1b[33m[XIVIZLEY]\x1b[0m ${containerName} sunucusu şu anda çalışmıyor (Durum: ${inspect.State?.Status || "kapalı"}). Başlatıldığında konsol akışı otomatik bağlanacaktır.\r\n` })}\n\n`);
+        reply.raw.write(
+          `data: ${JSON.stringify({ log: `\x1b[33m[XIVIZLEY]\x1b[0m ${containerName} sunucusu şu anda çalışmıyor (Durum: ${inspect.State?.Status || "kapalı"}). Başlatıldığında konsol akışı otomatik bağlanacaktır.\r\n` })}\n\n`,
+        );
         reply.raw.write("retry: 3000\n\n");
         cleanup();
         reply.raw.end();
@@ -747,15 +812,21 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
         stdoutPass = new PassThrough();
         stderrPass = new PassThrough();
 
-        stdoutPass.on("data", (chunk: Buffer) => sendLogText(chunk.toString("utf-8")));
-        stderrPass.on("data", (chunk: Buffer) => sendLogText(chunk.toString("utf-8")));
+        stdoutPass.on("data", (chunk: Buffer) =>
+          sendLogText(chunk.toString("utf-8")),
+        );
+        stderrPass.on("data", (chunk: Buffer) =>
+          sendLogText(chunk.toString("utf-8")),
+        );
 
         docker.modem.demuxStream(logStream, stdoutPass, stderrPass);
       }
 
       logStream.on("end", () => {
         if (!reply.raw.writableEnded) {
-          reply.raw.write(`data: ${JSON.stringify({ log: `\r\n\x1b[33m[XIVIZLEY]\x1b[0m Sunucu kapandı veya bağlantı sonlandı. Yeniden deneniyor...\r\n` })}\n\n`);
+          reply.raw.write(
+            `data: ${JSON.stringify({ log: `\r\n\x1b[33m[XIVIZLEY]\x1b[0m Sunucu kapandı veya bağlantı sonlandı. Yeniden deneniyor...\r\n` })}\n\n`,
+          );
           reply.raw.write("retry: 2500\n\n");
           reply.raw.end();
         }
@@ -764,7 +835,9 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
 
       logStream.on("error", (err: any) => {
         if (!reply.raw.writableEnded) {
-          reply.raw.write(`data: ${JSON.stringify({ log: `\r\n\x1b[31m[XIVIZLEY Hata]\x1b[0m Log akışında hata: ${err.message}\r\n` })}\n\n`);
+          reply.raw.write(
+            `data: ${JSON.stringify({ log: `\r\n\x1b[31m[XIVIZLEY Hata]\x1b[0m Log akışında hata: ${err.message}\r\n` })}\n\n`,
+          );
           reply.raw.write("retry: 3000\n\n");
           reply.raw.end();
         }
@@ -772,7 +845,9 @@ export const gamePanelRoutes: FastifyPluginAsync<GamePanelRoutesOptions> = async
       });
     } catch (err: any) {
       if (!reply.raw.writableEnded) {
-        reply.raw.write(`data: ${JSON.stringify({ log: `\x1b[33m[XIVIZLEY]\x1b[0m ${containerName} konteyneri bulunamadı veya henüz başlatılmadı. Bekleniyor...\r\n` })}\n\n`);
+        reply.raw.write(
+          `data: ${JSON.stringify({ log: `\x1b[33m[XIVIZLEY]\x1b[0m ${containerName} konteyneri bulunamadı veya henüz başlatılmadı. Bekleniyor...\r\n` })}\n\n`,
+        );
         reply.raw.write("retry: 3000\n\n");
         reply.raw.end();
       }

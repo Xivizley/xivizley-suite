@@ -121,14 +121,19 @@ export function ServerBackupStudio() {
     if (!deleteTarget) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/server/backups/${encodeURIComponent(deleteTarget.filename)}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/server/backups/${encodeURIComponent(deleteTarget.filename)}`,
+        {
+          method: "DELETE",
+        },
+      );
       const data = await res.json();
       if (data.ok) {
         toast.success("Yedek arşivi silindi.");
         setDeleteTarget(null);
-        setBackups((prev) => prev.filter((b) => b.filename !== deleteTarget.filename));
+        setBackups((prev) =>
+          prev.filter((b) => b.filename !== deleteTarget.filename),
+        );
       } else {
         toast.error(data.message || "Yedek silinemedi.");
       }
@@ -157,7 +162,8 @@ export function ServerBackupStudio() {
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1 max-w-xl">
-            Sunucu dünyası, eklentiler ve konfigürasyon dosyaları tek tıkla zaman damgalı `.tar.gz` formatında arşivlenir.
+            Sunucu dünyası, eklentiler ve konfigürasyon dosyaları tek tıkla
+            zaman damgalı `.tar.gz` formatında arşivlenir.
           </p>
         </div>
 
@@ -174,7 +180,9 @@ export function ServerBackupStudio() {
           <button
             onClick={() => {
               if (!isAdmin) {
-                toast.error("Yedek oluşturmak için Yönetici Girişi yapmalısınız.");
+                toast.error(
+                  "Yedek oluşturmak için Yönetici Girişi yapmalısınız.",
+                );
                 return;
               }
               setIsCreateModalOpen(true);
@@ -190,26 +198,38 @@ export function ServerBackupStudio() {
       {/* ─── Yedek İstatistik Özeti ───────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 rounded-xl bg-[#111824] border border-[#1e2a3c]">
-          <span className="text-xs font-semibold text-slate-400">Toplam Yedek Sayısı</span>
+          <span className="text-xs font-semibold text-slate-400">
+            Toplam Yedek Sayısı
+          </span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-white">{backups.length}</span>
+            <span className="text-2xl font-bold font-mono text-white">
+              {backups.length}
+            </span>
             <span className="text-xs text-slate-400">Arşiv</span>
           </div>
         </div>
 
         <div className="p-4 rounded-xl bg-[#111824] border border-[#1e2a3c]">
-          <span className="text-xs font-semibold text-slate-400">Toplam Disk Tüketimi</span>
+          <span className="text-xs font-semibold text-slate-400">
+            Toplam Disk Tüketimi
+          </span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-emerald-400">{totalFormatted}</span>
+            <span className="text-2xl font-bold font-mono text-emerald-400">
+              {totalFormatted}
+            </span>
             <span className="text-xs text-slate-400">Arşiv Alanı</span>
           </div>
         </div>
 
         <div className="p-4 rounded-xl bg-[#111824] border border-[#1e2a3c]">
-          <span className="text-xs font-semibold text-slate-400">Son Yedekleme Zamanı</span>
+          <span className="text-xs font-semibold text-slate-400">
+            Son Yedekleme Zamanı
+          </span>
           <div className="mt-1 flex items-baseline gap-2">
             <span className="text-sm font-bold text-slate-200">
-              {backups[0] ? new Date(backups[0].createdAt).toLocaleString("tr-TR") : "Henüz yok"}
+              {backups[0]
+                ? new Date(backups[0].createdAt).toLocaleString("tr-TR")
+                : "Henüz yok"}
             </span>
           </div>
         </div>
@@ -222,7 +242,9 @@ export function ServerBackupStudio() {
             <Archive className="h-4 w-4 text-[#1AD76F]" />
             <h3 className="text-sm font-bold text-white">Mevcut Arşivler</h3>
           </div>
-          <span className="text-xs font-mono text-slate-400">Format: tar.gz</span>
+          <span className="text-xs font-mono text-slate-400">
+            Format: tar.gz
+          </span>
         </div>
 
         {loading ? (
@@ -237,7 +259,8 @@ export function ServerBackupStudio() {
               Bu oyun için henüz kaydedilmiş bir yedek yok
             </h4>
             <p className="text-xs text-slate-400 max-w-sm mx-auto">
-              Herhangi bir felaket durumunda dünyanızı kurtarabilmek için düzenli olarak yedek almanız önerilir.
+              Herhangi bir felaket durumunda dünyanızı kurtarabilmek için
+              düzenli olarak yedek almanız önerilir.
             </p>
             <button
               onClick={() => setIsCreateModalOpen(true)}
@@ -275,7 +298,9 @@ export function ServerBackupStudio() {
                       {b.note && (
                         <>
                           <span>•</span>
-                          <span className="text-slate-300 font-sans italic">"{b.note}"</span>
+                          <span className="text-slate-300 font-sans italic">
+                            "{b.note}"
+                          </span>
                         </>
                       )}
                     </div>
@@ -298,7 +323,9 @@ export function ServerBackupStudio() {
                   <button
                     onClick={() => {
                       if (!isAdmin) {
-                        toast.error("Yedeği geri yüklemek için Yönetici Girişi yapmalısınız.");
+                        toast.error(
+                          "Yedeği geri yüklemek için Yönetici Girişi yapmalısınız.",
+                        );
                         return;
                       }
                       setRestoreTarget(b);
@@ -314,7 +341,9 @@ export function ServerBackupStudio() {
                   <button
                     onClick={() => {
                       if (!isAdmin) {
-                        toast.error("Yedeği silmek için Yönetici Girişi yapmalısınız.");
+                        toast.error(
+                          "Yedeği silmek için Yönetici Girişi yapmalısınız.",
+                        );
                         return;
                       }
                       setDeleteTarget(b);
@@ -338,7 +367,9 @@ export function ServerBackupStudio() {
             <div className="flex items-center justify-between pb-3 border-b border-[#1e2a3c]">
               <div className="flex items-center gap-2">
                 <Archive className="h-5 w-5 text-[#1AD76F]" />
-                <h3 className="text-base font-bold text-white">Yeni Sunucu Yedeği Al</h3>
+                <h3 className="text-base font-bold text-white">
+                  Yeni Sunucu Yedeği Al
+                </h3>
               </div>
               <button
                 onClick={() => setIsCreateModalOpen(false)}
@@ -355,12 +386,15 @@ export function ServerBackupStudio() {
                   Hedef Oyun: {gameInfo.name}
                 </span>
                 <p className="text-[11px] text-emerald-400/80">
-                  Tüm dünya blokları, oyuncu envanterleri, eklenti konfigürasyonları ve veri tabanı dosyaları paketlenir.
+                  Tüm dünya blokları, oyuncu envanterleri, eklenti
+                  konfigürasyonları ve veri tabanı dosyaları paketlenir.
                 </p>
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-slate-300">Yedek Notu / Açıklaması (Opsiyonel)</label>
+                <label className="font-semibold text-slate-300">
+                  Yedek Notu / Açıklaması (Opsiyonel)
+                </label>
                 <input
                   type="text"
                   placeholder="Örn: Eklenti güncellemesi öncesi, Nether sıfırlama, vb."
@@ -383,8 +417,14 @@ export function ServerBackupStudio() {
                   disabled={isCreating}
                   className="px-4 py-2 rounded-xl bg-[#1AD76F] hover:bg-[#15b75e] text-black font-bold flex items-center gap-2 shadow-md transition-all disabled:opacity-50 cursor-pointer"
                 >
-                  {isCreating ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Archive className="h-4 w-4" />}
-                  <span>{isCreating ? "Arşivleniyor..." : "Yedeklemeyi Başlat"}</span>
+                  {isCreating ? (
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Archive className="h-4 w-4" />
+                  )}
+                  <span>
+                    {isCreating ? "Arşivleniyor..." : "Yedeklemeyi Başlat"}
+                  </span>
                 </button>
               </div>
             </form>
@@ -398,11 +438,16 @@ export function ServerBackupStudio() {
           <div className="relative w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#16130e] p-6 shadow-2xl space-y-4">
             <div className="flex items-center gap-3 text-amber-400">
               <ShieldAlert className="h-6 w-6" />
-              <h3 className="text-base font-bold text-white">Yedekten Geri Yükleme Onayı</h3>
+              <h3 className="text-base font-bold text-white">
+                Yedekten Geri Yükleme Onayı
+              </h3>
             </div>
 
             <p className="text-xs text-slate-300 leading-relaxed">
-              <strong className="text-white font-mono break-all">{restoreTarget.filename}</strong> arşivini geri yüklemek üzeresiniz.
+              <strong className="text-white font-mono break-all">
+                {restoreTarget.filename}
+              </strong>{" "}
+              arşivini geri yüklemek üzeresiniz.
             </p>
 
             <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200 space-y-1">
@@ -411,7 +456,9 @@ export function ServerBackupStudio() {
                 Önemli Uyarı:
               </span>
               <p className="text-[11px] text-amber-300/80">
-                Bu işlem sunucudaki mevcut dünya ve eklenti verilerini arşivin oluşturulduğu tarihe döndürecektir. Geri yükleme sonrası sunucuyu yeniden başlatmanız gerekir.
+                Bu işlem sunucudaki mevcut dünya ve eklenti verilerini arşivin
+                oluşturulduğu tarihe döndürecektir. Geri yükleme sonrası
+                sunucuyu yeniden başlatmanız gerekir.
               </p>
             </div>
 
@@ -429,8 +476,14 @@ export function ServerBackupStudio() {
                 disabled={isRestoring}
                 className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold flex items-center gap-2 shadow-md transition-all disabled:opacity-50 cursor-pointer"
               >
-                {isRestoring ? <RefreshCw className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
-                <span>{isRestoring ? "Geri Yükleniyor..." : "Evet, Geri Yükle"}</span>
+                {isRestoring ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RotateCcw className="h-4 w-4" />
+                )}
+                <span>
+                  {isRestoring ? "Geri Yükleniyor..." : "Evet, Geri Yükle"}
+                </span>
               </button>
             </div>
           </div>
@@ -447,7 +500,10 @@ export function ServerBackupStudio() {
             </div>
 
             <p className="text-xs text-slate-300">
-              <strong className="text-white font-mono break-all">{deleteTarget.filename}</strong> arşivi diskten kalıcı olarak silinecek.
+              <strong className="text-white font-mono break-all">
+                {deleteTarget.filename}
+              </strong>{" "}
+              arşivi diskten kalıcı olarak silinecek.
             </p>
 
             <div className="flex justify-end gap-2 pt-3 border-t border-rose-500/20">
@@ -464,7 +520,11 @@ export function ServerBackupStudio() {
                 disabled={isDeleting}
                 className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-2 shadow-md transition-all disabled:opacity-50 cursor-pointer"
               >
-                {isDeleting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                {isDeleting ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
                 <span>{isDeleting ? "Siliniyor..." : "Evet, Sil"}</span>
               </button>
             </div>

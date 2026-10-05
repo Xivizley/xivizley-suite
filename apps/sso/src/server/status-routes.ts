@@ -13,7 +13,11 @@ export interface ServiceStatusItem {
 export const statusRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get("/api/status/summary", async (_request, reply) => {
     // 90 Günlük geçmiş çubukları üret
-    const historyBars: Array<{ day: number; date: string; status: "good" | "minor" | "major" }> = [];
+    const historyBars: Array<{
+      day: number;
+      date: string;
+      status: "good" | "minor" | "major";
+    }> = [];
     const today = new Date();
 
     for (let i = 89; i >= 0; i--) {
@@ -64,7 +68,8 @@ export const statusRoutes: FastifyPluginAsync = async (fastify) => {
         status: "operational",
         uptimePercent: 99.96,
         latencyMs: 15,
-        description: "Çakışma önleyici port radarı ve bağımsız konteyner yöneticisi.",
+        description:
+          "Çakışma önleyici port radarı ve bağımsız konteyner yöneticisi.",
       },
       {
         id: "game",
@@ -73,7 +78,8 @@ export const statusRoutes: FastifyPluginAsync = async (fastify) => {
         status: "operational",
         uptimePercent: 99.92,
         latencyMs: 16,
-        description: "Spigot, Paper ve FXServer canlı kokpit ve mod yöneticisi.",
+        description:
+          "Spigot, Paper ve FXServer canlı kokpit ve mod yöneticisi.",
       },
       {
         id: "caddy",
@@ -82,7 +88,8 @@ export const statusRoutes: FastifyPluginAsync = async (fastify) => {
         status: "operational",
         uptimePercent: 100.0,
         latencyMs: 8,
-        description: "Let's Encrypt SSL/TLS sonlandırma ve Layer-7 güvenlik kalkanı.",
+        description:
+          "Let's Encrypt SSL/TLS sonlandırma ve Layer-7 güvenlik kalkanı.",
       },
     ];
 
@@ -103,7 +110,8 @@ export const statusRoutes: FastifyPluginAsync = async (fastify) => {
             date: "2026-10-04 03:00:01",
             status: "TAMAMLANDI",
             impact: "NONE",
-            description: "Günlük otomatik sıcak PostgreSQL dump'ı 1.2 saniyede /var/backups/xivizley dizinine alındı. Sıfır kesinti.",
+            description:
+              "Günlük otomatik sıcak PostgreSQL dump'ı 1.2 saniyede /var/backups/xivizley dizinine alındı. Sıfır kesinti.",
           },
           {
             id: "inc-02",
@@ -111,7 +119,8 @@ export const statusRoutes: FastifyPluginAsync = async (fastify) => {
             date: "2026-10-04 01:15:00",
             status: "TAMAMLANDI",
             impact: "NONE",
-            description: "Global Demo Mutation Guard ve izole veri koruma filtreleri üretim hattında devreye alındı.",
+            description:
+              "Global Demo Mutation Guard ve izole veri koruma filtreleri üretim hattında devreye alındı.",
           },
         ],
       },

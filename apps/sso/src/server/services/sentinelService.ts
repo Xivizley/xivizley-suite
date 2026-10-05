@@ -6,7 +6,10 @@
 import os from "node:os";
 import fs from "node:fs";
 import Docker from "dockerode";
-import { dispatchOpsDiscordAlert, clearDiscordAlertCooldown } from "./notificationService.js";
+import {
+  dispatchOpsDiscordAlert,
+  clearDiscordAlertCooldown,
+} from "./notificationService.js";
 
 export interface SentinelThresholds {
   cpuPercent: number; // default 85
@@ -55,10 +58,17 @@ export interface SentinelStatus {
   thresholds: SentinelThresholds;
   telegramConfigured: boolean;
   telegramChatId: string | null;
-  lastAlerts: Array<{ key: string; sentAt: string; message: string; severity: "warning" | "critical" | "recovery" }>;
+  lastAlerts: Array<{
+    key: string;
+    sentAt: string;
+    message: string;
+    severity: "warning" | "critical" | "recovery";
+  }>;
 }
 
-const DEFAULT_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "***REMOVED***";
+const DEFAULT_BOT_TOKEN =
+  process.env.TELEGRAM_BOT_TOKEN ||
+  "***REMOVED***";
 let activeChatId: string | null = process.env.TELEGRAM_CHAT_ID || null;
 
 const thresholds: SentinelThresholds = {
@@ -80,7 +90,12 @@ const alertCooldowns = new Map<string, number>();
 // Track container statuses for recovery notices: containerName -> lastStatus
 const previousContainerStates = new Map<string, string>();
 
-const recentAlertsLog: Array<{ key: string; sentAt: string; message: string; severity: "warning" | "critical" | "recovery" }> = [];
+const recentAlertsLog: Array<{
+  key: string;
+  sentAt: string;
+  message: string;
+  severity: "warning" | "critical" | "recovery";
+}> = [];
 
 let daemonInterval: NodeJS.Timeout | null = null;
 
@@ -100,7 +115,7 @@ function getDocker(): Docker {
 export async function sendTelegramNotification(
   text: string,
   targetChatId?: string,
-  botToken = DEFAULT_BOT_TOKEN
+  botToken = DEFAULT_BOT_TOKEN,
 ): Promise<boolean> {
   const chatId = targetChatId || activeChatId;
   if (!botToken || !chatId) {
@@ -108,16 +123,19 @@ export async function sendTelegramNotification(
   }
 
   try {
-    let res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text,
-        parse_mode: "Markdown",
-      }),
-      signal: AbortSignal.timeout(6000),
-    });
+    let res = await fetch(
+      `https://api.telegram.org/bot${botToken}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+          parse_mode: "Markdown",
+        }),
+        signal: AbortSignal.timeout(6000),
+      },
+    );
 
     if (!res.ok) {
       // Markdown entity parse hatası durumunda düz metin olarak yeniden dene
@@ -142,7 +160,10 @@ export async function sendTelegramNotification(
 /**
  * Checks if an alert can be sent without violating the anti-spam debounce
  */
-function canSendAlert(key: string, cooldownMinutes = thresholds.debounceMinutes): boolean {
+function canSendAlert(
+  key: string,
+  cooldownMinutes = thresholds.debounceMinutes,
+): boolean {
   const lastTime = alertCooldowns.get(key);
   if (!lastTime) return true;
   const now = Date.now();
@@ -153,7 +174,7 @@ function canSendAlert(key: string, cooldownMinutes = thresholds.debounceMinutes)
 function markAlertSent(
   key: string,
   message: string,
-  severity: "warning" | "critical" | "recovery"
+  severity: "warning" | "critical" | "recovery",
 ) {
   alertCooldowns.set(key, Date.now());
   recentAlertsLog.unshift({
@@ -170,13 +191,20 @@ function markAlertSent(
 /**
  * Computes NVMe root disk statistics safely
  */
-function getDiskStats(): { totalBytes: number; usedBytes: number; freeBytes: number; usagePercent: number } {
+function getDiskStats(): {
+  totalBytes: number;
+  usedBytes: number;
+  freeBytes: number;
+  usagePercent: number;
+} {
   try {
     const stat = fs.statfsSync("/");
     const totalBytes = Number(stat.bsize) * Number(stat.blocks);
-    const freeBytes = Number(stat.bsize) * Number((stat as any).bavail || stat.bfree);
+    const freeBytes =
+      Number(stat.bsize) * Number((stat as any).bavail || stat.bfree);
     const usedBytes = Math.max(0, totalBytes - freeBytes);
-    const usagePercent = totalBytes > 0 ? Math.round((usedBytes / totalBytes) * 100) : 0;
+    const usagePercent =
+      totalBytes > 0 ? Math.round((usedBytes / totalBytes) * 100) : 0;
     return { totalBytes, usedBytes, freeBytes, usagePercent };
   } catch {
     return {
@@ -201,7 +229,9 @@ export async function getContainersHealth(): Promise<ContainerStatus[]> {
     for (const cName of MONITORED_CONTAINERS) {
       // Find matching container by name (/name or name)
       const found = containerList.find((c) =>
-        c.Names.some((n) => n === `/${cName}` || n === cName || n.includes(cName))
+        c.Names.some(
+          (n) => n === `/${cName}` || n === cName || n.includes(cName),
+        ),
       );
 
       if (found) {
@@ -238,7 +268,9 @@ export async function getContainersHealth(): Promise<ContainerStatus[]> {
 /**
  * Gathers complete Sentinel status snapshot
  */
-export async function getSentinelStatus(isAuthenticated = true): Promise<SentinelStatus> {
+export async function getSentinelStatus(
+  isAuthenticated = true,
+): Promise<SentinelStatus> {
   const cpus = os.cpus();
   const coreCount = cpus.length || 1;
   const loadAvg = os.loadavg();
@@ -246,7 +278,10 @@ export async function getSentinelStatus(isAuthenticated = true): Promise<Sentine
   const load5 = loadAvg[1] ?? 0;
   const load15 = loadAvg[2] ?? 0;
   // Normalize 1m load average to percentage
-  const cpuUsagePercent = Math.min(100, Math.max(0, Math.round((load1 / coreCount) * 100)));
+  const cpuUsagePercent = Math.min(
+    100,
+    Math.max(0, Math.round((load1 / coreCount) * 100)),
+  );
 
   const totalRam = os.totalmem();
   const freeRam = os.freemem();
@@ -288,7 +323,11 @@ export async function getSentinelStatus(isAuthenticated = true): Promise<Sentine
     containers,
     thresholds: { ...thresholds },
     telegramConfigured: Boolean(DEFAULT_BOT_TOKEN && activeChatId),
-    telegramChatId: isAuthenticated ? activeChatId : (activeChatId ? "***" : null),
+    telegramChatId: isAuthenticated
+      ? activeChatId
+      : activeChatId
+        ? "***"
+        : null,
     lastAlerts: [...recentAlertsLog],
   };
 }
@@ -298,7 +337,11 @@ export async function getSentinelStatus(isAuthenticated = true): Promise<Sentine
  */
 export async function runSentinelCheck(): Promise<void> {
   const status = await getSentinelStatus();
-  const nowStr = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const nowStr = new Date().toLocaleTimeString("tr-TR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
   // 1. CPU Threshold Check
   if (status.host.cpu.usagePercent >= thresholds.cpuPercent) {
@@ -321,7 +364,11 @@ export async function runSentinelCheck(): Promise<void> {
         metric: `CPU Yükü: %${status.host.cpu.usagePercent} (Eşik: %${thresholds.cpuPercent})`,
         value: `%${status.host.cpu.usagePercent}`,
       });
-      markAlertSent(key, `CPU kullanımı %${status.host.cpu.usagePercent} değerine ulaştı.`, "critical");
+      markAlertSent(
+        key,
+        `CPU kullanımı %${status.host.cpu.usagePercent} değerine ulaştı.`,
+        "critical",
+      );
     }
   }
 
@@ -329,8 +376,12 @@ export async function runSentinelCheck(): Promise<void> {
   if (status.host.ram.usagePercent >= thresholds.ramPercent) {
     const key = "ram_overload";
     if (canSendAlert(key)) {
-      const usedGb = (status.host.ram.usedBytes / 1024 / 1024 / 1024).toFixed(1);
-      const totalGb = (status.host.ram.totalBytes / 1024 / 1024 / 1024).toFixed(1);
+      const usedGb = (status.host.ram.usedBytes / 1024 / 1024 / 1024).toFixed(
+        1,
+      );
+      const totalGb = (status.host.ram.totalBytes / 1024 / 1024 / 1024).toFixed(
+        1,
+      );
       const msg =
         `⚠️ *XIVIZLEY VDS ALARMI: KRİTİK RAM TÜKETİMİ!*\n\n` +
         `🖥️ *Sunucu:* \`${status.host.hostname}\`\n` +
@@ -348,7 +399,11 @@ export async function runSentinelCheck(): Promise<void> {
         metric: `RAM Doluluğu: %${status.host.ram.usagePercent} (Eşik: %${thresholds.ramPercent})`,
         value: `${usedGb}GB / ${totalGb}GB`,
       });
-      markAlertSent(key, `RAM kullanımı %${status.host.ram.usagePercent} değerine ulaştı.`, "critical");
+      markAlertSent(
+        key,
+        `RAM kullanımı %${status.host.ram.usagePercent} değerine ulaştı.`,
+        "critical",
+      );
     }
   }
 
@@ -356,8 +411,15 @@ export async function runSentinelCheck(): Promise<void> {
   if (status.host.disk.usagePercent >= thresholds.diskPercent) {
     const key = "disk_overload";
     if (canSendAlert(key)) {
-      const usedGb = (status.host.disk.usedBytes / 1024 / 1024 / 1024).toFixed(1);
-      const totalGb = (status.host.disk.totalBytes / 1024 / 1024 / 1024).toFixed(1);
+      const usedGb = (status.host.disk.usedBytes / 1024 / 1024 / 1024).toFixed(
+        1,
+      );
+      const totalGb = (
+        status.host.disk.totalBytes /
+        1024 /
+        1024 /
+        1024
+      ).toFixed(1);
       const msg =
         `💾 *XIVIZLEY VDS ALARMI: DİSK DOLMAK ÜZERE!*\n\n` +
         `🖥️ *Sunucu:* \`${status.host.hostname}\`\n` +
@@ -375,7 +437,11 @@ export async function runSentinelCheck(): Promise<void> {
         metric: `NVMe Disk: %${status.host.disk.usagePercent} (Eşik: %${thresholds.diskPercent})`,
         value: `${usedGb}GB / ${totalGb}GB`,
       });
-      markAlertSent(key, `NVMe disk doluluğu %${status.host.disk.usagePercent} seviyesine çıktı.`, "warning");
+      markAlertSent(
+        key,
+        `NVMe disk doluluğu %${status.host.disk.usagePercent} seviyesine çıktı.`,
+        "warning",
+      );
     }
   }
 
@@ -406,7 +472,11 @@ export async function runSentinelCheck(): Promise<void> {
           metric: `Konteyner Durumu: ${c.status.toUpperCase()}`,
           value: c.status,
         });
-        markAlertSent(key, `${c.name} konteyneri durdu (${c.status}).`, "critical");
+        markAlertSent(
+          key,
+          `${c.name} konteyneri durdu (${c.status}).`,
+          "critical",
+        );
       } else if (previous !== "running" && isNowRunning) {
         // Container recovered! Green notification
         const key = `container_${c.name}_recovered`;
@@ -428,7 +498,11 @@ export async function runSentinelCheck(): Promise<void> {
           metric: `Konteyner Durumu: RUNNING`,
           value: "running",
         });
-        markAlertSent(key, `${c.name} konteyneri yeniden çalışıyor.`, "recovery");
+        markAlertSent(
+          key,
+          `${c.name} konteyneri yeniden çalışıyor.`,
+          "recovery",
+        );
         // Clear down cooldown
         alertCooldowns.delete(`container_${c.name}_down`);
       }
@@ -441,12 +515,15 @@ export async function runSentinelCheck(): Promise<void> {
 /**
  * Triggers a real Telegram test alert card
  */
-export async function sendTestTelegramAlert(chatId?: string): Promise<{ ok: boolean; message: string }> {
+export async function sendTestTelegramAlert(
+  chatId?: string,
+): Promise<{ ok: boolean; message: string }> {
   const target = chatId || activeChatId;
   if (!target) {
     return {
       ok: false,
-      message: "Telegram Chat ID tanımlı değil. Lütfen geçerli bir Chat ID girin.",
+      message:
+        "Telegram Chat ID tanımlı değil. Lütfen geçerli bir Chat ID girin.",
     };
   }
 
@@ -467,9 +544,17 @@ export async function sendTestTelegramAlert(chatId?: string): Promise<{ ok: bool
     if (chatId) {
       activeChatId = chatId;
     }
-    return { ok: true, message: "Test bildirimi Telegram botunuz tarafından başarıyla gönderildi!" };
+    return {
+      ok: true,
+      message:
+        "Test bildirimi Telegram botunuz tarafından başarıyla gönderildi!",
+    };
   } else {
-    return { ok: false, message: "Telegram API çağrısı başarısız oldu. Token ve Chat ID'yi kontrol edin." };
+    return {
+      ok: false,
+      message:
+        "Telegram API çağrısı başarısız oldu. Token ve Chat ID'yi kontrol edin.",
+    };
   }
 }
 
@@ -483,11 +568,16 @@ export function updateSentinelConfig(config: {
   debounceMinutes?: number;
   telegramChatId?: string;
 }): SentinelThresholds {
-  if (typeof config.cpuPercent === "number") thresholds.cpuPercent = Math.min(100, Math.max(10, config.cpuPercent));
-  if (typeof config.ramPercent === "number") thresholds.ramPercent = Math.min(100, Math.max(10, config.ramPercent));
-  if (typeof config.diskPercent === "number") thresholds.diskPercent = Math.min(100, Math.max(10, config.diskPercent));
-  if (typeof config.debounceMinutes === "number") thresholds.debounceMinutes = Math.max(1, config.debounceMinutes);
-  if (typeof config.telegramChatId === "string") activeChatId = config.telegramChatId.trim();
+  if (typeof config.cpuPercent === "number")
+    thresholds.cpuPercent = Math.min(100, Math.max(10, config.cpuPercent));
+  if (typeof config.ramPercent === "number")
+    thresholds.ramPercent = Math.min(100, Math.max(10, config.ramPercent));
+  if (typeof config.diskPercent === "number")
+    thresholds.diskPercent = Math.min(100, Math.max(10, config.diskPercent));
+  if (typeof config.debounceMinutes === "number")
+    thresholds.debounceMinutes = Math.max(1, config.debounceMinutes);
+  if (typeof config.telegramChatId === "string")
+    activeChatId = config.telegramChatId.trim();
 
   return { ...thresholds };
 }
@@ -498,14 +588,20 @@ export function updateSentinelConfig(config: {
 export function startSentinelDaemon(intervalSeconds = 60) {
   if (daemonInterval) return;
 
-  console.log(`🛡️ [XIVIZLEY Sentinel] VDS Bekçisi başlatıldı (${intervalSeconds}s döngü)`);
+  console.log(
+    `🛡️ [XIVIZLEY Sentinel] VDS Bekçisi başlatıldı (${intervalSeconds}s döngü)`,
+  );
 
   // İlk kontrolü 5 saniye sonra çalıştır (sunucu açılışını geciktirmemek için)
   setTimeout(() => {
-    runSentinelCheck().catch((err) => console.error("[XIVIZLEY Sentinel] İlk kontrol hatası:", err));
+    runSentinelCheck().catch((err) =>
+      console.error("[XIVIZLEY Sentinel] İlk kontrol hatası:", err),
+    );
   }, 5000);
 
   daemonInterval = setInterval(() => {
-    runSentinelCheck().catch((err) => console.error("[XIVIZLEY Sentinel] Döngü hatası:", err));
+    runSentinelCheck().catch((err) =>
+      console.error("[XIVIZLEY Sentinel] Döngü hatası:", err),
+    );
   }, intervalSeconds * 1000);
 }

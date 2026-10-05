@@ -17,7 +17,7 @@ export type UserRole = "owner" | "admin" | "member" | "guest";
 
 /** JWT Access Token payload */
 export interface XivizleyTokenPayload {
-  sub: string;        // user.id
+  sub: string; // user.id
   email: string;
   username: string;
   role: UserRole;

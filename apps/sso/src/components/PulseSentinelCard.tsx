@@ -23,7 +23,10 @@ export function PulseSentinelCard() {
   const [status, setStatus] = useState<SentinelStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [isTestSending, setIsTestSending] = useState(false);
-  const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [testResult, setTestResult] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [configSuccess, setConfigSuccess] = useState(false);
@@ -73,12 +76,18 @@ export function PulseSentinelCard() {
       const res = await fetch("/api/sentinel/test-telegram", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chatId: configForm.telegramChatId || undefined }),
+        body: JSON.stringify({
+          chatId: configForm.telegramChatId || undefined,
+        }),
       });
       const data = await res.json();
       setTestResult({
         ok: data.ok,
-        message: data.message || (data.ok ? "Test uyarısı başarıyla iletildi!" : "Gönderim başarısız."),
+        message:
+          data.message ||
+          (data.ok
+            ? "Test uyarısı başarıyla iletildi!"
+            : "Gönderim başarısız."),
       });
     } catch (err: any) {
       setTestResult({
@@ -110,7 +119,10 @@ export function PulseSentinelCard() {
           setConfigSuccess(false);
         }, 1200);
       } else {
-        setConfigError(data.message || "Ayarlar kaydedilemedi (Yönetici yetkisi gereklidir).");
+        setConfigError(
+          data.message ||
+            "Ayarlar kaydedilemedi (Yönetici yetkisi gereklidir).",
+        );
       }
     } catch (err: any) {
       console.error("Ayarlar kaydedilemedi:", err);
@@ -152,7 +164,8 @@ export function PulseSentinelCard() {
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              NVMe Disk, Host CPU, Bellek ve Konteyner sağlığı 7/24 denetlenir; darboğaz anında botla anında uyarır.
+              NVMe Disk, Host CPU, Bellek ve Konteyner sağlığı 7/24 denetlenir;
+              darboğaz anında botla anında uyarır.
             </p>
           </div>
         </div>
@@ -169,7 +182,9 @@ export function PulseSentinelCard() {
             ) : (
               <Send className="h-3.5 w-3.5" />
             )}
-            <span>{isTestSending ? "Gönderiliyor..." : "Test Bildirimi Gönder"}</span>
+            <span>
+              {isTestSending ? "Gönderiliyor..." : "Test Bildirimi Gönder"}
+            </span>
           </button>
 
           <button
@@ -245,7 +260,9 @@ export function PulseSentinelCard() {
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-slate-400">Telegram:</span>
                   <span className="text-emerald-400 font-bold">
-                    {status?.telegramConfigured ? "Bağlı" : "Chat ID Bekleniyor"}
+                    {status?.telegramConfigured
+                      ? "Bağlı"
+                      : "Chat ID Bekleniyor"}
                   </span>
                 </div>
               </div>
@@ -258,7 +275,9 @@ export function PulseSentinelCard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Cpu className="h-4 w-4 text-sky-400" />
-                    <span className="text-xs font-semibold text-slate-300">İşlemci (CPU)</span>
+                    <span className="text-xs font-semibold text-slate-300">
+                      İşlemci (CPU)
+                    </span>
                   </div>
                   <span className="text-xs font-mono font-bold text-sky-400">
                     %{status?.host.cpu.usagePercent ?? 0}
@@ -269,19 +288,25 @@ export function PulseSentinelCard() {
                 <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      (status?.host.cpu.usagePercent || 0) >= (status?.thresholds.cpuPercent || 85)
+                      (status?.host.cpu.usagePercent || 0) >=
+                      (status?.thresholds.cpuPercent || 85)
                         ? "bg-rose-500"
                         : (status?.host.cpu.usagePercent || 0) >= 70
-                        ? "bg-amber-500"
-                        : "bg-sky-500"
+                          ? "bg-amber-500"
+                          : "bg-sky-500"
                     }`}
-                    style={{ width: `${Math.min(100, status?.host.cpu.usagePercent || 0)}%` }}
+                    style={{
+                      width: `${Math.min(100, status?.host.cpu.usagePercent || 0)}%`,
+                    }}
                   />
                 </div>
 
                 <div className="flex justify-between text-[11px] text-slate-400 font-mono">
                   <span>{status?.host.cpu.cores} Çekirdek</span>
-                  <span>1m: {status?.host.cpu.loadAvg1m} (Eşik: %{status?.thresholds.cpuPercent})</span>
+                  <span>
+                    1m: {status?.host.cpu.loadAvg1m} (Eşik: %
+                    {status?.thresholds.cpuPercent})
+                  </span>
                 </div>
               </div>
 
@@ -290,7 +315,9 @@ export function PulseSentinelCard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Activity className="h-4 w-4 text-purple-400" />
-                    <span className="text-xs font-semibold text-slate-300">Bellek (RAM)</span>
+                    <span className="text-xs font-semibold text-slate-300">
+                      Bellek (RAM)
+                    </span>
                   </div>
                   <span className="text-xs font-mono font-bold text-purple-400">
                     %{status?.host.ram.usagePercent ?? 0}
@@ -301,18 +328,24 @@ export function PulseSentinelCard() {
                 <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      (status?.host.ram.usagePercent || 0) >= (status?.thresholds.ramPercent || 90)
+                      (status?.host.ram.usagePercent || 0) >=
+                      (status?.thresholds.ramPercent || 90)
                         ? "bg-rose-500"
                         : (status?.host.ram.usagePercent || 0) >= 75
-                        ? "bg-amber-500"
-                        : "bg-purple-500"
+                          ? "bg-amber-500"
+                          : "bg-purple-500"
                     }`}
-                    style={{ width: `${Math.min(100, status?.host.ram.usagePercent || 0)}%` }}
+                    style={{
+                      width: `${Math.min(100, status?.host.ram.usagePercent || 0)}%`,
+                    }}
                   />
                 </div>
 
                 <div className="flex justify-between text-[11px] text-slate-400 font-mono">
-                  <span>{formatGb(status?.host.ram.usedBytes)} / {formatGb(status?.host.ram.totalBytes)}</span>
+                  <span>
+                    {formatGb(status?.host.ram.usedBytes)} /{" "}
+                    {formatGb(status?.host.ram.totalBytes)}
+                  </span>
                   <span>Eşik: %{status?.thresholds.ramPercent}</span>
                 </div>
               </div>
@@ -322,7 +355,9 @@ export function PulseSentinelCard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <HardDrive className="h-4 w-4 text-emerald-400" />
-                    <span className="text-xs font-semibold text-slate-300">NVMe Depolama</span>
+                    <span className="text-xs font-semibold text-slate-300">
+                      NVMe Depolama
+                    </span>
                   </div>
                   <span className="text-xs font-mono font-bold text-emerald-400">
                     %{status?.host.disk.usagePercent ?? 0}
@@ -333,18 +368,24 @@ export function PulseSentinelCard() {
                 <div className="w-full h-2 rounded-full bg-black/40 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      (status?.host.disk.usagePercent || 0) >= (status?.thresholds.diskPercent || 85)
+                      (status?.host.disk.usagePercent || 0) >=
+                      (status?.thresholds.diskPercent || 85)
                         ? "bg-rose-500"
                         : (status?.host.disk.usagePercent || 0) >= 70
-                        ? "bg-amber-500"
-                        : "bg-emerald-500"
+                          ? "bg-amber-500"
+                          : "bg-emerald-500"
                     }`}
-                    style={{ width: `${Math.min(100, status?.host.disk.usagePercent || 0)}%` }}
+                    style={{
+                      width: `${Math.min(100, status?.host.disk.usagePercent || 0)}%`,
+                    }}
                   />
                 </div>
 
                 <div className="flex justify-between text-[11px] text-slate-400 font-mono">
-                  <span>{formatGb(status?.host.disk.usedBytes)} / {formatGb(status?.host.disk.totalBytes)}</span>
+                  <span>
+                    {formatGb(status?.host.disk.usedBytes)} /{" "}
+                    {formatGb(status?.host.disk.totalBytes)}
+                  </span>
                   <span>Eşik: %{status?.thresholds.diskPercent}</span>
                 </div>
               </div>
@@ -371,7 +412,9 @@ export function PulseSentinelCard() {
                     </div>
                     <span
                       className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-                        c.isHealthy ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-rose-500 animate-ping"
+                        c.isHealthy
+                          ? "bg-emerald-500 shadow-[0_0_8px_#10b981]"
+                          : "bg-rose-500 animate-ping"
                       }`}
                       title={c.isHealthy ? "Çalışıyor" : "Ulaşılamıyor / Durdu"}
                     />
@@ -414,7 +457,9 @@ export function PulseSentinelCard() {
               <div className="space-y-1">
                 <div className="flex justify-between font-medium text-slate-300">
                   <label htmlFor="cpu-percent">CPU Alarm Eşiği</label>
-                  <span className="font-mono text-sky-400">%{configForm.cpuPercent}</span>
+                  <span className="font-mono text-sky-400">
+                    %{configForm.cpuPercent}
+                  </span>
                 </div>
                 <input
                   id="cpu-percent"
@@ -423,18 +468,25 @@ export function PulseSentinelCard() {
                   max="98"
                   value={configForm.cpuPercent}
                   onChange={(e) =>
-                    setConfigForm((prev) => ({ ...prev, cpuPercent: Number(e.target.value) }))
+                    setConfigForm((prev) => ({
+                      ...prev,
+                      cpuPercent: Number(e.target.value),
+                    }))
                   }
                   className="w-full accent-[#0082c9] cursor-pointer"
                 />
-                <span className="text-[10px] text-slate-400">Bu değer aşıldığında Telegram'a uyarı gönderilir.</span>
+                <span className="text-[10px] text-slate-400">
+                  Bu değer aşıldığında Telegram'a uyarı gönderilir.
+                </span>
               </div>
 
               {/* RAM Eşiği */}
               <div className="space-y-1">
                 <div className="flex justify-between font-medium text-slate-300">
                   <label htmlFor="ram-percent">RAM Alarm Eşiği</label>
-                  <span className="font-mono text-purple-400">%{configForm.ramPercent}</span>
+                  <span className="font-mono text-purple-400">
+                    %{configForm.ramPercent}
+                  </span>
                 </div>
                 <input
                   id="ram-percent"
@@ -443,18 +495,25 @@ export function PulseSentinelCard() {
                   max="98"
                   value={configForm.ramPercent}
                   onChange={(e) =>
-                    setConfigForm((prev) => ({ ...prev, ramPercent: Number(e.target.value) }))
+                    setConfigForm((prev) => ({
+                      ...prev,
+                      ramPercent: Number(e.target.value),
+                    }))
                   }
                   className="w-full accent-purple-500 cursor-pointer"
                 />
-                <span className="text-[10px] text-slate-400">OOM riskine karşı kritik bellek doluluk limiti.</span>
+                <span className="text-[10px] text-slate-400">
+                  OOM riskine karşı kritik bellek doluluk limiti.
+                </span>
               </div>
 
               {/* Disk Eşiği */}
               <div className="space-y-1">
                 <div className="flex justify-between font-medium text-slate-300">
                   <label htmlFor="disk-percent">Disk Alarm Eşiği</label>
-                  <span className="font-mono text-emerald-400">%{configForm.diskPercent}</span>
+                  <span className="font-mono text-emerald-400">
+                    %{configForm.diskPercent}
+                  </span>
                 </div>
                 <input
                   id="disk-percent"
@@ -463,16 +522,24 @@ export function PulseSentinelCard() {
                   max="98"
                   value={configForm.diskPercent}
                   onChange={(e) =>
-                    setConfigForm((prev) => ({ ...prev, diskPercent: Number(e.target.value) }))
+                    setConfigForm((prev) => ({
+                      ...prev,
+                      diskPercent: Number(e.target.value),
+                    }))
                   }
                   className="w-full accent-emerald-500 cursor-pointer"
                 />
-                <span className="text-[10px] text-slate-400">NVMe disk alanı tükenme erken uyarısı.</span>
+                <span className="text-[10px] text-slate-400">
+                  NVMe disk alanı tükenme erken uyarısı.
+                </span>
               </div>
 
               {/* Cooldown Debounce */}
               <div className="space-y-1">
-                <label htmlFor="debounce-minutes" className="font-medium text-slate-300">
+                <label
+                  htmlFor="debounce-minutes"
+                  className="font-medium text-slate-300"
+                >
                   Anti-Spam Bildirim Aralığı (Dakika)
                 </label>
                 <input
@@ -482,16 +549,24 @@ export function PulseSentinelCard() {
                   max="120"
                   value={configForm.debounceMinutes}
                   onChange={(e) =>
-                    setConfigForm((prev) => ({ ...prev, debounceMinutes: Number(e.target.value) }))
+                    setConfigForm((prev) => ({
+                      ...prev,
+                      debounceMinutes: Number(e.target.value),
+                    }))
                   }
                   className="w-full px-3 py-2 rounded-lg bg-[#141920] border border-[#2d3748] text-white focus:outline-hidden focus:border-[#0082c9]"
                 />
-                <span className="text-[10px] text-slate-400">Aynı alarmın tekrar gönderilmesi arasındaki bekleme süresi.</span>
+                <span className="text-[10px] text-slate-400">
+                  Aynı alarmın tekrar gönderilmesi arasındaki bekleme süresi.
+                </span>
               </div>
 
               {/* Telegram Chat ID */}
               <div className="space-y-1">
-                <label htmlFor="telegram-chat-id" className="font-medium text-slate-300">
+                <label
+                  htmlFor="telegram-chat-id"
+                  className="font-medium text-slate-300"
+                >
                   Telegram Chat ID
                 </label>
                 <input
@@ -500,12 +575,16 @@ export function PulseSentinelCard() {
                   placeholder="Örn: 123456789 veya -100123456789"
                   value={configForm.telegramChatId}
                   onChange={(e) =>
-                    setConfigForm((prev) => ({ ...prev, telegramChatId: e.target.value }))
+                    setConfigForm((prev) => ({
+                      ...prev,
+                      telegramChatId: e.target.value,
+                    }))
                   }
                   className="w-full px-3 py-2 rounded-lg bg-[#141920] border border-[#2d3748] text-white font-mono focus:outline-hidden focus:border-[#0082c9]"
                 />
                 <span className="text-[10px] text-slate-400">
-                  @userinfobot veya @getmyid_bot üzerinden alabileceğiniz Telegram ID'niz.
+                  @userinfobot veya @getmyid_bot üzerinden alabileceğiniz
+                  Telegram ID'niz.
                 </span>
               </div>
 
@@ -527,7 +606,9 @@ export function PulseSentinelCard() {
                   ) : configSuccess ? (
                     <Check className="h-3.5 w-3.5 text-emerald-300" />
                   ) : null}
-                  <span>{configSuccess ? "Kaydedildi!" : "Ayarları Kaydet"}</span>
+                  <span>
+                    {configSuccess ? "Kaydedildi!" : "Ayarları Kaydet"}
+                  </span>
                 </button>
               </div>
             </form>

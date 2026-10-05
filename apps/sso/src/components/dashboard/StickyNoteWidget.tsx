@@ -31,7 +31,10 @@ export function StickyNoteWidget() {
           const json = await res.json();
           if (json.ok && Array.isArray(json.data) && json.data.length > 0) {
             // Varsa yapışkan veya ilk notu al
-            const sticky = json.data.find((n: any) => n.title === "Hızlı Not" || n.isPinned) || json.data[0];
+            const sticky =
+              json.data.find(
+                (n: any) => n.title === "Hızlı Not" || n.isPinned,
+              ) || json.data[0];
             if (isMounted) {
               setNoteId(sticky.id);
               setContent(sticky.content || "");
@@ -130,7 +133,9 @@ export function StickyNoteWidget() {
                 <span>Hızlı Not</span>
                 <Pin className="w-3 h-3 text-amber-400 rotate-45" />
               </h3>
-              <p className="text-[10px] text-slate-400">Otomatik kaydedilen yapışkan not</p>
+              <p className="text-[10px] text-slate-400">
+                Otomatik kaydedilen yapışkan not
+              </p>
             </div>
           </div>
 

@@ -25,19 +25,59 @@ interface DashboardCustomizeModalProps {
 }
 
 const AVAILABLE_WIDGETS = [
-  { id: "hero", label: "Karşılama & Durum Hero Başlığı", desc: "Zaman farkındalı karşılama, operasyonel durum ve kısayollar" },
-  { id: "recentFiles", label: "Son Dosyalar (Drive)", desc: "En son kullanılan dosyalar, dosya tipi ikonları ve hızlı yükleme alanı" },
-  { id: "stickyNote", label: "Hızlı Yapışkan Not", desc: "Otomatik kaydedilen scratchpad notu, Notlar uygulaması ile senkronize" },
-  { id: "sentinel", label: "VDS Sentinel Telemetrisi", desc: "Canlı CPU, RAM, NVMe disk barları ve konteyner bekçisi" },
-  { id: "vault", label: "Hızlı Kasa & 2FA TOTP", desc: "Kayıtlı parolalar ve 30 saniyelik animasyonlu 2FA TOTP sayacı" },
-  { id: "game", label: "Oyun Sunucusu Kokpiti", desc: "FiveM & Minecraft sunucu durumu, oyuncular ve RAM takibi" },
-  { id: "apps", label: "Bulut Uygulamaları Başlatıcısı", desc: "Tüm XIVIZLEY Suite uygulamalarına hızlı erişim butonları" },
+  {
+    id: "hero",
+    label: "Karşılama & Durum Hero Başlığı",
+    desc: "Zaman farkındalı karşılama, operasyonel durum ve kısayollar",
+  },
+  {
+    id: "recentFiles",
+    label: "Son Dosyalar (Drive)",
+    desc: "En son kullanılan dosyalar, dosya tipi ikonları ve hızlı yükleme alanı",
+  },
+  {
+    id: "stickyNote",
+    label: "Hızlı Yapışkan Not",
+    desc: "Otomatik kaydedilen scratchpad notu, Notlar uygulaması ile senkronize",
+  },
+  {
+    id: "sentinel",
+    label: "VDS Sentinel Telemetrisi",
+    desc: "Canlı CPU, RAM, NVMe disk barları ve konteyner bekçisi",
+  },
+  {
+    id: "vault",
+    label: "Hızlı Kasa & 2FA TOTP",
+    desc: "Kayıtlı parolalar ve 30 saniyelik animasyonlu 2FA TOTP sayacı",
+  },
+  {
+    id: "game",
+    label: "Oyun Sunucusu Kokpiti",
+    desc: "FiveM & Minecraft sunucu durumu, oyuncular ve RAM takibi",
+  },
+  {
+    id: "apps",
+    label: "Bulut Uygulamaları Başlatıcısı",
+    desc: "Tüm XIVIZLEY Suite uygulamalarına hızlı erişim butonları",
+  },
 ];
 
 const THEMES = [
-  { id: "system", label: "Sistem Varsayılanı (Otomatik)", desc: "Tarayıcı ve işletim sistemi tercihini takip eder" },
-  { id: "aurora", label: "XIVIZLEY Mavi (#0082c9)", desc: "XIVIZLEY homelab imza mavisi" },
-  { id: "dark", label: "Koyu Homelab (#181e24)", desc: "Düşük ışıklı ortamlara uygun koyu homelab arayüzü" },
+  {
+    id: "system",
+    label: "Sistem Varsayılanı (Otomatik)",
+    desc: "Tarayıcı ve işletim sistemi tercihini takip eder",
+  },
+  {
+    id: "aurora",
+    label: "XIVIZLEY Mavi (#0082c9)",
+    desc: "XIVIZLEY homelab imza mavisi",
+  },
+  {
+    id: "dark",
+    label: "Koyu Homelab (#181e24)",
+    desc: "Düşük ışıklı ortamlara uygun koyu homelab arayüzü",
+  },
 ];
 
 export function DashboardCustomizeModal({
@@ -56,7 +96,7 @@ export function DashboardCustomizeModal({
     setWidgets((prev) =>
       prev.includes(widgetId)
         ? prev.filter((id) => id !== widgetId)
-        : [...prev, widgetId]
+        : [...prev, widgetId],
     );
   };
 
@@ -88,7 +128,9 @@ export function DashboardCustomizeModal({
               <Sliders className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white">Paneli Özelleştir</h2>
+              <h2 className="text-base font-bold text-white">
+                Paneli Özelleştir
+              </h2>
               <p className="text-[11px] text-slate-400">
                 Kişisel Hub kontrol panelinizi ve bileşenlerinizi yapılandırın
               </p>
@@ -132,7 +174,9 @@ export function DashboardCustomizeModal({
                   >
                     <div>
                       <p className="font-semibold text-slate-200">{w.label}</p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">{w.desc}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        {w.desc}
+                      </p>
                     </div>
 
                     <div className="shrink-0">
@@ -197,7 +241,11 @@ export function DashboardCustomizeModal({
               onClick={handleSave}
               className="px-4 py-2 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
             >
-              {isSaving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+              {isSaving ? (
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Check className="w-3.5 h-3.5" />
+              )}
               <span>{isSaving ? "Kaydediliyor..." : "Tercihleri Kaydet"}</span>
             </button>
           </div>

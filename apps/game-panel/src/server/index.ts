@@ -23,7 +23,10 @@ async function bootstrap() {
     await nextApp.prepare();
     nextReady = true;
   } catch (err) {
-    console.warn("⚠️ Next.js frontend hazır değil, API modunda çalışılıyor:", err);
+    console.warn(
+      "⚠️ Next.js frontend hazır değil, API modunda çalışılıyor:",
+      err,
+    );
   }
 
   // 3. Fastify başlat

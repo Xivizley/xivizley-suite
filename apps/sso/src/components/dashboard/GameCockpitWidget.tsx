@@ -31,7 +31,9 @@ interface GameStatus {
 
 export function GameCockpitWidget() {
   const [status, setStatus] = useState<GameStatus | null>(null);
-  const [selectedGame, setSelectedGame] = useState<"fivem" | "minecraft">("fivem");
+  const [selectedGame, setSelectedGame] = useState<"fivem" | "minecraft">(
+    "fivem",
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchGameStatus = async (gameId: "fivem" | "minecraft") => {
@@ -111,7 +113,9 @@ export function GameCockpitWidget() {
                   <span className="w-2 h-2 rounded-full bg-slate-500" />
                 )}
               </h3>
-              <p className="text-[10px] text-slate-400">Canlı sunucu durumu ve oyuncu takibi</p>
+              <p className="text-[10px] text-slate-400">
+                Canlı sunucu durumu ve oyuncu takibi
+              </p>
             </div>
           </div>
 
@@ -153,8 +157,12 @@ export function GameCockpitWidget() {
             <div className="p-3.5 rounded-lg bg-[#181e24] border border-[#2d3748] flex items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-xs text-slate-200">{status?.gameName}</span>
-                  <span className="text-[10px] text-sky-400 font-mono">:{status?.port}</span>
+                  <span className="font-semibold text-xs text-slate-200">
+                    {status?.gameName}
+                  </span>
+                  <span className="text-[10px] text-sky-400 font-mono">
+                    :{status?.port}
+                  </span>
                 </div>
                 <p className="text-[11px] text-slate-400 mt-0.5">
                   {status?.isOnline ? (
@@ -192,7 +200,9 @@ export function GameCockpitWidget() {
               <div className="p-2.5 rounded-lg bg-[#181e24] border border-[#2d3748] flex items-center gap-2">
                 <Users className="w-3.5 h-3.5 text-[#0082c9]" />
                 <div>
-                  <span className="text-[9px] text-slate-500 block">OYUNCULAR</span>
+                  <span className="text-[9px] text-slate-500 block">
+                    OYUNCULAR
+                  </span>
                   <span className="font-bold text-slate-200">
                     {status?.players ?? 0} / {status?.maxPlayers ?? 32}
                   </span>
@@ -201,7 +211,9 @@ export function GameCockpitWidget() {
               <div className="p-2.5 rounded-lg bg-[#181e24] border border-[#2d3748] flex items-center gap-2">
                 <Cpu className="w-3.5 h-3.5 text-purple-400" />
                 <div>
-                  <span className="text-[9px] text-slate-500 block">RAM SINIRI</span>
+                  <span className="text-[9px] text-slate-500 block">
+                    RAM SINIRI
+                  </span>
                   <span className="font-bold text-slate-200">
                     {status?.isOnline ? `${status.memoryUsedMb} MB` : "2048 MB"}
                   </span>

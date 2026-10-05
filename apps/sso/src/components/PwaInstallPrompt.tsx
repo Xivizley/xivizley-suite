@@ -44,7 +44,8 @@ export function PwaInstallPrompt() {
 
     // 4. iOS Safari Tespiti
     const userAgent = window.navigator.userAgent.toLowerCase();
-    const isIosDevice = /iphone|ipad|ipod/.test(userAgent) && !(window as any).MSStream;
+    const isIosDevice =
+      /iphone|ipad|ipod/.test(userAgent) && !(window as any).MSStream;
     const isSafari =
       userAgent.includes("safari") &&
       !userAgent.includes("chrome") &&
@@ -109,7 +110,8 @@ export function PwaInstallPrompt() {
                 XIVIZLEY Cloud'u Cihazınıza Yükleyin
               </h4>
               <p className="text-xs text-slate-400 mt-0.5">
-                Daha hızlı, tam ekran ve yerel uygulama deneyimi için ana ekranınıza ekleyin.
+                Daha hızlı, tam ekran ve yerel uygulama deneyimi için ana
+                ekranınıza ekleyin.
               </p>
             </div>
           </div>
@@ -132,13 +134,18 @@ export function PwaInstallPrompt() {
             </p>
             <ol className="list-decimal list-inside space-y-1 text-slate-300 text-[11px] leading-relaxed">
               <li>
-                Safari alt menüsündeki <Share className="inline h-3.5 w-3.5 mx-1 text-[#0082c9]" /> <strong>Paylaş</strong> butonuna dokunun.
+                Safari alt menüsündeki{" "}
+                <Share className="inline h-3.5 w-3.5 mx-1 text-[#0082c9]" />{" "}
+                <strong>Paylaş</strong> butonuna dokunun.
               </li>
               <li>
-                Açılan menüde aşağı kaydırıp <PlusSquare className="inline h-3.5 w-3.5 mx-1 text-emerald-400" /> <strong>"Ana Ekrana Ekle"</strong> seçeneğini seçin.
+                Açılan menüde aşağı kaydırıp{" "}
+                <PlusSquare className="inline h-3.5 w-3.5 mx-1 text-emerald-400" />{" "}
+                <strong>"Ana Ekrana Ekle"</strong> seçeneğini seçin.
               </li>
               <li>
-                Sağ üstteki <strong>"Ekle"</strong> butonuna basarak kurulumu tamamlayın.
+                Sağ üstteki <strong>"Ekle"</strong> butonuna basarak kurulumu
+                tamamlayın.
               </li>
             </ol>
           </div>

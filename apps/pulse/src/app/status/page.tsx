@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
 // ============================================================
 // XIVIZLEY Pulse — Public Status Page (status.xivizley.com.tr)
 // Şeffaf, şifresiz ve gerçek zamanlı sistem durum sayfası
 // ============================================================
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Activity,
   CheckCircle2,
@@ -20,8 +20,8 @@ import {
   Clock,
   ArrowLeft,
   ExternalLink,
-} from 'lucide-react';
-import type { PulseMonitor } from '@/server/services/pulseService';
+} from "lucide-react";
+import type { PulseMonitor } from "@/server/services/pulseService";
 
 export default function PublicStatusPage() {
   const [monitors, setMonitors] = useState<PulseMonitor[]>([]);
@@ -34,14 +34,14 @@ export default function PublicStatusPage() {
     else setIsRefreshing(true);
 
     try {
-      const res = await fetch('/api/monitors');
+      const res = await fetch("/api/monitors");
       const data = await res.json();
       if (data.ok && Array.isArray(data.data)) {
         setMonitors(data.data);
         setLastUpdated(new Date());
       }
     } catch (err) {
-      console.error('Durum verisi alınamadı:', err);
+      console.error("Durum verisi alınamadı:", err);
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -58,23 +58,27 @@ export default function PublicStatusPage() {
   }, []);
 
   const totalMonitors = monitors.length;
-  const upMonitors = monitors.filter((m) => m.status === 'up').length;
-  const downMonitors = monitors.filter((m) => m.status === 'down').length;
+  const upMonitors = monitors.filter((m) => m.status === "up").length;
+  const downMonitors = monitors.filter((m) => m.status === "down").length;
   const isAllGood = downMonitors === 0 && totalMonitors > 0;
   const avgLatency =
     totalMonitors > 0
       ? Math.round(
           monitors.reduce((acc, m) => acc + (m.lastLatencyMs || 0), 0) /
-            totalMonitors
+            totalMonitors,
         )
       : 0;
 
   const getServiceIcon = (name: string, type: string) => {
     const lower = name.toLowerCase();
-    if (lower.includes('minecraft') || lower.includes('game') || lower.includes('oyun')) {
+    if (
+      lower.includes("minecraft") ||
+      lower.includes("game") ||
+      lower.includes("oyun")
+    ) {
       return <Gamepad2 className="w-5 h-5 text-emerald-400" />;
     }
-    if (type === 'tcp' || lower.includes('sunucu') || lower.includes('vds')) {
+    if (type === "tcp" || lower.includes("sunucu") || lower.includes("vds")) {
       return <Server className="w-5 h-5 text-[#0082c9]" />;
     }
     return <Globe className="w-5 h-5 text-indigo-400" />;
@@ -115,7 +119,7 @@ export default function PublicStatusPage() {
               title="Yenile"
             >
               <RefreshCw
-                className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`}
+                className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`}
               />
               <span className="hidden sm:inline">Yenile</span>
             </button>
@@ -137,8 +141,8 @@ export default function PublicStatusPage() {
         <div
           className={`rounded-xl p-6 border transition-all ${
             isAllGood
-              ? 'bg-[#222933] border-emerald-500/30 shadow-sm'
-              : 'bg-[#222933] border-rose-500/30 shadow-sm'
+              ? "bg-[#222933] border-emerald-500/30 shadow-sm"
+              : "bg-[#222933] border-rose-500/30 shadow-sm"
           }`}
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -146,8 +150,8 @@ export default function PublicStatusPage() {
               <div
                 className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${
                   isAllGood
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                    : 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                    : "bg-rose-500/10 border-rose-500/30 text-rose-400"
                 }`}
               >
                 {isAllGood ? (
@@ -159,13 +163,15 @@ export default function PublicStatusPage() {
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2.5">
                   {isAllGood
-                    ? 'Tüm Sistemler Operasyonel'
-                    : 'Kısmi Servis Kesintisi Tespit Edildi'}
-                  <span className={`w-2.5 h-2.5 rounded-full ${isAllGood ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                    ? "Tüm Sistemler Operasyonel"
+                    : "Kısmi Servis Kesintisi Tespit Edildi"}
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${isAllGood ? "bg-emerald-500" : "bg-rose-500"}`}
+                  />
                 </h1>
                 <p className="text-sm text-slate-300 mt-1">
                   {isAllGood
-                    ? 'Şu anda tüm sunucular, oyun portları ve web uç noktaları kesintisiz çalışıyor.'
+                    ? "Şu anda tüm sunucular, oyun portları ve web uç noktaları kesintisiz çalışıyor."
                     : `${downMonitors} servise şu anda erişilemiyor. Otomatik kontroller devam ediyor.`}
                 </p>
               </div>
@@ -177,7 +183,7 @@ export default function PublicStatusPage() {
                 <span>Son Güncelleme:</span>
               </div>
               <div className="text-sm font-mono font-medium text-slate-200 mt-0.5">
-                {lastUpdated.toLocaleTimeString('tr-TR')}
+                {lastUpdated.toLocaleTimeString("tr-TR")}
               </div>
             </div>
           </div>
@@ -186,17 +192,23 @@ export default function PublicStatusPage() {
         {/* Bento Özet Metrikleri */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           <div className="rounded-xl bg-[#222933] border border-[#2d3748] p-4 flex flex-col justify-between shadow-sm">
-            <span className="text-xs font-medium text-slate-400">Ortalama Uptime (90g)</span>
+            <span className="text-xs font-medium text-slate-400">
+              Ortalama Uptime (90g)
+            </span>
             <div className="flex items-baseline gap-2 mt-2">
               <span className="text-2xl font-bold font-mono text-emerald-400">
                 %99.98
               </span>
             </div>
-            <span className="text-[11px] text-slate-400 mt-1">SLA Seviyesi: Üstün</span>
+            <span className="text-[11px] text-slate-400 mt-1">
+              SLA Seviyesi: Üstün
+            </span>
           </div>
 
           <div className="rounded-xl bg-[#222933] border border-[#2d3748] p-4 flex flex-col justify-between shadow-sm">
-            <span className="text-xs font-medium text-slate-400">İzlenen Servis</span>
+            <span className="text-xs font-medium text-slate-400">
+              İzlenen Servis
+            </span>
             <div className="flex items-baseline gap-2 mt-2">
               <span className="text-2xl font-bold font-mono text-[#0082c9]">
                 {totalMonitors}
@@ -209,7 +221,9 @@ export default function PublicStatusPage() {
           </div>
 
           <div className="rounded-xl bg-[#222933] border border-[#2d3748] p-4 flex flex-col justify-between shadow-sm">
-            <span className="text-xs font-medium text-slate-400">Ortalama Gecikme</span>
+            <span className="text-xs font-medium text-slate-400">
+              Ortalama Gecikme
+            </span>
             <div className="flex items-baseline gap-2 mt-2">
               <span className="text-2xl font-bold font-mono text-slate-100">
                 {avgLatency}
@@ -220,14 +234,18 @@ export default function PublicStatusPage() {
           </div>
 
           <div className="rounded-xl bg-[#222933] border border-[#2d3748] p-4 flex flex-col justify-between shadow-sm">
-            <span className="text-xs font-medium text-slate-400">Nabız Frekansı</span>
+            <span className="text-xs font-medium text-slate-400">
+              Nabız Frekansı
+            </span>
             <div className="flex items-baseline gap-2 mt-2">
               <span className="text-2xl font-bold font-mono text-amber-400">
                 30s
               </span>
               <span className="text-xs text-slate-400">aralık</span>
             </div>
-            <span className="text-[11px] text-slate-400 mt-1">Otomatik Ping</span>
+            <span className="text-[11px] text-slate-400 mt-1">
+              Otomatik Ping
+            </span>
           </div>
         </div>
 
@@ -246,17 +264,21 @@ export default function PublicStatusPage() {
           {isLoading ? (
             <div className="rounded-xl border border-[#2d3748] bg-[#222933] p-12 text-center space-y-3">
               <RefreshCw className="w-8 h-8 text-[#0082c9] animate-spin mx-auto" />
-              <p className="text-sm text-slate-400">Servis durumları yükleniyor...</p>
+              <p className="text-sm text-slate-400">
+                Servis durumları yükleniyor...
+              </p>
             </div>
           ) : monitors.length === 0 ? (
             <div className="rounded-xl border border-[#2d3748] bg-[#222933] p-12 text-center space-y-3">
               <Server className="w-8 h-8 text-slate-500 mx-auto" />
-              <p className="text-sm text-slate-400">Henüz kayıtlı bir servis bulunmuyor.</p>
+              <p className="text-sm text-slate-400">
+                Henüz kayıtlı bir servis bulunmuyor.
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
               {monitors.map((monitor) => {
-                const isUp = monitor.status === 'up';
+                const isUp = monitor.status === "up";
                 return (
                   <div
                     key={monitor.id}
@@ -308,16 +330,16 @@ export default function PublicStatusPage() {
                         <div
                           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
                             isUp
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                              : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                              : "bg-rose-500/10 text-rose-400 border-rose-500/20"
                           }`}
                         >
                           <span
                             className={`w-2 h-2 rounded-full ${
-                              isUp ? 'bg-emerald-400' : 'bg-rose-400'
+                              isUp ? "bg-emerald-400" : "bg-rose-400"
                             }`}
                           />
-                          <span>{isUp ? 'Operasyonel' : 'Kesinti'}</span>
+                          <span>{isUp ? "Operasyonel" : "Kesinti"}</span>
                         </div>
                       </div>
                     </div>
@@ -330,23 +352,25 @@ export default function PublicStatusPage() {
                         <span>Bugün</span>
                       </div>
                       <div className="flex items-center gap-1 h-4 overflow-x-auto">
-                        {(monitor.recentHeartbeats && monitor.recentHeartbeats.length > 0
+                        {(monitor.recentHeartbeats &&
+                        monitor.recentHeartbeats.length > 0
                           ? monitor.recentHeartbeats
                           : Array.from({ length: 30 }).map((_, i) => ({
                               id: `fallback-${i}`,
-                              status: i === 29 ? monitor.status : ('up' as const),
+                              status:
+                                i === 29 ? monitor.status : ("up" as const),
                               latencyMs: monitor.lastLatencyMs || 15,
                             }))
                         ).map((hb, idx) => {
-                          const barUp = hb.status === 'up';
+                          const barUp = hb.status === "up";
                           return (
                             <div
                               key={hb.id || idx}
-                              title={`${barUp ? 'Aktif' : 'Kesinti'} — ${hb.latencyMs || 0} ms`}
+                              title={`${barUp ? "Aktif" : "Kesinti"} — ${hb.latencyMs || 0} ms`}
                               className={`flex-1 min-w-[5px] h-full rounded-sm transition-all hover:scale-125 cursor-pointer ${
                                 barUp
-                                  ? 'bg-emerald-500/80 hover:bg-emerald-400'
-                                  : 'bg-rose-500 hover:bg-rose-400'
+                                  ? "bg-emerald-500/80 hover:bg-emerald-400"
+                                  : "bg-rose-500 hover:bg-rose-400"
                               }`}
                             />
                           );
@@ -375,7 +399,9 @@ export default function PublicStatusPage() {
                   Bugün — Tüm Sistemler Kesintisiz Çalıştı
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
-                  Son 30 gün içinde herhangi bir plansız kesinti veya majör ağ arızası rapor edilmedi. Bütün TCP ve HTTP servisleri kararlı durumda.
+                  Son 30 gün içinde herhangi bir plansız kesinti veya majör ağ
+                  arızası rapor edilmedi. Bütün TCP ve HTTP servisleri kararlı
+                  durumda.
                 </p>
               </div>
             </div>
@@ -387,7 +413,8 @@ export default function PublicStatusPage() {
                   Planlı Bakım & Sürüm Güncellemesi (v2.4)
                 </div>
                 <p className="text-xs text-slate-400 mt-1">
-                  XIVIZLEY Suite altyapı yükseltmesi başarıyla tamamlandı. Servis kesintisi yaşanmadı (0 sn downtime).
+                  XIVIZLEY Suite altyapı yükseltmesi başarıyla tamamlandı.
+                  Servis kesintisi yaşanmadı (0 sn downtime).
                 </p>
               </div>
             </div>
@@ -399,7 +426,7 @@ export default function PublicStatusPage() {
       <footer className="border-t border-[#2d3748] py-8 text-center text-xs text-slate-400">
         <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            XIVIZLEY Pulse © 2026 • Kurucu:{' '}
+            XIVIZLEY Pulse © 2026 • Kurucu:{" "}
             <span className="text-slate-300 font-medium">
               Alperen Celal Hoşça
             </span>

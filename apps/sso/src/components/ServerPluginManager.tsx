@@ -84,7 +84,9 @@ export function ServerPluginManager() {
       if (data.ok) {
         toast.success(data.message || `${plugin.name} başarıyla kuruldu.`);
         setPlugins((prev) =>
-          prev.map((p) => (p.id === plugin.id ? { ...p, isInstalled: true } : p))
+          prev.map((p) =>
+            p.id === plugin.id ? { ...p, isInstalled: true } : p,
+          ),
         );
         setRestartReminder(true);
       } else {
@@ -103,7 +105,12 @@ export function ServerPluginManager() {
       return;
     }
 
-    if (!confirm(`${plugin.name} eklentisini sunucudan kaldırmak istediğinize emin misiniz?`)) return;
+    if (
+      !confirm(
+        `${plugin.name} eklentisini sunucudan kaldırmak istediğinize emin misiniz?`,
+      )
+    )
+      return;
 
     setActionLoadingId(plugin.id);
     try {
@@ -119,7 +126,9 @@ export function ServerPluginManager() {
       if (data.ok) {
         toast.success(data.message || `${plugin.name} kaldırıldı.`);
         setPlugins((prev) =>
-          prev.map((p) => (p.id === plugin.id ? { ...p, isInstalled: false } : p))
+          prev.map((p) =>
+            p.id === plugin.id ? { ...p, isInstalled: false } : p,
+          ),
         );
         setRestartReminder(true);
       } else {
@@ -141,7 +150,11 @@ export function ServerPluginManager() {
   const filteredPlugins = useMemo(() => {
     return plugins.filter((p) => {
       if (selectedCategory === "installed" && !p.isInstalled) return false;
-      if (selectedCategory !== "all" && selectedCategory !== "installed" && p.category !== selectedCategory) {
+      if (
+        selectedCategory !== "all" &&
+        selectedCategory !== "installed" &&
+        p.category !== selectedCategory
+      ) {
         return false;
       }
       if (searchQuery) {
@@ -196,7 +209,8 @@ export function ServerPluginManager() {
           <div className="flex items-center gap-2.5 text-xs font-semibold">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>
-              Eklenti durumu değişti. Değişikliklerin sunucuda aktif olması için Canlı Konsol sekmesinden sunucunuzu yeniden başlatınız.
+              Eklenti durumu değişti. Değişikliklerin sunucuda aktif olması için
+              Canlı Konsol sekmesinden sunucunuzu yeniden başlatınız.
             </span>
           </div>
           <button
@@ -232,7 +246,11 @@ export function ServerPluginManager() {
                   : "bg-[#111824] text-slate-400 hover:text-white border border-[#1e2a3c]"
               }`}
             >
-              {cat === "all" ? "Tümü" : cat === "installed" ? `Kurulu (${installedCount})` : cat}
+              {cat === "all"
+                ? "Tümü"
+                : cat === "installed"
+                  ? `Kurulu (${installedCount})`
+                  : cat}
             </button>
           ))}
         </div>
@@ -247,7 +265,9 @@ export function ServerPluginManager() {
       ) : filteredPlugins.length === 0 ? (
         <div className="p-16 text-center rounded-2xl bg-[#111824] border border-[#1e2a3c] space-y-3">
           <Package className="h-10 w-10 text-slate-600 mx-auto" />
-          <h4 className="text-base font-semibold text-slate-300">Eklenti bulunamadı</h4>
+          <h4 className="text-base font-semibold text-slate-300">
+            Eklenti bulunamadı
+          </h4>
           <p className="text-xs text-slate-400">
             Arama kriterinize uygun bir eklenti veya mod eşleşmedi.
           </p>

@@ -60,10 +60,12 @@ export function DriveQuickLookModal({
     ["png", "jpg", "jpeg", "webp", "gif", "svg", "bmp", "ico"].includes(ext);
 
   const isVideo =
-    mime.startsWith("video/") || ["mp4", "webm", "mkv", "mov", "avi"].includes(ext);
+    mime.startsWith("video/") ||
+    ["mp4", "webm", "mkv", "mov", "avi"].includes(ext);
 
   const isAudio =
-    mime.startsWith("audio/") || ["mp3", "wav", "ogg", "flac", "m4a", "aac"].includes(ext);
+    mime.startsWith("audio/") ||
+    ["mp3", "wav", "ogg", "flac", "m4a", "aac"].includes(ext);
 
   const isPdf = mime === "application/pdf" || ext === "pdf";
 
@@ -196,7 +198,9 @@ export function DriveQuickLookModal({
               <div className="flex items-center gap-2 text-[11px] text-slate-400 font-mono">
                 <span>{formatBytes(file.sizeBytes)}</span>
                 <span>•</span>
-                <span>{new Date(file.createdAt).toLocaleDateString("tr-TR")}</span>
+                <span>
+                  {new Date(file.createdAt).toLocaleDateString("tr-TR")}
+                </span>
                 <span>•</span>
                 <span className="uppercase">{ext || "Bilinmiyor"}</span>
               </div>
@@ -238,8 +242,14 @@ export function DriveQuickLookModal({
                 className="h-8 px-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 text-xs font-medium flex items-center gap-1.5 border border-white/10 transition-colors cursor-pointer"
                 title="İçeriği kopyala"
               >
-                {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-                <span className="hidden sm:inline">{copied ? "Kopyalandı" : "Kopyala"}</span>
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-emerald-400" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
+                <span className="hidden sm:inline">
+                  {copied ? "Kopyalandı" : "Kopyala"}
+                </span>
               </button>
             )}
 
@@ -268,7 +278,11 @@ export function DriveQuickLookModal({
               className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
               title={isFullscreen ? "Küçült" : "Tam Ekran"}
             >
-              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              {isFullscreen ? (
+                <Minimize2 className="h-4 w-4" />
+              ) : (
+                <Maximize2 className="h-4 w-4" />
+              )}
             </button>
 
             <button
@@ -319,9 +333,16 @@ export function DriveQuickLookModal({
               </div>
               <div className="text-center">
                 <h4 className="text-sm font-bold text-white">{file.name}</h4>
-                <p className="text-xs text-slate-400 font-mono mt-0.5">{formatBytes(file.sizeBytes)}</p>
+                <p className="text-xs text-slate-400 font-mono mt-0.5">
+                  {formatBytes(file.sizeBytes)}
+                </p>
               </div>
-              <audio src={inlineUrl} controls className="w-72 sm:w-96" autoPlay />
+              <audio
+                src={inlineUrl}
+                controls
+                className="w-72 sm:w-96"
+                autoPlay
+              />
             </div>
           )}
 
@@ -337,46 +358,55 @@ export function DriveQuickLookModal({
           )}
 
           {/* 5. Metin & Kod Önizleyici */}
-          {isCodeOrText && (() => {
-            const MAX_PREVIEW_LINES = 2000;
-            const allLines = textContent ? textContent.split("\n") : [];
-            const isTruncated = allLines.length > MAX_PREVIEW_LINES;
-            const displayLines = isTruncated ? allLines.slice(0, MAX_PREVIEW_LINES) : allLines;
+          {isCodeOrText &&
+            (() => {
+              const MAX_PREVIEW_LINES = 2000;
+              const allLines = textContent ? textContent.split("\n") : [];
+              const isTruncated = allLines.length > MAX_PREVIEW_LINES;
+              const displayLines = isTruncated
+                ? allLines.slice(0, MAX_PREVIEW_LINES)
+                : allLines;
 
-            return (
-              <div className="w-full h-full flex flex-col rounded-xl border border-[#2d3748] bg-[#161a22] overflow-hidden">
-                {isTruncated && (
-                  <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-amber-300 text-xs flex items-center justify-between shrink-0">
-                    <span>
-                      ⚠️ Dosya çok büyük ({allLines.length.toLocaleString()} satır). Tarayıcı performansını korumak için ilk {MAX_PREVIEW_LINES.toLocaleString()} satır gösteriliyor.
-                    </span>
-                    <a href={downloadUrl} download={file.name} className="underline hover:text-white font-bold ml-2">
-                      Tamamını İndir
-                    </a>
-                  </div>
-                )}
-                {textLoading ? (
-                  <div className="m-auto flex flex-col items-center gap-2 text-slate-400">
-                    <RefreshCw className="h-6 w-6 animate-spin text-[#0082c9]" />
-                    <span className="text-xs">Dosya içeriği okunuyor...</span>
-                  </div>
-                ) : (
-                  <div className="flex-1 overflow-auto p-4 font-mono text-xs text-slate-200 leading-relaxed select-text">
-                    <pre className="whitespace-pre-wrap break-all font-mono">
-                      {displayLines.map((line, idx) => (
-                        <div key={idx} className="table-row hover:bg-white/5">
-                          <span className="table-cell pr-4 text-right select-none text-slate-500 font-mono text-[11px] w-12 border-r border-[#2d3748]/50">
-                            {idx + 1}
-                          </span>
-                          <span className="table-cell pl-4">{line}</span>
-                        </div>
-                      ))}
-                    </pre>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
+              return (
+                <div className="w-full h-full flex flex-col rounded-xl border border-[#2d3748] bg-[#161a22] overflow-hidden">
+                  {isTruncated && (
+                    <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-amber-300 text-xs flex items-center justify-between shrink-0">
+                      <span>
+                        ⚠️ Dosya çok büyük ({allLines.length.toLocaleString()}{" "}
+                        satır). Tarayıcı performansını korumak için ilk{" "}
+                        {MAX_PREVIEW_LINES.toLocaleString()} satır gösteriliyor.
+                      </span>
+                      <a
+                        href={downloadUrl}
+                        download={file.name}
+                        className="underline hover:text-white font-bold ml-2"
+                      >
+                        Tamamını İndir
+                      </a>
+                    </div>
+                  )}
+                  {textLoading ? (
+                    <div className="m-auto flex flex-col items-center gap-2 text-slate-400">
+                      <RefreshCw className="h-6 w-6 animate-spin text-[#0082c9]" />
+                      <span className="text-xs">Dosya içeriği okunuyor...</span>
+                    </div>
+                  ) : (
+                    <div className="flex-1 overflow-auto p-4 font-mono text-xs text-slate-200 leading-relaxed select-text">
+                      <pre className="whitespace-pre-wrap break-all font-mono">
+                        {displayLines.map((line, idx) => (
+                          <div key={idx} className="table-row hover:bg-white/5">
+                            <span className="table-cell pr-4 text-right select-none text-slate-500 font-mono text-[11px] w-12 border-r border-[#2d3748]/50">
+                              {idx + 1}
+                            </span>
+                            <span className="table-cell pl-4">{line}</span>
+                          </div>
+                        ))}
+                      </pre>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
           {/* 6. Desteklenmeyen / Genel Dosya Kartı */}
           {!isImage && !isVideo && !isAudio && !isPdf && !isCodeOrText && (
@@ -385,13 +415,18 @@ export function DriveQuickLookModal({
                 <File className="h-10 w-10" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-white break-all">{file.name}</h4>
+                <h4 className="text-base font-bold text-white break-all">
+                  {file.name}
+                </h4>
                 <p className="text-xs text-slate-400 font-mono mt-1">
-                  {formatBytes(file.sizeBytes)} • {file.mimeType || "Bilinmeyen Tür"}
+                  {formatBytes(file.sizeBytes)} •{" "}
+                  {file.mimeType || "Bilinmeyen Tür"}
                 </p>
               </div>
               <p className="text-xs text-slate-300">
-                Bu dosya formatı için tarayıcı içi doğrudan önizleme bulunmuyor. Dosyayı indirip cihazınızdaki varsayılan uygulama ile açabilirsiniz.
+                Bu dosya formatı için tarayıcı içi doğrudan önizleme bulunmuyor.
+                Dosyayı indirip cihazınızdaki varsayılan uygulama ile
+                açabilirsiniz.
               </p>
               <a
                 href={downloadUrl}

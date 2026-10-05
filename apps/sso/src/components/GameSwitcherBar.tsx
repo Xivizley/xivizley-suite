@@ -5,7 +5,8 @@ import { GAME_LIST } from "@/data/game-catalog";
 import type { GameId } from "@xivizley/types";
 
 export function GameSwitcherBar() {
-  const { activeGameId, setActiveGame, activeServer, configPerGame } = useGameStore();
+  const { activeGameId, setActiveGame, activeServer, configPerGame } =
+    useGameStore();
 
   return (
     <div className="w-full bg-[#0b1018] border-b border-[#1a2536] py-2 px-4 sm:px-6">
@@ -20,10 +21,12 @@ export function GameSwitcherBar() {
         <div className="flex items-center gap-2 flex-nowrap">
           {GAME_LIST.map((game) => {
             const isActive = activeGameId === game.id;
-            const config = configPerGame[game.id as GameId] || game.defaultConfig;
+            const config =
+              configPerGame[game.id as GameId] || game.defaultConfig;
             const isServerRunning =
               activeServer?.gameId === game.id &&
-              (activeServer.status === "running" || activeServer.status === "starting");
+              (activeServer.status === "running" ||
+                activeServer.status === "starting");
 
             return (
               <button
@@ -52,13 +55,18 @@ export function GameSwitcherBar() {
                       </span>
                     )}
                   </div>
-                  <span className={`text-[10px] font-mono leading-none mt-0.5 ${isActive ? "text-black/80 font-bold" : "text-slate-400"}`}>
+                  <span
+                    className={`text-[10px] font-mono leading-none mt-0.5 ${isActive ? "text-black/80 font-bold" : "text-slate-400"}`}
+                  >
                     v{config?.version || "latest"}
                   </span>
                 </div>
 
                 {isServerRunning && (
-                  <span className="flex h-2 w-2 ml-1" title="Sunucu şu an aktif çalışıyor">
+                  <span
+                    className="flex h-2 w-2 ml-1"
+                    title="Sunucu şu an aktif çalışıyor"
+                  >
                     <span className="inline-flex rounded-full h-2 w-2 bg-[#1AD76F] shadow-[0_0_6px_#1AD76F]"></span>
                   </span>
                 )}

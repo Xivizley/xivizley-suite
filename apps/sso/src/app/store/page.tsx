@@ -3,7 +3,8 @@ import { StoreClient } from "./StoreClient";
 
 export const metadata = {
   title: "Uygulama Mağazası • XIVIZLEY Hub",
-  description: "115+ küratörlü homelab Docker uygulaması, 1-tıkla kurulum ve Compose desteği.",
+  description:
+    "115+ küratörlü homelab Docker uygulaması, 1-tıkla kurulum ve Compose desteği.",
 };
 
 export default async function StorePage({

@@ -18,8 +18,18 @@ interface SentinelData {
     hostname: string;
     uptimeSeconds: number;
     cpu: { cores: number; usagePercent: number; isAlert: boolean };
-    ram: { totalBytes: number; usedBytes: number; usagePercent: number; isAlert: boolean };
-    disk: { totalBytes: number; usedBytes: number; usagePercent: number; isAlert: boolean };
+    ram: {
+      totalBytes: number;
+      usedBytes: number;
+      usagePercent: number;
+      isAlert: boolean;
+    };
+    disk: {
+      totalBytes: number;
+      usedBytes: number;
+      usagePercent: number;
+      isAlert: boolean;
+    };
   };
   containers: Array<{
     name: string;
@@ -88,7 +98,9 @@ export function SentinelRadarWidget() {
                 <span>VDS Sentinel & Telemetri</span>
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               </h3>
-              <p className="text-[10px] text-slate-400">Canlı sunucu donanımı ve konteyner bekçisi</p>
+              <p className="text-[10px] text-slate-400">
+                Canlı sunucu donanımı ve konteyner bekçisi
+              </p>
             </div>
           </div>
 
@@ -99,7 +111,9 @@ export function SentinelRadarWidget() {
             title="Yenile"
             aria-label="Telemetriyi Yenile"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
+            />
           </button>
         </div>
 
@@ -112,8 +126,12 @@ export function SentinelRadarWidget() {
         ) : isDegraded && !data ? (
           <div className="p-4 rounded-lg bg-[#181e24] border border-[#2d3748] text-center space-y-1.5">
             <AlertCircle className="w-5 h-5 text-amber-400 mx-auto" />
-            <p className="text-xs font-medium text-slate-300">Telemetri Beklemede</p>
-            <p className="text-[11px] text-slate-500">Sentinel arka plan bekçisine ulaşılamadı.</p>
+            <p className="text-xs font-medium text-slate-300">
+              Telemetri Beklemede
+            </p>
+            <p className="text-[11px] text-slate-500">
+              Sentinel arka plan bekçisine ulaşılamadı.
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -125,13 +143,16 @@ export function SentinelRadarWidget() {
                   <span>CPU Yükü</span>
                 </span>
                 <span className="font-mono text-slate-200">
-                  {data?.host.cpu.usagePercent ?? 12}% ({data?.host.cpu.cores ?? 2} Çekirdek)
+                  {data?.host.cpu.usagePercent ?? 12}% (
+                  {data?.host.cpu.cores ?? 2} Çekirdek)
                 </span>
               </div>
               <div className="w-full h-2 rounded-full bg-[#181e24] overflow-hidden">
                 <div
                   className="h-full rounded-full bg-[#0082c9] transition-all duration-500"
-                  style={{ width: `${Math.min(100, Math.max(5, data?.host.cpu.usagePercent || 12))}%` }}
+                  style={{
+                    width: `${Math.min(100, Math.max(5, data?.host.cpu.usagePercent || 12))}%`,
+                  }}
                 />
               </div>
             </div>
@@ -144,13 +165,17 @@ export function SentinelRadarWidget() {
                   <span>Bellek (RAM)</span>
                 </span>
                 <span className="font-mono text-slate-200">
-                  {data ? `${formatGb(data.host.ram.usedBytes)} / ${formatGb(data.host.ram.totalBytes)}` : "1.8 GB / 4.0 GB"}
+                  {data
+                    ? `${formatGb(data.host.ram.usedBytes)} / ${formatGb(data.host.ram.totalBytes)}`
+                    : "1.8 GB / 4.0 GB"}
                 </span>
               </div>
               <div className="w-full h-2 rounded-full bg-[#181e24] overflow-hidden">
                 <div
                   className="h-full rounded-full bg-emerald-400 transition-all duration-500"
-                  style={{ width: `${Math.min(100, Math.max(5, data?.host.ram.usagePercent || 45))}%` }}
+                  style={{
+                    width: `${Math.min(100, Math.max(5, data?.host.ram.usagePercent || 45))}%`,
+                  }}
                 />
               </div>
             </div>
@@ -169,19 +194,23 @@ export function SentinelRadarWidget() {
               <div className="w-full h-2 rounded-full bg-[#181e24] overflow-hidden">
                 <div
                   className="h-full rounded-full bg-purple-400 transition-all duration-500"
-                  style={{ width: `${Math.min(100, Math.max(5, data?.host.disk.usagePercent || 34))}%` }}
+                  style={{
+                    width: `${Math.min(100, Math.max(5, data?.host.disk.usagePercent || 34))}%`,
+                  }}
                 />
               </div>
             </div>
 
             {/* Containers Status Badges */}
             <div className="pt-2 flex flex-wrap items-center gap-1.5 text-[10px] font-mono">
-              {(data?.containers || [
-                { name: "xivizley-hub", isHealthy: true },
-                { name: "xivizley-postgres", isHealthy: true },
-                { name: "xivizley-caddy", isHealthy: true },
-                { name: "fivem-server", isHealthy: true },
-              ]).map((c) => (
+              {(
+                data?.containers || [
+                  { name: "xivizley-hub", isHealthy: true },
+                  { name: "xivizley-postgres", isHealthy: true },
+                  { name: "xivizley-caddy", isHealthy: true },
+                  { name: "fivem-server", isHealthy: true },
+                ]
+              ).map((c) => (
                 <span
                   key={c.name}
                   className={`px-2 py-0.5 rounded flex items-center gap-1 border ${
@@ -190,7 +219,9 @@ export function SentinelRadarWidget() {
                       : "bg-rose-500/10 text-rose-300 border-rose-500/30"
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${c.isHealthy ? "bg-emerald-400" : "bg-rose-400"}`} />
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${c.isHealthy ? "bg-emerald-400" : "bg-rose-400"}`}
+                  />
                   <span>{c.name.replace("xivizley-", "")}</span>
                 </span>
               ))}

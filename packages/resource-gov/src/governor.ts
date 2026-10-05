@@ -26,15 +26,27 @@ export class ResourceGovernor extends EventEmitter {
   // CPU ölçümü için önceki değerler
   private prevCpuTimes: { idle: number; total: number } | null = null;
 
-  constructor(customConfig?: Partial<ResourceGovernorConfig>, dockerOptions?: Docker.DockerOptions) {
+  constructor(
+    customConfig?: Partial<ResourceGovernorConfig>,
+    dockerOptions?: Docker.DockerOptions,
+  ) {
     super();
 
     this.config = {
-      totalRamMb: customConfig?.totalRamMb ?? Number(process.env["TOTAL_RAM_MB"] || 8192),
-      totalCpuCores: customConfig?.totalCpuCores ?? Number(process.env["TOTAL_CPU_CORES"] || os.cpus().length || 4),
-      brainSuspendThreshold: customConfig?.brainSuspendThreshold ?? Number(process.env["BRAIN_SUSPEND_THRESHOLD"] || 0.80),
-      vaultHaltThreshold: customConfig?.vaultHaltThreshold ?? Number(process.env["VAULT_HALT_THRESHOLD"] || 0.90),
-      pollIntervalMs: customConfig?.pollIntervalMs ?? Number(process.env["POLL_INTERVAL_MS"] || 2000),
+      totalRamMb:
+        customConfig?.totalRamMb ?? Number(process.env["TOTAL_RAM_MB"] || 8192),
+      totalCpuCores:
+        customConfig?.totalCpuCores ??
+        Number(process.env["TOTAL_CPU_CORES"] || os.cpus().length || 4),
+      brainSuspendThreshold:
+        customConfig?.brainSuspendThreshold ??
+        Number(process.env["BRAIN_SUSPEND_THRESHOLD"] || 0.8),
+      vaultHaltThreshold:
+        customConfig?.vaultHaltThreshold ??
+        Number(process.env["VAULT_HALT_THRESHOLD"] || 0.9),
+      pollIntervalMs:
+        customConfig?.pollIntervalMs ??
+        Number(process.env["POLL_INTERVAL_MS"] || 2000),
     };
 
     // Docker API istemcisi (varsayılan: /var/run/docker.sock)
@@ -67,7 +79,11 @@ export class ResourceGovernor extends EventEmitter {
           const nets = os.networkInterfaces();
           for (const name of Object.keys(nets)) {
             for (const net of nets[name] || []) {
-              if (net.family === "IPv4" && !net.internal && !net.address.startsWith("172.")) {
+              if (
+                net.family === "IPv4" &&
+                !net.internal &&
+                !net.address.startsWith("172.")
+              ) {
                 this.cachedPublicIp = net.address;
                 return;
               }
@@ -115,7 +131,10 @@ export class ResourceGovernor extends EventEmitter {
 
     const totalRamMb = Math.round(totalMem / (1024 * 1024));
     const usedRamMb = Math.round(usedMem / (1024 * 1024));
-    const ramUsagePercent = Math.min(100, Math.round((usedMem / totalMem) * 100));
+    const ramUsagePercent = Math.min(
+      100,
+      Math.round((usedMem / totalMem) * 100),
+    );
 
     const cpuUsagePercent = this.calculateCpuPercent();
 
@@ -143,7 +162,10 @@ export class ResourceGovernor extends EventEmitter {
         const usedBytes = Math.max(0, totalBytes - freeBytes);
         totalDiskGb = Math.round(totalBytes / (1024 * 1024 * 1024));
         usedDiskGb = Math.round(usedBytes / (1024 * 1024 * 1024));
-        diskUsagePercent = totalBytes > 0 ? Math.min(100, Math.round((usedBytes / totalBytes) * 100)) : 0;
+        diskUsagePercent =
+          totalBytes > 0
+            ? Math.min(100, Math.round((usedBytes / totalBytes) * 100))
+            : 0;
       }
     } catch {
       // statfs desteklenmiyorsa varsayılan
@@ -179,7 +201,10 @@ export class ResourceGovernor extends EventEmitter {
       if (!this.isVaultHalted) {
         await this.handleVaultHalt(metrics);
       }
-    } else if (ramRatio < this.config.vaultHaltThreshold - 0.05 && this.isVaultHalted) {
+    } else if (
+      ramRatio < this.config.vaultHaltThreshold - 0.05 &&
+      this.isVaultHalted
+    ) {
       // Histerezis: %85'in altına düşerse Vault yeniden başlatılabilir
       await this.handleVaultRestore();
     }
@@ -189,7 +214,10 @@ export class ResourceGovernor extends EventEmitter {
       if (!this.isBrainSuspended) {
         await this.handleBrainSuspend(metrics);
       }
-    } else if (ramRatio < this.config.brainSuspendThreshold - 0.05 && this.isBrainSuspended) {
+    } else if (
+      ramRatio < this.config.brainSuspendThreshold - 0.05 &&
+      this.isBrainSuspended
+    ) {
       // Histerezis: %75'in altına düşerse Brain resume edilebilir
       await this.handleBrainRestore();
     }
@@ -284,7 +312,12 @@ export class ResourceGovernor extends EventEmitter {
 
     for (const cpu of cpus) {
       idle += cpu.times.idle;
-      total += cpu.times.user + cpu.times.nice + cpu.times.sys + cpu.times.irq + cpu.times.idle;
+      total +=
+        cpu.times.user +
+        cpu.times.nice +
+        cpu.times.sys +
+        cpu.times.irq +
+        cpu.times.idle;
     }
 
     return { idle, total };

@@ -3,7 +3,7 @@
 // Zero-knowledge AES-256-GCM, Password Generator & RFC 6238 TOTP
 // ============================================================
 
-import crypto from 'node:crypto';
+import crypto from "node:crypto";
 
 // ─── 1. Güçlü Parola Üreteci & Güvenlik Ölçer ────────────────
 
@@ -17,11 +17,13 @@ export interface PasswordGeneratorOptions {
 
 export interface PasswordStrength {
   score: number; // 0 - 4
-  label: 'Çok Zayıf' | 'Zayıf' | 'Orta' | 'Güçlü' | 'Askeri Düzey 🛡️';
+  label: "Çok Zayıf" | "Zayıf" | "Orta" | "Güçlü" | "Askeri Düzey 🛡️";
   color: string;
 }
 
-export function generateSecurePassword(options: PasswordGeneratorOptions = {}): string {
+export function generateSecurePassword(
+  options: PasswordGeneratorOptions = {},
+): string {
   const {
     length = 20,
     uppercase = true,
@@ -30,17 +32,29 @@ export function generateSecurePassword(options: PasswordGeneratorOptions = {}): 
     symbols = true,
   } = options;
 
-  let charset = '';
-  const upperChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const lowerChars = 'abcdefghijkmnopqrstuvwxyz';
-  const numberChars = '23456789';
-  const symbolChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+  let charset = "";
+  const upperChars = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lowerChars = "abcdefghijkmnopqrstuvwxyz";
+  const numberChars = "23456789";
+  const symbolChars = "!@#$%^&*()_+-=[]{}|;:,.<>?";
 
   const requiredPools: string[] = [];
-  if (uppercase) { charset += upperChars; requiredPools.push(upperChars); }
-  if (lowercase) { charset += lowerChars; requiredPools.push(lowerChars); }
-  if (numbers) { charset += numberChars; requiredPools.push(numberChars); }
-  if (symbols) { charset += symbolChars; requiredPools.push(symbolChars); }
+  if (uppercase) {
+    charset += upperChars;
+    requiredPools.push(upperChars);
+  }
+  if (lowercase) {
+    charset += lowerChars;
+    requiredPools.push(lowerChars);
+  }
+  if (numbers) {
+    charset += numberChars;
+    requiredPools.push(numberChars);
+  }
+  if (symbols) {
+    charset += symbolChars;
+    requiredPools.push(symbolChars);
+  }
 
   if (!charset) {
     charset = lowerChars + numberChars;
@@ -50,7 +64,7 @@ export function generateSecurePassword(options: PasswordGeneratorOptions = {}): 
   const chars: string[] = [];
   for (const pool of requiredPools) {
     const randByte = crypto.randomBytes(1)[0] ?? 0;
-    chars.push(pool[randByte % pool.length] ?? '');
+    chars.push(pool[randByte % pool.length] ?? "");
   }
 
   const remaining = Math.max(0, length - chars.length);
@@ -58,7 +72,7 @@ export function generateSecurePassword(options: PasswordGeneratorOptions = {}): 
     const bytes = crypto.randomBytes(remaining);
     for (let i = 0; i < remaining; i++) {
       const byte = bytes[i] ?? 0;
-      chars.push(charset[byte % charset.length] ?? '');
+      chars.push(charset[byte % charset.length] ?? "");
     }
   }
 
@@ -70,12 +84,12 @@ export function generateSecurePassword(options: PasswordGeneratorOptions = {}): 
     chars[j] = temp;
   }
 
-  return chars.slice(0, length).join('');
+  return chars.slice(0, length).join("");
 }
 
 export function calculatePasswordStrength(password: string): PasswordStrength {
   if (!password) {
-    return { score: 0, label: 'Çok Zayıf', color: '#ef4444' };
+    return { score: 0, label: "Çok Zayıf", color: "#ef4444" };
   }
 
   let score = 0;
@@ -87,14 +101,14 @@ export function calculatePasswordStrength(password: string): PasswordStrength {
   switch (score) {
     case 0:
     case 1:
-      return { score, label: 'Zayıf', color: '#f87171' };
+      return { score, label: "Zayıf", color: "#f87171" };
     case 2:
-      return { score, label: 'Orta', color: '#fbbf24' };
+      return { score, label: "Orta", color: "#fbbf24" };
     case 3:
-      return { score, label: 'Güçlü', color: '#34d399' };
+      return { score, label: "Güçlü", color: "#34d399" };
     case 4:
     default:
-      return { score: 4, label: 'Askeri Düzey 🛡️', color: '#10b981' };
+      return { score: 4, label: "Askeri Düzey 🛡️", color: "#10b981" };
   }
 }
 
@@ -104,8 +118,8 @@ export function calculatePasswordStrength(password: string): PasswordStrength {
  * Base32 anahtarını Buffer'a çevirir.
  */
 function base32ToBuffer(base32: string): Buffer {
-  const clean = base32.toUpperCase().replace(/[\s-]/g, '');
-  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  const clean = base32.toUpperCase().replace(/[\s-]/g, "");
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
   let bits = 0;
   let value = 0;
   const output: number[] = [];
@@ -144,7 +158,7 @@ export function generateTotp(secret: string, period = 30): TotpResult {
     const timeBuffer = Buffer.alloc(8);
     timeBuffer.writeBigInt64BE(BigInt(timeStep));
 
-    const hmac = crypto.createHmac('sha1', key);
+    const hmac = crypto.createHmac("sha1", key);
     hmac.update(timeBuffer);
     const digest = hmac.digest();
 
@@ -160,16 +174,18 @@ export function generateTotp(secret: string, period = 30): TotpResult {
       ((b2 & 0xff) << 8) |
       (b3 & 0xff);
 
-    const code = (binary % 1000000).toString().padStart(6, '0');
+    const code = (binary % 1000000).toString().padStart(6, "0");
     return { code, remainingSeconds, period };
   } catch {
-    return { code: '------', remainingSeconds: 30, period };
+    return { code: "------", remainingSeconds: 30, period };
   }
 }
 
 // ─── 3. Zero-Knowledge AES-256-GCM Şifreleme ────────────────
 
-const DEFAULT_SECRET_KEY = process.env.VAULT_MASTER_KEY || 'xivizley_vault_zero_knowledge_super_secret_2026';
+const DEFAULT_SECRET_KEY =
+  process.env.VAULT_MASTER_KEY ||
+  "xivizley_vault_zero_knowledge_super_secret_2026";
 
 export interface EncryptedPayload {
   ciphertext: string;
@@ -177,32 +193,38 @@ export interface EncryptedPayload {
   tag: string;
 }
 
-export function encryptVaultData(text: string, secretKey = DEFAULT_SECRET_KEY): EncryptedPayload {
+export function encryptVaultData(
+  text: string,
+  secretKey = DEFAULT_SECRET_KEY,
+): EncryptedPayload {
   const iv = crypto.randomBytes(12);
-  const key = crypto.createHash('sha256').update(secretKey).digest();
-  const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+  const key = crypto.createHash("sha256").update(secretKey).digest();
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
 
-  let encrypted = cipher.update(text, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  const tag = cipher.getAuthTag().toString('hex');
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  const tag = cipher.getAuthTag().toString("hex");
 
   return {
     ciphertext: encrypted,
-    iv: iv.toString('hex'),
+    iv: iv.toString("hex"),
     tag,
   };
 }
 
-export function decryptVaultData(payload: EncryptedPayload, secretKey = DEFAULT_SECRET_KEY): string {
+export function decryptVaultData(
+  payload: EncryptedPayload,
+  secretKey = DEFAULT_SECRET_KEY,
+): string {
   try {
-    const iv = Buffer.from(payload.iv, 'hex');
-    const tag = Buffer.from(payload.tag, 'hex');
-    const key = crypto.createHash('sha256').update(secretKey).digest();
-    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+    const iv = Buffer.from(payload.iv, "hex");
+    const tag = Buffer.from(payload.tag, "hex");
+    const key = crypto.createHash("sha256").update(secretKey).digest();
+    const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
     decipher.setAuthTag(tag);
 
-    let decrypted = decipher.update(payload.ciphertext, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
+    let decrypted = decipher.update(payload.ciphertext, "hex", "utf8");
+    decrypted += decipher.final("utf8");
     return decrypted;
   } catch {
     return payload.ciphertext; // Fallback

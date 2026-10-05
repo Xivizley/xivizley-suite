@@ -1,9 +1,4 @@
-export {
-  ToastProvider,
-  useToast,
-  ToastContainer,
-  ToastCard,
-} from "./Toast";
+export { ToastProvider, useToast, ToastContainer, ToastCard } from "./Toast";
 
 export type {
   ToastType,

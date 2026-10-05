@@ -8,7 +8,11 @@ import type { FastifyPluginAsync } from "fastify";
 import fs from "node:fs";
 import path from "node:path";
 import Docker from "dockerode";
-import { STORE_CATALOG, STORE_CATEGORIES, type StoreApp } from "./store-catalog.js";
+import {
+  STORE_CATALOG,
+  STORE_CATEGORIES,
+  type StoreApp,
+} from "./store-catalog.js";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
 
 // Initialize Dockerode
@@ -23,14 +27,14 @@ function getDocker(): Docker {
 
 // Host reserved system ports that must NEVER collide
 const RESERVED_PORTS = new Set([
-  22,    // SSH
-  80,    // HTTP (Caddy / CasaOS)
-  443,   // HTTPS (Caddy)
-  3000,  // XIVIZLEY Hub
-  5432,  // PostgreSQL
-  8080,  // qBittorrent
-  8088,  // Filebrowser
-  8096,  // Jellyfin
+  22, // SSH
+  80, // HTTP (Caddy / CasaOS)
+  443, // HTTPS (Caddy)
+  3000, // XIVIZLEY Hub
+  5432, // PostgreSQL
+  8080, // qBittorrent
+  8088, // Filebrowser
+  8096, // Jellyfin
   30120, // FiveM
   22666, // Custom SSH / Management
 ]);
@@ -38,7 +42,11 @@ const RESERVED_PORTS = new Set([
 /**
  * Executes an async task with strict timeout protection (R6: <= 1500ms)
  */
-async function withTimeout<T>(promise: Promise<T>, timeoutMs = 1500, fallback: T): Promise<T> {
+async function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs = 1500,
+  fallback: T,
+): Promise<T> {
   let timer: NodeJS.Timeout;
   const timeoutPromise = new Promise<T>((resolve) => {
     timer = setTimeout(() => resolve(fallback), timeoutMs);
@@ -57,14 +65,34 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs = 1500, fallback: T
  */
 async function getDockerState(): Promise<{
   activePorts: Set<number>;
-  installedApps: Map<string, { containerId: string; status: string; isRunning: boolean; port?: number | undefined }>;
+  installedApps: Map<
+    string,
+    {
+      containerId: string;
+      status: string;
+      isRunning: boolean;
+      port?: number | undefined;
+    }
+  >;
 }> {
   const activePorts = new Set<number>(RESERVED_PORTS);
-  const installedApps = new Map<string, { containerId: string; status: string; isRunning: boolean; port?: number | undefined }>();
+  const installedApps = new Map<
+    string,
+    {
+      containerId: string;
+      status: string;
+      isRunning: boolean;
+      port?: number | undefined;
+    }
+  >();
 
   try {
     const docker = getDocker();
-    const containers = await withTimeout(docker.listContainers({ all: true }), 1200, []);
+    const containers = await withTimeout(
+      docker.listContainers({ all: true }),
+      1200,
+      [],
+    );
 
     for (const c of containers) {
       const isRunning = c.State === "running";
@@ -101,7 +129,10 @@ async function getDockerState(): Promise<{
 /**
  * Finds the first available non-colliding host port starting from desired port
  */
-function findAvailablePort(desiredPort: number, usedPorts: Set<number>): number {
+function findAvailablePort(
+  desiredPort: number,
+  usedPorts: Set<number>,
+): number {
   let candidate = desiredPort;
   while (usedPorts.has(candidate)) {
     candidate++;
@@ -113,7 +144,10 @@ function findAvailablePort(desiredPort: number, usedPorts: Set<number>): number 
  * Generates clean Docker Compose YAML for a specific app
  * Strictly adhering to /opt/xivizley-apps/<app-id>/ volume standard
  */
-export function generateAppComposeYaml(app: StoreApp, hostPortOverride?: number): string {
+export function generateAppComposeYaml(
+  app: StoreApp,
+  hostPortOverride?: number,
+): string {
   const primaryPort = app.ports[0];
   const hostPort = hostPortOverride || primaryPort?.default || 8080;
   const internalPort = primaryPort?.internal || 80;
@@ -192,7 +226,7 @@ export const storeRoutes: FastifyPluginAsync = async (fastify) => {
             a.description.toLowerCase().includes(q) ||
             a.id.toLowerCase().includes(q) ||
             a.dockerImage.toLowerCase().includes(q) ||
-            a.category.toLowerCase().includes(q)
+            a.category.toLowerCase().includes(q),
         );
       }
 
@@ -216,52 +250,64 @@ export const storeRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // ─── 2. GET /api/store/apps/:id (Tek Uygulama Detayı & YAML) ────
-  fastify.get<{ Params: { id: string } }>("/api/store/apps/:id", async (request, reply) => {
-    const { id } = request.params;
-    const app = STORE_CATALOG.find((a) => a.id === id);
+  fastify.get<{ Params: { id: string } }>(
+    "/api/store/apps/:id",
+    async (request, reply) => {
+      const { id } = request.params;
+      const app = STORE_CATALOG.find((a) => a.id === id);
 
-    if (!app) {
-      return reply.status(404).send({ ok: false, message: "Uygulama bulunamadı." });
-    }
+      if (!app) {
+        return reply
+          .status(404)
+          .send({ ok: false, message: "Uygulama bulunamadı." });
+      }
 
-    const { installedApps, activePorts } = await getDockerState();
-    const installedInfo = installedApps.get(app.id);
-    const defaultPort = app.ports[0]?.default || 8080;
-    const isPortTaken = activePorts.has(defaultPort) && !installedInfo;
-    const suggestedPort = isPortTaken ? findAvailablePort(defaultPort, activePorts) : defaultPort;
+      const { installedApps, activePorts } = await getDockerState();
+      const installedInfo = installedApps.get(app.id);
+      const defaultPort = app.ports[0]?.default || 8080;
+      const isPortTaken = activePorts.has(defaultPort) && !installedInfo;
+      const suggestedPort = isPortTaken
+        ? findAvailablePort(defaultPort, activePorts)
+        : defaultPort;
 
-    const composeYaml = generateAppComposeYaml(app, suggestedPort);
-    const cliCommand = `xivizley install ${app.id}`;
+      const composeYaml = generateAppComposeYaml(app, suggestedPort);
+      const cliCommand = `xivizley install ${app.id}`;
 
-    return reply.send({
-      ok: true,
-      data: {
-        ...app,
-        isInstalled: Boolean(installedInfo),
-        isRunning: Boolean(installedInfo?.isRunning),
-        assignedPort: installedInfo?.port || suggestedPort,
-        containerId: installedInfo?.containerId,
-        isPortTaken,
-        suggestedPort,
-        composeYaml,
-        cliCommand,
-      },
-    });
-  });
+      return reply.send({
+        ok: true,
+        data: {
+          ...app,
+          isInstalled: Boolean(installedInfo),
+          isRunning: Boolean(installedInfo?.isRunning),
+          assignedPort: installedInfo?.port || suggestedPort,
+          containerId: installedInfo?.containerId,
+          isPortTaken,
+          suggestedPort,
+          composeYaml,
+          cliCommand,
+        },
+      });
+    },
+  );
 
   // ─── 3. GET /api/store/yaml/:id (Doğrudan YAML İndirme/Görüntüleme) ─
-  fastify.get<{ Params: { id: string } }>("/api/store/yaml/:id", async (request, reply) => {
-    const { id } = request.params;
-    const app = STORE_CATALOG.find((a) => a.id === id);
+  fastify.get<{ Params: { id: string } }>(
+    "/api/store/yaml/:id",
+    async (request, reply) => {
+      const { id } = request.params;
+      const app = STORE_CATALOG.find((a) => a.id === id);
 
-    if (!app) {
-      return reply.status(404).send({ ok: false, message: "Uygulama bulunamadı." });
-    }
+      if (!app) {
+        return reply
+          .status(404)
+          .send({ ok: false, message: "Uygulama bulunamadı." });
+      }
 
-    const composeYaml = generateAppComposeYaml(app);
-    reply.header("Content-Type", "text/yaml; charset=utf-8");
-    return reply.send(composeYaml);
-  });
+      const composeYaml = generateAppComposeYaml(app);
+      reply.header("Content-Type", "text/yaml; charset=utf-8");
+      return reply.send(composeYaml);
+    },
+  );
 
   // ─── 4. POST /api/store/install (1-Tıkla Docker Engine Kurulumu) ──
   fastify.post<{
@@ -272,7 +318,9 @@ export const storeRoutes: FastifyPluginAsync = async (fastify) => {
       const app = STORE_CATALOG.find((a) => a.id === appId);
 
       if (!app) {
-        return reply.status(404).send({ ok: false, message: "Katalogda bu uygulama bulunamadı." });
+        return reply
+          .status(404)
+          .send({ ok: false, message: "Katalogda bu uygulama bulunamadı." });
       }
 
       const docker = getDocker();
@@ -396,37 +444,45 @@ export const storeRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // ─── 5. POST /api/store/uninstall (Konteyneri Durdur ve Kaldır) ──
-  fastify.post<{ Body: { appId: string } }>("/api/store/uninstall", async (request, reply) => {
-    try {
-      const { appId } = request.body || {};
-      if (!appId) {
-        return reply.status(400).send({ ok: false, message: "appId zorunludur." });
-      }
-
-      const docker = getDocker();
-      const containerName = `xivizley-app-${appId}`;
-
+  fastify.post<{ Body: { appId: string } }>(
+    "/api/store/uninstall",
+    async (request, reply) => {
       try {
-        const container = docker.getContainer(containerName);
-        await container.stop({ t: 3 }).catch(() => {});
-        await container.remove({ force: true });
-        return reply.send({
-          ok: true,
-          message: `${appId} konteyneri durduruldu ve kaldırıldı.`,
-        });
-      } catch (err: any) {
-        if (err?.statusCode === 404) {
-          return reply.send({ ok: true, message: "Konteyner zaten bulunamadı." });
+        const { appId } = request.body || {};
+        if (!appId) {
+          return reply
+            .status(400)
+            .send({ ok: false, message: "appId zorunludur." });
         }
-        throw err;
+
+        const docker = getDocker();
+        const containerName = `xivizley-app-${appId}`;
+
+        try {
+          const container = docker.getContainer(containerName);
+          await container.stop({ t: 3 }).catch(() => {});
+          await container.remove({ force: true });
+          return reply.send({
+            ok: true,
+            message: `${appId} konteyneri durduruldu ve kaldırıldı.`,
+          });
+        } catch (err: any) {
+          if (err?.statusCode === 404) {
+            return reply.send({
+              ok: true,
+              message: "Konteyner zaten bulunamadı.",
+            });
+          }
+          throw err;
+        }
+      } catch (err: any) {
+        return reply.status(500).send({
+          ok: false,
+          message: err?.message || "Kaldırma işlemi başarısız oldu.",
+        });
       }
-    } catch (err: any) {
-      return reply.status(500).send({
-        ok: false,
-        message: err?.message || "Kaldırma işlemi başarısız oldu.",
-      });
-    }
-  });
+    },
+  );
 
   // ─── 6. GET /api/store/ports/check (Canlı Port Doluluk Durumu) ────
   fastify.get("/api/store/ports/check", async (_request, reply) => {
@@ -439,142 +495,169 @@ export const storeRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // ─── 7. GET /api/store/containers/:id/logs (Canlı Konteyner Logları) ─
-  fastify.get<{ Params: { id: string } }>("/api/store/containers/:id/logs", async (request, reply) => {
-    try {
-      const { id } = request.params;
-      const docker = getDocker();
-      const containerName = `xivizley-app-${id}`;
-      const container = docker.getContainer(containerName);
-
-      const logsBuffer = await withTimeout(
-        container.logs({
-          stdout: true,
-          stderr: true,
-          tail: 150,
-          timestamps: true,
-        }),
-        1500,
-        Buffer.from("Log verisi alınamadı veya zaman aşımı.\n")
-      );
-
-      // Clean Docker multiplexing headers (8-byte header per frame)
-      let logText = "";
-      if (Buffer.isBuffer(logsBuffer)) {
-        let offset = 0;
-        while (offset < logsBuffer.length) {
-          if (offset + 8 <= logsBuffer.length) {
-            const frameSize = logsBuffer.readUInt32BE(offset + 4);
-            const frameContent = logsBuffer.subarray(offset + 8, offset + 8 + frameSize);
-            logText += frameContent.toString("utf-8");
-            offset += 8 + frameSize;
-          } else {
-            logText += logsBuffer.subarray(offset).toString("utf-8");
-            break;
-          }
-        }
-      } else {
-        logText = String(logsBuffer);
-      }
-
-      return reply.send({
-        ok: true,
-        appId: id,
-        logs: logText || "Henüz log kaydı oluşmadı.",
-      });
-    } catch (err: any) {
-      return reply.status(200).send({
-        ok: false,
-        logs: `Log okunamadı: ${err?.message || "Konteyner durmuş veya bulunamadı."}`,
-      });
-    }
-  });
-
-  // ─── 8. GET /api/store/containers/:id/stats (Canlı CPU/RAM Kullanımı) ─
-  fastify.get<{ Params: { id: string } }>("/api/store/containers/:id/stats", async (request, reply) => {
-    try {
-      const { id } = request.params;
-      const docker = getDocker();
-      const containerName = `xivizley-app-${id}`;
-      const container = docker.getContainer(containerName);
-
-      const stats: any = await withTimeout(
-        container.stats({ stream: false }),
-        1500,
-        null
-      );
-
-      if (!stats) {
-        return reply.send({
-          ok: false,
-          data: { status: "stopped", cpuPercent: 0, memoryUsedMb: 0, memoryLimitMb: 0 },
-        });
-      }
-
-      // Calculate CPU percent
-      let cpuPercent = 0;
-      const cpuDelta = stats.cpu_stats?.cpu_usage?.total_usage - (stats.precpu_stats?.cpu_usage?.total_usage || 0);
-      const systemDelta = stats.cpu_stats?.system_cpu_usage - (stats.precpu_stats?.system_cpu_usage || 0);
-      const onlineCpus = stats.cpu_stats?.online_cpus || 1;
-
-      if (systemDelta > 0 && cpuDelta > 0) {
-        cpuPercent = Math.round((cpuDelta / systemDelta) * onlineCpus * 1000) / 10;
-      }
-
-      // Memory stats
-      const memoryUsed = stats.memory_stats?.usage || 0;
-      const memoryLimit = stats.memory_stats?.limit || 1;
-      const memoryUsedMb = Math.round((memoryUsed / (1024 * 1024)) * 10) / 10;
-      const memoryLimitMb = Math.round((memoryLimit / (1024 * 1024)) * 10) / 10;
-
-      return reply.send({
-        ok: true,
-        data: {
-          status: "running",
-          cpuPercent,
-          memoryUsedMb,
-          memoryLimitMb,
-          memoryPercent: Math.round((memoryUsed / memoryLimit) * 1000) / 10,
-        },
-      });
-    } catch {
-      return reply.send({
-        ok: true,
-        data: { status: "stopped", cpuPercent: 0, memoryUsedMb: 0, memoryLimitMb: 0 },
-      });
-    }
-  });
-
-  // ─── 9. POST /api/store/containers/:id/action (Start / Stop / Restart) ─
-  fastify.post<{ Params: { id: string }; Body: { action: "start" | "stop" | "restart" } }>(
-    "/api/store/containers/:id/action",
+  fastify.get<{ Params: { id: string } }>(
+    "/api/store/containers/:id/logs",
     async (request, reply) => {
       try {
         const { id } = request.params;
-        const { action } = request.body || {};
         const docker = getDocker();
         const containerName = `xivizley-app-${id}`;
         const container = docker.getContainer(containerName);
 
-        if (action === "restart") {
-          await container.restart({ t: 5 });
-        } else if (action === "stop") {
-          await container.stop({ t: 5 });
-        } else if (action === "start") {
-          await container.start();
+        const logsBuffer = await withTimeout(
+          container.logs({
+            stdout: true,
+            stderr: true,
+            tail: 150,
+            timestamps: true,
+          }),
+          1500,
+          Buffer.from("Log verisi alınamadı veya zaman aşımı.\n"),
+        );
+
+        // Clean Docker multiplexing headers (8-byte header per frame)
+        let logText = "";
+        if (Buffer.isBuffer(logsBuffer)) {
+          let offset = 0;
+          while (offset < logsBuffer.length) {
+            if (offset + 8 <= logsBuffer.length) {
+              const frameSize = logsBuffer.readUInt32BE(offset + 4);
+              const frameContent = logsBuffer.subarray(
+                offset + 8,
+                offset + 8 + frameSize,
+              );
+              logText += frameContent.toString("utf-8");
+              offset += 8 + frameSize;
+            } else {
+              logText += logsBuffer.subarray(offset).toString("utf-8");
+              break;
+            }
+          }
         } else {
-          return reply.status(400).send({ ok: false, message: "Geçersiz eylem." });
+          logText = String(logsBuffer);
         }
 
         return reply.send({
           ok: true,
-          message: `${id} konteyneri ${action} işlemi tamamlandı.`,
+          appId: id,
+          logs: logText || "Henüz log kaydı oluşmadı.",
         });
       } catch (err: any) {
-        return reply.status(500).send({
+        return reply.status(200).send({
           ok: false,
-          message: err?.message || "Konteyner işlemi başarısız oldu.",
+          logs: `Log okunamadı: ${err?.message || "Konteyner durmuş veya bulunamadı."}`,
         });
       }
-    }
+    },
   );
+
+  // ─── 8. GET /api/store/containers/:id/stats (Canlı CPU/RAM Kullanımı) ─
+  fastify.get<{ Params: { id: string } }>(
+    "/api/store/containers/:id/stats",
+    async (request, reply) => {
+      try {
+        const { id } = request.params;
+        const docker = getDocker();
+        const containerName = `xivizley-app-${id}`;
+        const container = docker.getContainer(containerName);
+
+        const stats: any = await withTimeout(
+          container.stats({ stream: false }),
+          1500,
+          null,
+        );
+
+        if (!stats) {
+          return reply.send({
+            ok: false,
+            data: {
+              status: "stopped",
+              cpuPercent: 0,
+              memoryUsedMb: 0,
+              memoryLimitMb: 0,
+            },
+          });
+        }
+
+        // Calculate CPU percent
+        let cpuPercent = 0;
+        const cpuDelta =
+          stats.cpu_stats?.cpu_usage?.total_usage -
+          (stats.precpu_stats?.cpu_usage?.total_usage || 0);
+        const systemDelta =
+          stats.cpu_stats?.system_cpu_usage -
+          (stats.precpu_stats?.system_cpu_usage || 0);
+        const onlineCpus = stats.cpu_stats?.online_cpus || 1;
+
+        if (systemDelta > 0 && cpuDelta > 0) {
+          cpuPercent =
+            Math.round((cpuDelta / systemDelta) * onlineCpus * 1000) / 10;
+        }
+
+        // Memory stats
+        const memoryUsed = stats.memory_stats?.usage || 0;
+        const memoryLimit = stats.memory_stats?.limit || 1;
+        const memoryUsedMb = Math.round((memoryUsed / (1024 * 1024)) * 10) / 10;
+        const memoryLimitMb =
+          Math.round((memoryLimit / (1024 * 1024)) * 10) / 10;
+
+        return reply.send({
+          ok: true,
+          data: {
+            status: "running",
+            cpuPercent,
+            memoryUsedMb,
+            memoryLimitMb,
+            memoryPercent: Math.round((memoryUsed / memoryLimit) * 1000) / 10,
+          },
+        });
+      } catch {
+        return reply.send({
+          ok: true,
+          data: {
+            status: "stopped",
+            cpuPercent: 0,
+            memoryUsedMb: 0,
+            memoryLimitMb: 0,
+          },
+        });
+      }
+    },
+  );
+
+  // ─── 9. POST /api/store/containers/:id/action (Start / Stop / Restart) ─
+  fastify.post<{
+    Params: { id: string };
+    Body: { action: "start" | "stop" | "restart" };
+  }>("/api/store/containers/:id/action", async (request, reply) => {
+    try {
+      const { id } = request.params;
+      const { action } = request.body || {};
+      const docker = getDocker();
+      const containerName = `xivizley-app-${id}`;
+      const container = docker.getContainer(containerName);
+
+      if (action === "restart") {
+        await container.restart({ t: 5 });
+      } else if (action === "stop") {
+        await container.stop({ t: 5 });
+      } else if (action === "start") {
+        await container.start();
+      } else {
+        return reply
+          .status(400)
+          .send({ ok: false, message: "Geçersiz eylem." });
+      }
+
+      return reply.send({
+        ok: true,
+        message: `${id} konteyneri ${action} işlemi tamamlandı.`,
+      });
+    } catch (err: any) {
+      return reply.status(500).send({
+        ok: false,
+        message: err?.message || "Konteyner işlemi başarısız oldu.",
+      });
+    }
+  });
 };

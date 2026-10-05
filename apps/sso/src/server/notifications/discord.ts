@@ -18,7 +18,7 @@ export interface DiscordAlertOptions {
 
 export async function sendDiscordAlert(
   options: DiscordAlertOptions,
-  webhookUrl = process.env.DISCORD_WEBHOOK_URL
+  webhookUrl = process.env.DISCORD_WEBHOOK_URL,
 ): Promise<boolean> {
   if (!webhookUrl) {
     return false;

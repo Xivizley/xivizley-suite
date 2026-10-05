@@ -39,7 +39,7 @@ export function DashboardHeaderHero({
       }
 
       setCurrentTime(
-        now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })
+        now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
       );
     };
 
@@ -63,10 +63,13 @@ export function DashboardHeaderHero({
           )}
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-2">
-          <span>{greeting}, {displayName}</span>
+          <span>
+            {greeting}, {displayName}
+          </span>
         </h1>
         <p className="text-slate-400 text-sm max-w-xl leading-relaxed">
-          Tüm kişisel bulut araçlarınız, dosyalarınız, notlarınız, 2FA parolalarınız ve sunucu kontrolleriniz tek çatı altında devrede.
+          Tüm kişisel bulut araçlarınız, dosyalarınız, notlarınız, 2FA
+          parolalarınız ve sunucu kontrolleriniz tek çatı altında devrede.
         </p>
       </div>
 

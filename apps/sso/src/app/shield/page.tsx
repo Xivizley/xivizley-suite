@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
 // ============================================================
 // XIVIZLEY Shield — Cyber Threat Radar & WAF Defense Cockpit
 // Aurora Night 3-Column Tactical Command Center
 // ============================================================
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from "react";
 import {
   ShieldAlert,
   ShieldCheck,
@@ -30,28 +30,38 @@ import {
   X,
   ChevronRight,
   Eye,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { NextcloudHeader } from '@xivizley/aurora-ui';
-import type { BannedIpItem, SecurityEventItem, ShieldStats } from '@/server/services/shieldService';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { NextcloudHeader } from "@xivizley/aurora-ui";
+import type {
+  BannedIpItem,
+  SecurityEventItem,
+  ShieldStats,
+} from "@/server/services/shieldService";
 
 export default function ShieldDashboard() {
   const [stats, setStats] = useState<ShieldStats | null>(null);
   const [events, setEvents] = useState<SecurityEventItem[]>([]);
   const [bans, setBans] = useState<BannedIpItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTab, setSelectedTab] = useState<'bans' | 'geoip' | 'inspector'>('bans');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTab, setSelectedTab] = useState<
+    "bans" | "geoip" | "inspector"
+  >("bans");
 
   // Modal Durumları
   const [isBanModalOpen, setIsBanModalOpen] = useState(false);
-  const [newBanIp, setNewBanIp] = useState('');
-  const [newBanReason, setNewBanReason] = useState('');
-  const [newBanThreatLevel, setNewBanThreatLevel] = useState<'low' | 'medium' | 'high' | 'critical'>('high');
+  const [newBanIp, setNewBanIp] = useState("");
+  const [newBanReason, setNewBanReason] = useState("");
+  const [newBanThreatLevel, setNewBanThreatLevel] = useState<
+    "low" | "medium" | "high" | "critical"
+  >("high");
   const [newBanPermanent, setNewBanPermanent] = useState(true);
 
   // WAF Denetim Laboratuvarı Durumu
-  const [inspectUrl, setInspectUrl] = useState('/api/auth/login?user=admin%27%20OR%201=1--');
+  const [inspectUrl, setInspectUrl] = useState(
+    "/api/auth/login?user=admin%27%20OR%201=1--",
+  );
   const [inspectResult, setInspectResult] = useState<any>(null);
   const [isInspecting, setIsInspecting] = useState(false);
 
@@ -63,9 +73,9 @@ export default function ShieldDashboard() {
   const fetchData = async () => {
     try {
       const [statsRes, threatsRes, bansRes] = await Promise.all([
-        fetch('/api/stats').then((r) => r.json()),
-        fetch('/api/threats?limit=35').then((r) => r.json()),
-        fetch('/api/bans?all=true').then((r) => r.json()),
+        fetch("/api/stats").then((r) => r.json()),
+        fetch("/api/threats?limit=35").then((r) => r.json()),
+        fetch("/api/bans?all=true").then((r) => r.json()),
       ]);
 
       if (statsRes.ok) setStats(statsRes.data);
@@ -95,9 +105,9 @@ export default function ShieldDashboard() {
     if (!newBanIp || !newBanReason) return;
 
     try {
-      const res = await fetch('/api/bans', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/bans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ip: newBanIp,
           reason: newBanReason,
@@ -109,28 +119,30 @@ export default function ShieldDashboard() {
       if (data.ok) {
         setBans([data.data, ...bans]);
         setIsBanModalOpen(false);
-        setNewBanIp('');
-        setNewBanReason('');
+        setNewBanIp("");
+        setNewBanReason("");
         showToast(`🚫 IP ${newBanIp} başarıyla karantinaya alındı.`);
       } else {
         showToast(`❌ Hata: ${data.error}`);
       }
     } catch {
-      showToast('❌ Bağlantı hatası.');
+      showToast("❌ Bağlantı hatası.");
     }
   };
 
   // Ban Kaldırma (Unban)
   const handleUnban = async (ip: string) => {
     try {
-      const res = await fetch(`/api/bans/${encodeURIComponent(ip)}`, { method: 'DELETE' });
+      const res = await fetch(`/api/bans/${encodeURIComponent(ip)}`, {
+        method: "DELETE",
+      });
       const data = await res.json();
       if (data.ok) {
         setBans(bans.filter((b) => b.ip !== ip));
         showToast(`🔓 ${ip} karantina engeli kaldırıldı.`);
       }
     } catch {
-      showToast('❌ Ban kaldırılamadı.');
+      showToast("❌ Ban kaldırılamadı.");
     }
   };
 
@@ -138,11 +150,11 @@ export default function ShieldDashboard() {
   const handleInspect = async () => {
     setIsInspecting(true);
     try {
-      const res = await fetch('/api/inspect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/inspect", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ip: '203.0.113.199',
+          ip: "203.0.113.199",
           path: inspectUrl,
           payload: inspectUrl,
         }),
@@ -162,15 +174,17 @@ export default function ShieldDashboard() {
   const handleSimulate = async (type: string) => {
     setSimulatingType(type);
     try {
-      const res = await fetch('/api/simulate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/simulate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type }),
       });
       const data = await res.json();
       if (data.ok) {
         setEvents((prev) => [data.data, ...prev]);
-        showToast(`⚔️ [${type.toUpperCase()}] WAF kalkanı saldırıyı başarıyla engelledi!`);
+        showToast(
+          `⚔️ [${type.toUpperCase()}] WAF kalkanı saldırıyı başarıyla engelledi!`,
+        );
         fetchData();
       }
     } catch {
@@ -187,7 +201,7 @@ export default function ShieldDashboard() {
       (b) =>
         b.ip.toLowerCase().includes(q) ||
         b.reason.toLowerCase().includes(q) ||
-        b.countryName.toLowerCase().includes(q)
+        b.countryName.toLowerCase().includes(q),
     );
   }, [bans, searchQuery]);
 
@@ -225,7 +239,9 @@ export default function ShieldDashboard() {
               title="Yenile"
               className="p-1.5 rounded hover:bg-white/10 text-white transition-colors"
             >
-              <RefreshCw className={cn('w-4 h-4', isLoading && 'animate-spin')} />
+              <RefreshCw
+                className={cn("w-4 h-4", isLoading && "animate-spin")}
+              />
             </button>
           </div>
         }
@@ -240,8 +256,12 @@ export default function ShieldDashboard() {
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="mt-2">
-            <span className="text-2xl font-bold text-slate-100">{stats?.totalBlockedThreats ?? '1,487'}</span>
-            <span className="text-[11px] text-emerald-400 ml-2 font-medium">100% Savunuldu</span>
+            <span className="text-2xl font-bold text-slate-100">
+              {stats?.totalBlockedThreats ?? "1,487"}
+            </span>
+            <span className="text-[11px] text-emerald-400 ml-2 font-medium">
+              100% Savunuldu
+            </span>
           </div>
         </div>
 
@@ -252,8 +272,12 @@ export default function ShieldDashboard() {
             <Lock className="w-4 h-4 text-amber-400" />
           </div>
           <div className="mt-2">
-            <span className="text-2xl font-bold text-amber-400">{stats?.activeBannedIps ?? bans.length}</span>
-            <span className="text-[11px] text-slate-400 ml-2">Otomatik Drop</span>
+            <span className="text-2xl font-bold text-amber-400">
+              {stats?.activeBannedIps ?? bans.length}
+            </span>
+            <span className="text-[11px] text-slate-400 ml-2">
+              Otomatik Drop
+            </span>
           </div>
         </div>
 
@@ -264,8 +288,12 @@ export default function ShieldDashboard() {
             <Zap className="w-4 h-4 text-[#0082c9]" />
           </div>
           <div className="mt-2">
-            <span className="text-2xl font-bold text-[#0082c9]">{stats?.avgResponseTimeMs ?? '1.2'}ms</span>
-            <span className="text-[11px] text-slate-400 ml-2">Sıfır Gecikme</span>
+            <span className="text-2xl font-bold text-[#0082c9]">
+              {stats?.avgResponseTimeMs ?? "1.2"}ms
+            </span>
+            <span className="text-[11px] text-slate-400 ml-2">
+              Sıfır Gecikme
+            </span>
           </div>
         </div>
 
@@ -276,8 +304,12 @@ export default function ShieldDashboard() {
             <Server className="w-4 h-4 text-indigo-400" />
           </div>
           <div className="mt-2">
-            <span className="text-sm font-bold text-slate-100">185.233.164.122</span>
-            <span className="text-[11px] text-emerald-400 block font-medium">Caddy / FiveM / MC / Pass</span>
+            <span className="text-sm font-bold text-slate-100">
+              185.233.164.122
+            </span>
+            <span className="text-[11px] text-emerald-400 block font-medium">
+              Caddy / FiveM / MC / Pass
+            </span>
           </div>
         </div>
       </div>
@@ -291,16 +323,22 @@ export default function ShieldDashboard() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-rose-500" />
-                <span className="font-semibold text-slate-100 text-xs">Canlı Siber Tehdit Akışı</span>
+                <span className="font-semibold text-slate-100 text-xs">
+                  Canlı Siber Tehdit Akışı
+                </span>
               </div>
-              <span className="text-[11px] text-slate-400">{events.length} olay kaydedildi</span>
+              <span className="text-[11px] text-slate-400">
+                {events.length} olay kaydedildi
+              </span>
             </div>
 
             {/* Saldırı Simülatörü Butonları */}
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mr-1">Simüle Et:</span>
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mr-1">
+                Simüle Et:
+              </span>
               <button
-                onClick={() => handleSimulate('sqli')}
+                onClick={() => handleSimulate("sqli")}
                 disabled={simulatingType !== null}
                 className="px-2 py-1 rounded bg-[#222933] hover:bg-[#2b3442] border border-[#2d3748] text-slate-200 text-[11px] flex items-center gap-1 transition-colors"
               >
@@ -308,7 +346,7 @@ export default function ShieldDashboard() {
                 <span>SQLi Testi</span>
               </button>
               <button
-                onClick={() => handleSimulate('lfi')}
+                onClick={() => handleSimulate("lfi")}
                 disabled={simulatingType !== null}
                 className="px-2 py-1 rounded bg-[#222933] hover:bg-[#2b3442] border border-[#2d3748] text-slate-200 text-[11px] flex items-center gap-1 transition-colors"
               >
@@ -316,7 +354,7 @@ export default function ShieldDashboard() {
                 <span>LFI /passwd</span>
               </button>
               <button
-                onClick={() => handleSimulate('scanner')}
+                onClick={() => handleSimulate("scanner")}
                 disabled={simulatingType !== null}
                 className="px-2 py-1 rounded bg-[#222933] hover:bg-[#2b3442] border border-[#2d3748] text-slate-200 text-[11px] flex items-center gap-1 transition-colors"
               >
@@ -324,7 +362,7 @@ export default function ShieldDashboard() {
                 <span>wp-login Bot</span>
               </button>
               <button
-                onClick={() => handleSimulate('ssh')}
+                onClick={() => handleSimulate("ssh")}
                 disabled={simulatingType !== null}
                 className="px-2 py-1 rounded bg-[#222933] hover:bg-[#2b3442] border border-[#2d3748] text-slate-200 text-[11px] flex items-center gap-1 transition-colors"
               >
@@ -337,7 +375,9 @@ export default function ShieldDashboard() {
           {/* Olay Listesi Terminal Akışı */}
           <div className="flex-1 p-3 overflow-y-auto space-y-2 max-h-[580px] font-mono text-[11px]">
             {events.length === 0 ? (
-              <div className="h-40 flex items-center justify-center text-slate-500">Tehdit kaydı bulunamadı.</div>
+              <div className="h-40 flex items-center justify-center text-slate-500">
+                Tehdit kaydı bulunamadı.
+              </div>
             ) : (
               events.map((evt) => (
                 <div
@@ -346,18 +386,32 @@ export default function ShieldDashboard() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-sm">{evt.countryCode === 'RU' ? '🇷🇺' : evt.countryCode === 'CN' ? '🇨🇳' : evt.countryCode === 'NL' ? '🇳🇱' : evt.countryCode === 'TR' ? '🇹🇷' : '🌐'}</span>
-                      <span className="font-semibold text-slate-200">{evt.sourceIp}</span>
-                      <span className="text-slate-400 font-sans text-[10px]">({evt.countryName})</span>
+                      <span className="text-sm">
+                        {evt.countryCode === "RU"
+                          ? "🇷🇺"
+                          : evt.countryCode === "CN"
+                            ? "🇨🇳"
+                            : evt.countryCode === "NL"
+                              ? "🇳🇱"
+                              : evt.countryCode === "TR"
+                                ? "🇹🇷"
+                                : "🌐"}
+                      </span>
+                      <span className="font-semibold text-slate-200">
+                        {evt.sourceIp}
+                      </span>
+                      <span className="text-slate-400 font-sans text-[10px]">
+                        ({evt.countryName})
+                      </span>
                     </div>
                     <span
                       className={cn(
-                        'px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider',
-                        evt.severity === 'critical'
-                          ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
-                          : evt.severity === 'high'
-                          ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                          : 'bg-[#0082c9]/10 text-[#0082c9] border border-[#0082c9]/30'
+                        "px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider",
+                        evt.severity === "critical"
+                          ? "bg-rose-500/10 text-rose-400 border border-rose-500/30"
+                          : evt.severity === "high"
+                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"
+                            : "bg-[#0082c9]/10 text-[#0082c9] border border-[#0082c9]/30",
                       )}
                     >
                       {evt.actionTaken}
@@ -365,11 +419,17 @@ export default function ShieldDashboard() {
                   </div>
 
                   <div className="flex items-center gap-2 text-slate-400 text-[10px]">
-                    <span className="text-indigo-400 font-semibold">{evt.targetService}</span>
+                    <span className="text-indigo-400 font-semibold">
+                      {evt.targetService}
+                    </span>
                     <span>•</span>
-                    <span className="text-rose-300 font-semibold">{evt.threatType}</span>
+                    <span className="text-rose-300 font-semibold">
+                      {evt.threatType}
+                    </span>
                     <span>•</span>
-                    <span className="text-slate-500">Port {evt.targetPort}</span>
+                    <span className="text-slate-500">
+                      Port {evt.targetPort}
+                    </span>
                   </div>
 
                   {evt.payloadPreview && (
@@ -379,7 +439,7 @@ export default function ShieldDashboard() {
                   )}
 
                   <div className="text-[10px] text-slate-500 text-right">
-                    {new Date(evt.createdAt).toLocaleTimeString('tr-TR')}
+                    {new Date(evt.createdAt).toLocaleTimeString("tr-TR")}
                   </div>
                 </div>
               ))
@@ -393,36 +453,36 @@ export default function ShieldDashboard() {
           <div className="border-b border-[#2d3748] bg-[#181e24] px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 overflow-x-auto">
             <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-1 sm:py-0">
               <button
-                onClick={() => setSelectedTab('bans')}
+                onClick={() => setSelectedTab("bans")}
                 className={cn(
-                  'px-3.5 py-2.5 font-semibold text-xs border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap',
-                  selectedTab === 'bans'
-                    ? 'border-[#0082c9] text-[#0082c9] bg-[#0082c9]/10'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                  "px-3.5 py-2.5 font-semibold text-xs border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap",
+                  selectedTab === "bans"
+                    ? "border-[#0082c9] text-[#0082c9] bg-[#0082c9]/10"
+                    : "border-transparent text-slate-400 hover:text-slate-200",
                 )}
               >
                 <Lock className="w-3.5 h-3.5" />
                 <span>Karantina Listesi ({bans.length})</span>
               </button>
               <button
-                onClick={() => setSelectedTab('geoip')}
+                onClick={() => setSelectedTab("geoip")}
                 className={cn(
-                  'px-3.5 py-2.5 font-semibold text-xs border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap',
-                  selectedTab === 'geoip'
-                    ? 'border-[#0082c9] text-[#0082c9] bg-[#0082c9]/10'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                  "px-3.5 py-2.5 font-semibold text-xs border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap",
+                  selectedTab === "geoip"
+                    ? "border-[#0082c9] text-[#0082c9] bg-[#0082c9]/10"
+                    : "border-transparent text-slate-400 hover:text-slate-200",
                 )}
               >
                 <Globe className="w-3.5 h-3.5" />
                 <span>GeoIP Ülke Kalkanı</span>
               </button>
               <button
-                onClick={() => setSelectedTab('inspector')}
+                onClick={() => setSelectedTab("inspector")}
                 className={cn(
-                  'px-3.5 py-2.5 font-semibold text-xs border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap',
-                  selectedTab === 'inspector'
-                    ? 'border-[#0082c9] text-[#0082c9] bg-[#0082c9]/10'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                  "px-3.5 py-2.5 font-semibold text-xs border-b-2 transition-all flex items-center gap-1.5 whitespace-nowrap",
+                  selectedTab === "inspector"
+                    ? "border-[#0082c9] text-[#0082c9] bg-[#0082c9]/10"
+                    : "border-transparent text-slate-400 hover:text-slate-200",
                 )}
               >
                 <Terminal className="w-3.5 h-3.5" />
@@ -430,7 +490,7 @@ export default function ShieldDashboard() {
               </button>
             </div>
 
-            {selectedTab === 'bans' && (
+            {selectedTab === "bans" && (
               <div className="relative w-full sm:w-44 mb-2 sm:mb-0">
                 <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -447,10 +507,12 @@ export default function ShieldDashboard() {
           {/* Sekme İçerikleri */}
           <div className="p-4 flex-1 overflow-y-auto max-h-[580px]">
             {/* ─── SEKME 1: Karantina Listesi ────────────────────────── */}
-            {selectedTab === 'bans' && (
+            {selectedTab === "bans" && (
               <div className="space-y-3">
                 {filteredBans.length === 0 ? (
-                  <div className="p-8 text-center text-slate-400">Karantinada IP bulunmuyor.</div>
+                  <div className="p-8 text-center text-slate-400">
+                    Karantinada IP bulunmuyor.
+                  </div>
                 ) : (
                   filteredBans.map((ban) => (
                     <div
@@ -459,21 +521,34 @@ export default function ShieldDashboard() {
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-[#222933] border border-[#2d3748] flex items-center justify-center text-rose-400 font-bold text-sm">
-                          {ban.countryCode === 'RU' ? '🇷🇺' : ban.countryCode === 'CN' ? '🇨🇳' : ban.countryCode === 'NL' ? '🇳🇱' : '🌐'}
+                          {ban.countryCode === "RU"
+                            ? "🇷🇺"
+                            : ban.countryCode === "CN"
+                              ? "🇨🇳"
+                              : ban.countryCode === "NL"
+                                ? "🇳🇱"
+                                : "🌐"}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-slate-100">{ban.ip}</span>
-                            <span className="text-xs text-slate-400 font-sans">({ban.countryName})</span>
+                            <span className="font-semibold text-slate-100">
+                              {ban.ip}
+                            </span>
+                            <span className="text-xs text-slate-400 font-sans">
+                              ({ban.countryName})
+                            </span>
                             {ban.isPermanent && (
                               <span className="px-1.5 py-0.2 rounded text-[9px] bg-rose-500/10 text-rose-400 border border-rose-500/30 font-semibold uppercase">
                                 Kalıcı
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-slate-400 mt-0.5">{ban.reason}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            {ban.reason}
+                          </p>
                           <span className="text-[10px] text-slate-500 block mt-1">
-                            Banlanma: {new Date(ban.bannedAt).toLocaleString('tr-TR')}
+                            Banlanma:{" "}
+                            {new Date(ban.bannedAt).toLocaleString("tr-TR")}
                           </span>
                         </div>
                       </div>
@@ -492,28 +567,62 @@ export default function ShieldDashboard() {
             )}
 
             {/* ─── SEKME 2: GeoIP Ülke Kalkanı ──────────────────────── */}
-            {selectedTab === 'geoip' && (
+            {selectedTab === "geoip" && (
               <div className="space-y-4 font-sans text-xs">
                 <div className="p-4 rounded-lg bg-[#181e24] border border-[#2d3748]">
-                  <h3 className="font-semibold text-slate-100 text-sm mb-1">🌍 Coğrafi IP Filtreleme (GeoIP Shield)</h3>
+                  <h3 className="font-semibold text-slate-100 text-sm mb-1">
+                    🌍 Coğrafi IP Filtreleme (GeoIP Shield)
+                  </h3>
                   <p className="text-slate-400 leading-relaxed">
-                    Saldırı trafiğinin yoğun olduğu yüksek riskli ülkeleri tek bir kural ile VDS'in kapısından geri çevirebilirsin.
+                    Saldırı trafiğinin yoğun olduğu yüksek riskli ülkeleri tek
+                    bir kural ile VDS'in kapısından geri çevirebilirsin.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {[
-                    { country: 'Rusya', code: 'RU', flag: '🇷🇺', attacks: 642, status: 'ENGELLEME AKTİF' },
-                    { country: 'Çin', code: 'CN', flag: '🇨🇳', attacks: 489, status: 'ENGELLEME AKTİF' },
-                    { country: 'Hollanda (Botnet ASN)', code: 'NL', flag: '🇳🇱', attacks: 184, status: 'ŞÜPHELİ / İZLENİYOR' },
-                    { country: 'İran', code: 'IR', flag: '🇮🇷', attacks: 52, status: 'ENGELLEME AKTİF' },
+                    {
+                      country: "Rusya",
+                      code: "RU",
+                      flag: "🇷🇺",
+                      attacks: 642,
+                      status: "ENGELLEME AKTİF",
+                    },
+                    {
+                      country: "Çin",
+                      code: "CN",
+                      flag: "🇨🇳",
+                      attacks: 489,
+                      status: "ENGELLEME AKTİF",
+                    },
+                    {
+                      country: "Hollanda (Botnet ASN)",
+                      code: "NL",
+                      flag: "🇳🇱",
+                      attacks: 184,
+                      status: "ŞÜPHELİ / İZLENİYOR",
+                    },
+                    {
+                      country: "İran",
+                      code: "IR",
+                      flag: "🇮🇷",
+                      attacks: 52,
+                      status: "ENGELLEME AKTİF",
+                    },
                   ].map((item) => (
-                    <div key={item.code} className="p-3 rounded-lg bg-[#181e24] border border-[#2d3748] flex items-center justify-between">
+                    <div
+                      key={item.code}
+                      className="p-3 rounded-lg bg-[#181e24] border border-[#2d3748] flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-2.5">
                         <span className="text-2xl">{item.flag}</span>
                         <div>
-                          <div className="font-semibold text-slate-200">{item.country}</div>
-                          <span className="text-[11px] text-slate-400 font-mono">{item.attacks} saldırı engellendi</span>
+                          <div className="font-semibold text-slate-200">
+                            {item.country}
+                          </div>
+                          <span className="text-[11px] text-slate-400 font-mono">
+                            {item.attacks} saldırı engellendi
+                          </span>
                         </div>
                       </div>
                       <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30">
@@ -526,12 +635,16 @@ export default function ShieldDashboard() {
             )}
 
             {/* ─── SEKME 3: WAF İnceleme Laboratuvarı ────────────────── */}
-            {selectedTab === 'inspector' && (
+            {selectedTab === "inspector" && (
               <div className="space-y-4">
                 <div className="p-4 rounded-lg bg-[#181e24] border border-[#2d3748]">
-                  <h3 className="font-semibold text-slate-100 text-sm mb-1">🔬 Heuristic WAF İnceleme Laboratuvarı</h3>
+                  <h3 className="font-semibold text-slate-100 text-sm mb-1">
+                    🔬 Heuristic WAF İnceleme Laboratuvarı
+                  </h3>
                   <p className="text-slate-400 text-xs font-sans leading-relaxed">
-                    Bir URL parametresi veya HTTP gövdesi girerek WAF motorunun nasıl tepki verdiğini ve saldırıyı nasıl puanladığını canlı test et.
+                    Bir URL parametresi veya HTTP gövdesi girerek WAF motorunun
+                    nasıl tepki verdiğini ve saldırıyı nasıl puanladığını canlı
+                    test et.
                   </p>
                 </div>
 
@@ -549,7 +662,9 @@ export default function ShieldDashboard() {
                     className="px-4 py-2 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white font-semibold text-xs transition-colors flex items-center gap-1.5 shadow-sm"
                   >
                     <Eye className="w-4 h-4" />
-                    <span>{isInspecting ? 'İnceleniyor...' : 'WAF ile Tara'}</span>
+                    <span>
+                      {isInspecting ? "İnceleniyor..." : "WAF ile Tara"}
+                    </span>
                   </button>
                 </div>
 
@@ -559,19 +674,23 @@ export default function ShieldDashboard() {
                       <span className="text-slate-400">Sonuç Durumu:</span>
                       <span
                         className={cn(
-                          'px-2 py-0.5 rounded font-bold uppercase text-[10px]',
+                          "px-2 py-0.5 rounded font-bold uppercase text-[10px]",
                           inspectResult.blocked
-                            ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
-                            : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                            ? "bg-rose-500/10 text-rose-400 border border-rose-500/30"
+                            : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30",
                         )}
                       >
-                        {inspectResult.blocked ? '🛑 BLOCKED (ENGELLENDİ)' : '✅ ALLOWED (TEMİZ)'}
+                        {inspectResult.blocked
+                          ? "🛑 BLOCKED (ENGELLENDİ)"
+                          : "✅ ALLOWED (TEMİZ)"}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between">
                       <span className="text-slate-400">Tehdit Skoru:</span>
-                      <span className="font-bold text-slate-200">{inspectResult.wafResult?.score ?? 0} / 100</span>
+                      <span className="font-bold text-slate-200">
+                        {inspectResult.wafResult?.score ?? 0} / 100
+                      </span>
                     </div>
 
                     {inspectResult.wafResult?.reason && (
@@ -582,7 +701,8 @@ export default function ShieldDashboard() {
 
                     {inspectResult.wafResult?.matchedPattern && (
                       <div className="p-2.5 rounded bg-[#222933] border border-[#2d3748] text-[#0082c9] text-[11px] break-all">
-                        <strong>Eşleşen Kural:</strong> {inspectResult.wafResult.matchedPattern}
+                        <strong>Eşleşen Kural:</strong>{" "}
+                        {inspectResult.wafResult.matchedPattern}
                       </div>
                     )}
                   </div>
@@ -610,9 +730,14 @@ export default function ShieldDashboard() {
               </button>
             </div>
 
-            <form onSubmit={handleAddBan} className="space-y-3 font-sans text-xs">
+            <form
+              onSubmit={handleAddBan}
+              className="space-y-3 font-sans text-xs"
+            >
               <div>
-                <label className="block text-slate-300 mb-1 font-medium">Hedef IP Adresi (IPv4 / IPv6)</label>
+                <label className="block text-slate-300 mb-1 font-medium">
+                  Hedef IP Adresi (IPv4 / IPv6)
+                </label>
                 <input
                   type="text"
                   required
@@ -624,7 +749,9 @@ export default function ShieldDashboard() {
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1 font-medium">Banlanma Sebebi</label>
+                <label className="block text-slate-300 mb-1 font-medium">
+                  Banlanma Sebebi
+                </label>
                 <input
                   type="text"
                   required
@@ -637,7 +764,9 @@ export default function ShieldDashboard() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1 font-medium">Tehdit Seviyesi</label>
+                  <label className="block text-slate-300 mb-1 font-medium">
+                    Tehdit Seviyesi
+                  </label>
                   <select
                     value={newBanThreatLevel}
                     onChange={(e: any) => setNewBanThreatLevel(e.target.value)}
@@ -650,10 +779,14 @@ export default function ShieldDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1 font-medium">Karantina Tipi</label>
+                  <label className="block text-slate-300 mb-1 font-medium">
+                    Karantina Tipi
+                  </label>
                   <select
-                    value={newBanPermanent ? 'perm' : 'temp'}
-                    onChange={(e) => setNewBanPermanent(e.target.value === 'perm')}
+                    value={newBanPermanent ? "perm" : "temp"}
+                    onChange={(e) =>
+                      setNewBanPermanent(e.target.value === "perm")
+                    }
                     className="w-full bg-[#181e24] border border-[#2d3748] rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-[#0082c9]"
                   >
                     <option value="perm">Kalıcı (Süresiz)</option>

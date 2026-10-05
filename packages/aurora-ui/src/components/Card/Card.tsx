@@ -26,11 +26,9 @@ const variantStyles: Record<CardVariant, string> = {
     "rounded-xl shadow-sm",
   ].join(" "),
 
-  outlined: [
-    "bg-transparent",
-    "border border-[#2d3748]",
-    "rounded-xl",
-  ].join(" "),
+  outlined: ["bg-transparent", "border border-[#2d3748]", "rounded-xl"].join(
+    " ",
+  ),
 
   elevated: [
     "bg-[#222933]",
@@ -48,48 +46,44 @@ const variantStyles: Record<CardVariant, string> = {
 
 // ─── Card Bileşeni ──────────────────────────────────────────
 
-export const Card = forwardRef<HTMLDivElement, CardProps>(
-  function Card(
-    {
-      variant = "default",
-      noPadding = false,
-      header,
-      footer,
-      className,
-      children,
-      ...rest
-    },
-    ref,
-  ) {
-    return (
-      <div
-        ref={ref}
-        className={clsx(
-          variantStyles[variant],
-          "flex flex-col overflow-hidden",
-          className,
-        )}
-        {...rest}
-      >
-        {/* Header */}
-        {header && (
-          <div className="px-5 py-3.5 border-b border-aurora flex items-center">
-            {header}
-          </div>
-        )}
-
-        {/* İçerik */}
-        <div className={clsx("flex-1", !noPadding && "p-5")}>
-          {children}
-        </div>
-
-        {/* Footer */}
-        {footer && (
-          <div className="px-5 py-3.5 border-t border-aurora flex items-center">
-            {footer}
-          </div>
-        )}
-      </div>
-    );
+export const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
+  {
+    variant = "default",
+    noPadding = false,
+    header,
+    footer,
+    className,
+    children,
+    ...rest
   },
-);
+  ref,
+) {
+  return (
+    <div
+      ref={ref}
+      className={clsx(
+        variantStyles[variant],
+        "flex flex-col overflow-hidden",
+        className,
+      )}
+      {...rest}
+    >
+      {/* Header */}
+      {header && (
+        <div className="px-5 py-3.5 border-b border-aurora flex items-center">
+          {header}
+        </div>
+      )}
+
+      {/* İçerik */}
+      <div className={clsx("flex-1", !noPadding && "p-5")}>{children}</div>
+
+      {/* Footer */}
+      {footer && (
+        <div className="px-5 py-3.5 border-t border-aurora flex items-center">
+          {footer}
+        </div>
+      )}
+    </div>
+  );
+});

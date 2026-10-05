@@ -1,5 +1,5 @@
-import type { Metadata, Viewport } from 'next';
-import '../styles/globals.css';
+import type { Metadata, Viewport } from "next";
+import "../styles/globals.css";
 
 export const viewport: Viewport = {
   themeColor: "#0082c9",
@@ -10,8 +10,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'XIVIZLEY Pass — Güvenli Sıfır Bilgili Şifre & 2FA Kasası',
-  description: 'Self-hosted Zero-Knowledge Password, Secret and 2FA Authenticator Manager by XIVIZLEY.',
+  title: "XIVIZLEY Pass — Güvenli Sıfır Bilgili Şifre & 2FA Kasası",
+  description:
+    "Self-hosted Zero-Knowledge Password, Secret and 2FA Authenticator Manager by XIVIZLEY.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

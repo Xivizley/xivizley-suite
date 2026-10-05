@@ -1,16 +1,18 @@
 # Product Hunt Launch Kit
 
 **Platform:** [producthunt.com](https://www.producthunt.com)  
-**Product Name:** XIVIZLEY Suite  
+**Product Name:** XIVIZLEY Suite
 
 ---
 
 ## 📌 Tagline (Max 60 characters)
+
 `Nextcloud-styled private cloud with 115 Docker apps & telemetry`
 
 ---
 
 ## 🏷️ Category Tags
+
 - Developer Tools
 - Open Source
 - Self-Hosted / Homelab
@@ -19,6 +21,7 @@
 ---
 
 ## 📝 Short Description (Max 260 characters)
+
 An open-source private cloud built with Next.js 15 & Fastify. Features a Nextcloud Hub design, centralized RS256 SSO, a 115-app Docker catalog with dynamic port collision resolution, host telemetry, and 1-command disaster recovery.
 
 ---
@@ -38,8 +41,9 @@ I'm Alperen Celal, a 14-year-old developer from Bursa, Turkey. Over the past sev
 - ⚡ **Instant CLI Experience:** Deploy in under 60 seconds with `npx xivizley`.
 
 ### 🚀 Try it Live Right Now:
+
 You don't even need to spin up a server to try it:
-👉 [https://suite.xivizley.com.tr](https://suite.xivizley.com.tr) *(Click "Canlı Demo Olarak Keşfet")*
+👉 [https://suite.xivizley.com.tr](https://suite.xivizley.com.tr) _(Click "Canlı Demo Olarak Keşfet")_
 
 The code is 100% open source under the MIT license on GitHub:  
 👉 [github.com/Xivizley/xivizley-suite](https://github.com/Xivizley/xivizley-suite)

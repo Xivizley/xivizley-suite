@@ -11,7 +11,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "XIVIZLEY Drive — Hızlı & Güvenli Bulut Depolama",
-  description: "XIVIZLEY Native Suite Yerli Bulut Depolama ve Dosya Paylaşım Merkezi",
+  description:
+    "XIVIZLEY Native Suite Yerli Bulut Depolama ve Dosya Paylaşım Merkezi",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

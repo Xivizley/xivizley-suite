@@ -39,8 +39,17 @@ export function WebTerminalClient() {
   const [terminalReady, setTerminalReady] = useState<boolean>(false);
   const [reconnectKey, setReconnectKey] = useState<number>(0);
 
-  // 1. Hedef Listesini Çek
+  // 1. Hedef Listesini Çek ve URL query parametresini oku
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const initialTarget =
+        searchParams.get("container") || searchParams.get("target");
+      if (initialTarget) {
+        setSelectedTarget(initialTarget);
+      }
+    }
+
     fetch("/api/terminal/targets")
       .then((r) => r.json())
       .then((json) => {
@@ -154,7 +163,9 @@ export function WebTerminalClient() {
     }
 
     term.reset();
-    term.writeln(`\x1b[36m[XIVIZLEY]\x1b[0m Web terminal sunucusuna bağlanıyor (${selectedTarget})...`);
+    term.writeln(
+      `\x1b[36m[XIVIZLEY]\x1b[0m Web terminal sunucusuna bağlanıyor (${selectedTarget})...`,
+    );
 
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const host = window.location.host;
@@ -178,7 +189,9 @@ export function WebTerminalClient() {
     };
 
     ws.onerror = () => {
-      term.writeln("\r\n\x1b[31m[HATA]\x1b[0m WebSocket terminal bağlantı hatası oluştu.");
+      term.writeln(
+        "\r\n\x1b[31m[HATA]\x1b[0m WebSocket terminal bağlantı hatası oluştu.",
+      );
       setIsConnected(false);
     };
 
@@ -232,7 +245,9 @@ export function WebTerminalClient() {
   return (
     <div
       className={`flex flex-col bg-[#181e24] text-slate-200 ${
-        isFullscreen ? "fixed inset-0 z-50 p-4" : "w-full max-w-7xl mx-auto p-4 sm:p-6 space-y-4"
+        isFullscreen
+          ? "fixed inset-0 z-50 p-4"
+          : "w-full max-w-7xl mx-auto p-4 sm:p-6 space-y-4"
       }`}
     >
       {/* ─── TERMINAL ÜST ARAÇ ÇUBUĞU ─── */}
@@ -244,7 +259,9 @@ export function WebTerminalClient() {
               <TerminalIcon className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-xs font-bold text-white block">Hedef Konsol</span>
+              <span className="text-xs font-bold text-white block">
+                Hedef Konsol
+              </span>
               <span className="text-[10px] text-slate-400 font-mono">
                 {isConnected ? (
                   <span className="text-emerald-400 flex items-center gap-1">
@@ -307,15 +324,30 @@ export function WebTerminalClient() {
             className="p-1.5 rounded-lg bg-[#12161c] hover:bg-[#2b3442] text-slate-300 hover:text-white border border-[#2d3748] transition-colors"
             title={isFullscreen ? "Tam Ekrandan Çık" : "Tam Ekran Yap"}
           >
-            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            {isFullscreen ? (
+              <Minimize2 className="w-4 h-4" />
+            ) : (
+              <Maximize2 className="w-4 h-4" />
+            )}
           </button>
         </div>
       </div>
 
       {/* ─── HIZLI KOMUT ÇUBUĞU ─── */}
       <div className="flex flex-wrap items-center gap-1.5 px-1 text-xs">
-        <span className="text-[11px] text-slate-400 font-mono mr-1">Hızlı Komutlar:</span>
-        {["help", "docker ps", "uptime", "uname -a", "free -m", "df -h", "top", "clear"].map((cmd) => (
+        <span className="text-[11px] text-slate-400 font-mono mr-1">
+          Hızlı Komutlar:
+        </span>
+        {[
+          "help",
+          "docker ps",
+          "uptime",
+          "uname -a",
+          "free -m",
+          "df -h",
+          "top",
+          "clear",
+        ].map((cmd) => (
           <button
             key={cmd}
             onClick={() => handleSendCommand(cmd)}
@@ -339,7 +371,9 @@ export function WebTerminalClient() {
       <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono px-1">
         <span className="flex items-center gap-1.5">
           <Info className="w-3.5 h-3.5 text-slate-500" />
-          <span>WebSocket Çift Yönlü İletişim • DIN 40719 Terminal Protokolü</span>
+          <span>
+            WebSocket Çift Yönlü İletişim • DIN 40719 Terminal Protokolü
+          </span>
         </span>
         <span>XIVIZLEY Sovereign Cloud v1.0</span>
       </div>

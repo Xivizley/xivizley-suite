@@ -5,7 +5,8 @@ import { GAME_LIST } from "@/data/game-catalog";
 import type { GameId } from "@xivizley/types";
 
 export function GameSwitcherBar() {
-  const { activeGameId, setActiveGame, activeServer, configPerGame } = useGameStore();
+  const { activeGameId, setActiveGame, activeServer, configPerGame } =
+    useGameStore();
 
   return (
     <div className="w-full bg-[#222933] border-b border-[#2d3748] py-2.5 px-4 sm:px-6">
@@ -19,10 +20,12 @@ export function GameSwitcherBar() {
         <div className="flex items-center gap-2 flex-nowrap">
           {GAME_LIST.map((game) => {
             const isActive = activeGameId === game.id;
-            const config = configPerGame[game.id as GameId] || game.defaultConfig;
+            const config =
+              configPerGame[game.id as GameId] || game.defaultConfig;
             const isServerRunning =
               activeServer?.gameId === game.id &&
-              (activeServer.status === "running" || activeServer.status === "starting");
+              (activeServer.status === "running" ||
+                activeServer.status === "starting");
 
             return (
               <button
@@ -53,14 +56,19 @@ export function GameSwitcherBar() {
                     )}
                   </div>
                   {/* Seçili Sürüm Bilgisi */}
-                  <span className={`text-[10px] font-mono leading-none mt-0.5 ${isActive ? "text-white/80 font-medium" : "text-slate-400"}`}>
+                  <span
+                    className={`text-[10px] font-mono leading-none mt-0.5 ${isActive ? "text-white/80 font-medium" : "text-slate-400"}`}
+                  >
                     v{config?.version || "latest"}
                   </span>
                 </div>
 
                 {/* Canlı Çalışan Konteyner Göstergesi */}
                 {isServerRunning && (
-                  <span className="flex h-2 w-2 ml-1" title="Sunucu şu an aktif çalışıyor">
+                  <span
+                    className="flex h-2 w-2 ml-1"
+                    title="Sunucu şu an aktif çalışıyor"
+                  >
                     <span className="inline-flex rounded-full h-2 w-2 bg-emerald-400"></span>
                   </span>
                 )}

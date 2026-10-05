@@ -24,8 +24,10 @@ export interface DropdownOption<T = string> {
 
 export type DropdownSize = "sm" | "md" | "lg";
 
-export interface DropdownProps<T = string>
-  extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
+export interface DropdownProps<T = string> extends Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "onChange"
+> {
   /** Dropdown seçenekleri */
   options: DropdownOption<T>[];
   /** Seçili değer */
@@ -83,7 +85,10 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<any>>(
 
     // Dışarı tıklama ve Escape tuşuyla kapatma
     const handleClickOutside = useCallback((e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setIsOpen(false);
       }
     }, []);
@@ -114,7 +119,11 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<any>>(
     return (
       <div
         ref={ref}
-        className={clsx("flex flex-col gap-1.5 relative", fullWidth && "w-full", className)}
+        className={clsx(
+          "flex flex-col gap-1.5 relative",
+          fullWidth && "w-full",
+          className,
+        )}
         {...rest}
       >
         {/* Label */}
@@ -144,19 +153,23 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<any>>(
               error
                 ? "border-aurora-rose shadow-aurora-danger"
                 : isOpen
-                ? "border-aurora-cyan shadow-aurora-sm ring-1 ring-aurora-cyan/30"
-                : "border-aurora hover:border-aurora-glow",
+                  ? "border-aurora-cyan shadow-aurora-sm ring-1 ring-aurora-cyan/30"
+                  : "border-aurora hover:border-aurora-glow",
               disabled && "opacity-50 cursor-not-allowed pointer-events-none",
             )}
           >
             <div className="flex items-center gap-2 truncate">
               {selectedOption?.icon && (
-                <span className="shrink-0 text-aurora-cyan">{selectedOption.icon}</span>
+                <span className="shrink-0 text-aurora-cyan">
+                  {selectedOption.icon}
+                </span>
               )}
               <span
                 className={clsx(
                   "truncate",
-                  selectedOption ? "text-aurora-text-primary" : "text-aurora-text-muted",
+                  selectedOption
+                    ? "text-aurora-text-primary"
+                    : "text-aurora-text-muted",
                 )}
               >
                 {selectedOption ? selectedOption.label : placeholder}
@@ -206,12 +219,14 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<any>>(
                       option.disabled
                         ? "opacity-40 cursor-not-allowed"
                         : isSelected
-                        ? "bg-aurora-cyan/15 text-aurora-cyan font-medium"
-                        : "text-aurora-text-secondary hover:bg-aurora-elevated hover:text-aurora-text-primary",
+                          ? "bg-aurora-cyan/15 text-aurora-cyan font-medium"
+                          : "text-aurora-text-secondary hover:bg-aurora-elevated hover:text-aurora-text-primary",
                     )}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      {option.icon && <span className="shrink-0">{option.icon}</span>}
+                      {option.icon && (
+                        <span className="shrink-0">{option.icon}</span>
+                      )}
                       <div className="flex flex-col truncate">
                         <span className="truncate">{option.label}</span>
                         {option.description && (
@@ -247,9 +262,13 @@ export const Dropdown = forwardRef<HTMLDivElement, DropdownProps<any>>(
 
         {/* Hata veya İpucu */}
         {error ? (
-          <p className="text-aurora-rose text-[var(--aurora-text-xs)]">{error}</p>
+          <p className="text-aurora-rose text-[var(--aurora-text-xs)]">
+            {error}
+          </p>
         ) : hint ? (
-          <p className="text-aurora-text-muted text-[var(--aurora-text-xs)]">{hint}</p>
+          <p className="text-aurora-text-muted text-[var(--aurora-text-xs)]">
+            {hint}
+          </p>
         ) : null}
       </div>
     );

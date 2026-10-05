@@ -25,7 +25,8 @@ export function MCServerHero() {
 
   const game = GAME_CATALOG[activeGameId] || GAME_CATALOG.minecraft;
   const config = configPerGame[activeGameId] || game.defaultConfig;
-  const currentEngine = game.engines.find((e) => e.id === config.engineId) || game.engines[0];
+  const currentEngine =
+    game.engines.find((e) => e.id === config.engineId) || game.engines[0];
 
   const [metrics, setMetrics] = useState<StreamData | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -33,11 +34,16 @@ export function MCServerHero() {
   const [copiedIp, setCopiedIp] = useState(false);
   const [resetConfirm, setResetConfirm] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
-  const [resetResult, setResetResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [resetResult, setResetResult] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
 
   // SSE Metrik Akışı
   useEffect(() => {
-    const sse = new EventSource(`/api/metrics/stream?gameId=${encodeURIComponent(activeGameId)}`);
+    const sse = new EventSource(
+      `/api/metrics/stream?gameId=${encodeURIComponent(activeGameId)}`,
+    );
 
     sse.onmessage = (e) => {
       try {
@@ -88,7 +94,8 @@ export function MCServerHero() {
       } else {
         if (action === "start") {
           setActiveServer({
-            containerId: json.data?.container || `xivizley-${activeGameId}-server`,
+            containerId:
+              json.data?.container || `xivizley-${activeGameId}-server`,
             gameId: activeGameId,
             status: "starting",
           });
@@ -121,21 +128,32 @@ export function MCServerHero() {
       const json = await res.json();
       if (json.ok) {
         setActiveServer(null);
-        setResetResult({ ok: true, message: json.data?.message || "Sunucu sıfırlandı." });
+        setResetResult({
+          ok: true,
+          message: json.data?.message || "Sunucu sıfırlandı.",
+        });
       } else {
-        setResetResult({ ok: false, message: json.message || "Sıfırlama başarısız." });
+        setResetResult({
+          ok: false,
+          message: json.message || "Sıfırlama başarısız.",
+        });
       }
     } catch (err: any) {
-      setResetResult({ ok: false, message: err.message || "Sunucuyla iletişim kurulamadı." });
+      setResetResult({
+        ok: false,
+        message: err.message || "Sunucuyla iletişim kurulamadı.",
+      });
     } finally {
       setResetLoading(false);
       setTimeout(() => setResetResult(null), 8000);
     }
   };
 
-
   const serverPort = config.port || game.defaultPort;
-  const detectedHost = typeof window !== "undefined" ? window.location.hostname : (metrics?.host?.serverIp || "localhost");
+  const detectedHost =
+    typeof window !== "undefined"
+      ? window.location.hostname
+      : metrics?.host?.serverIp || "localhost";
   const serverIpAddress = `${detectedHost}:${serverPort}`;
 
   const copyIp = () => {
@@ -146,13 +164,18 @@ export function MCServerHero() {
 
   // RAM Hesaplama
   const usedRamMb = metrics?.container?.memUsageMb || 0;
-  const ramPercent = Math.min(100, Math.round((usedRamMb / containerMemLimit) * 100));
+  const ramPercent = Math.min(
+    100,
+    Math.round((usedRamMb / containerMemLimit) * 100),
+  );
 
   // CPU Hesaplama
   const cpuPercent = metrics?.container?.cpuPercent || 0;
   const cpuModel = metrics?.host?.cpuModel || "Çok Çekirdekli İşlemci";
   const totalCores = metrics?.host?.totalCpuCores || 2;
-  const hostTotalRamGb = metrics?.host?.totalRamMb ? (metrics.host.totalRamMb / 1024).toFixed(1) : null;
+  const hostTotalRamGb = metrics?.host?.totalRamMb
+    ? (metrics.host.totalRamMb / 1024).toFixed(1)
+    : null;
   const hostTotalDiskGb = metrics?.host?.totalDiskGb || 40;
   const hostUsedDiskGb = metrics?.host?.usedDiskGb || 0;
   const hostDiskPercent = metrics?.host?.diskUsagePercent ?? 12;
@@ -201,7 +224,8 @@ export function MCServerHero() {
                 </span>
 
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#162232] text-emerald-400 border border-emerald-500/20 font-bold">
-                  {currentEngine?.name.split(" ")[0]} v{config.version || "LATEST"}
+                  {currentEngine?.name.split(" ")[0]} v
+                  {config.version || "LATEST"}
                 </span>
               </div>
 
@@ -214,7 +238,9 @@ export function MCServerHero() {
                   title="IP Adresini Kopyala"
                 >
                   <span className="text-[#1AD76F] text-xs">🌐</span>
-                  <span className="text-white font-semibold">{serverIpAddress}</span>
+                  <span className="text-white font-semibold">
+                    {serverIpAddress}
+                  </span>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded transition-all font-sans font-medium ${
                       copiedIp
@@ -268,9 +294,18 @@ export function MCServerHero() {
             {/* BAŞLAT BUTONU (mcserverhost Yeşil Vurgulu) */}
             <button
               type="button"
-              disabled={!isAdmin || isRunning || !startEligibility.allowed || !!actionLoading}
+              disabled={
+                !isAdmin ||
+                isRunning ||
+                !startEligibility.allowed ||
+                !!actionLoading
+              }
               onClick={() => handleServerAction("start")}
-              title={!isAdmin ? "Bu işlem yalnızca sunucu yöneticisi tarafından yapılabilir" : undefined}
+              title={
+                !isAdmin
+                  ? "Bu işlem yalnızca sunucu yöneticisi tarafından yapılabilir"
+                  : undefined
+              }
               className={`px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
                 !isAdmin || isRunning || !startEligibility.allowed
                   ? "bg-slate-800 text-slate-600 border border-slate-700 cursor-not-allowed"
@@ -278,7 +313,9 @@ export function MCServerHero() {
               }`}
             >
               <span>{!isAdmin ? "🔒" : "▶"}</span>
-              <span>{actionLoading === "start" ? "Başlatılıyor..." : "Başlat"}</span>
+              <span>
+                {actionLoading === "start" ? "Başlatılıyor..." : "Başlat"}
+              </span>
             </button>
 
             {/* YENİDEN BAŞLAT */}
@@ -286,7 +323,11 @@ export function MCServerHero() {
               type="button"
               disabled={!isAdmin || !isRunning || !!actionLoading}
               onClick={() => handleServerAction("restart")}
-              title={!isAdmin ? "Bu işlem yalnızca sunucu yöneticisi tarafından yapılabilir" : undefined}
+              title={
+                !isAdmin
+                  ? "Bu işlem yalnızca sunucu yöneticisi tarafından yapılabilir"
+                  : undefined
+              }
               className={`px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
                 !isAdmin || !isRunning
                   ? "bg-slate-800/50 text-slate-600 border border-slate-800 cursor-not-allowed"
@@ -294,7 +335,11 @@ export function MCServerHero() {
               }`}
             >
               <span>{!isAdmin ? "🔒" : "🔄"}</span>
-              <span>{actionLoading === "restart" ? "Yenileniyor..." : "Yeniden Başlat"}</span>
+              <span>
+                {actionLoading === "restart"
+                  ? "Yenileniyor..."
+                  : "Yeniden Başlat"}
+              </span>
             </button>
 
             {/* DURDUR */}
@@ -302,7 +347,11 @@ export function MCServerHero() {
               type="button"
               disabled={!isAdmin || !isRunning || !!actionLoading}
               onClick={() => handleServerAction("stop")}
-              title={!isAdmin ? "Bu işlem yalnızca sunucu yöneticisi tarafından yapılabilir" : undefined}
+              title={
+                !isAdmin
+                  ? "Bu işlem yalnızca sunucu yöneticisi tarafından yapılabilir"
+                  : undefined
+              }
               className={`px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer ${
                 !isAdmin || !isRunning
                   ? "bg-slate-800/50 text-slate-600 border border-slate-800 cursor-not-allowed"
@@ -310,7 +359,9 @@ export function MCServerHero() {
               }`}
             >
               <span>{!isAdmin ? "🔒" : "⏹"}</span>
-              <span>{actionLoading === "stop" ? "Durduruluyor..." : "Durdur"}</span>
+              <span>
+                {actionLoading === "stop" ? "Durduruluyor..." : "Durdur"}
+              </span>
             </button>
 
             {/* SUNUCUYU SIFIRLA */}
@@ -322,10 +373,14 @@ export function MCServerHero() {
                 !isAdmin
                   ? "bg-slate-800/50 text-slate-600 border border-slate-800 cursor-not-allowed"
                   : resetLoading
-                  ? "bg-orange-500/10 text-orange-400/50 border border-orange-500/20 cursor-not-allowed animate-pulse"
-                  : "bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 hover:border-orange-500/60 active:scale-95"
+                    ? "bg-orange-500/10 text-orange-400/50 border border-orange-500/20 cursor-not-allowed animate-pulse"
+                    : "bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 border border-orange-500/30 hover:border-orange-500/60 active:scale-95"
               }`}
-              title={!isAdmin ? "Bu işlem yalnızca sunucu yöneticisi tarafından yapılabilir" : "Sunucuyu tamamen sıfırla — tüm dünya ve eklenti verileri silinir"}
+              title={
+                !isAdmin
+                  ? "Bu işlem yalnızca sunucu yöneticisi tarafından yapılabilir"
+                  : "Sunucuyu tamamen sıfırla — tüm dünya ve eklenti verileri silinir"
+              }
             >
               <span>{!isAdmin ? "🔒" : "🗑️"}</span>
               <span>{resetLoading ? "Sıfırlanıyor..." : "Sıfırla"}</span>
@@ -354,18 +409,30 @@ export function MCServerHero() {
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-3xl">⚠️</span>
                 <div>
-                  <h2 className="text-white font-black text-base">Sunucuyu Sıfırla</h2>
-                  <p className="text-orange-400 text-xs font-semibold uppercase tracking-wider mt-0.5">Geri Alınamaz İşlem</p>
+                  <h2 className="text-white font-black text-base">
+                    Sunucuyu Sıfırla
+                  </h2>
+                  <p className="text-orange-400 text-xs font-semibold uppercase tracking-wider mt-0.5">
+                    Geri Alınamaz İşlem
+                  </p>
                 </div>
               </div>
               <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3.5 mb-5 text-xs text-orange-200 leading-relaxed space-y-1.5">
-                <p>🗺️ <strong>Tüm dünya haritası</strong> ve bloklar silinir.</p>
-                <p>🧩 <strong>Tüm eklenti verileri</strong> (economy, claims, ranks) silinir.</p>
-                <p>👤 <strong>Oyuncu envanterleri ve ilerlemesi</strong> silinir.</p>
+                <p>
+                  🗺️ <strong>Tüm dünya haritası</strong> ve bloklar silinir.
+                </p>
+                <p>
+                  🧩 <strong>Tüm eklenti verileri</strong> (economy, claims,
+                  ranks) silinir.
+                </p>
+                <p>
+                  👤 <strong>Oyuncu envanterleri ve ilerlemesi</strong> silinir.
+                </p>
                 <p>⚙️ Sunucu varsayılan ayarlarıyla sıfırdan başlar.</p>
               </div>
               <p className="text-slate-400 text-xs mb-5">
-                <strong className="text-white">{game.name}</strong> sunucusunu tamamen sıfırlamak istediğinden emin misin?
+                <strong className="text-white">{game.name}</strong> sunucusunu
+                tamamen sıfırlamak istediğinden emin misin?
               </p>
               <div className="flex gap-3">
                 <button
@@ -395,7 +462,9 @@ export function MCServerHero() {
               <span className="font-semibold text-slate-300 flex items-center gap-1.5">
                 <span>🧠</span> Sunucu Belleği (RAM)
               </span>
-              <span className="font-mono text-[#1AD76F] font-bold">%{ramPercent}</span>
+              <span className="font-mono text-[#1AD76F] font-bold">
+                %{ramPercent}
+              </span>
             </div>
             <div className="w-full bg-[#0a0f16] h-2 rounded-full overflow-hidden border border-[#1b2636]">
               <div
@@ -405,17 +474,26 @@ export function MCServerHero() {
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
               <span>{usedRamMb} MB Konteyner</span>
-              <span>{hostTotalRamGb ? `${hostTotalRamGb} GB Host` : `${containerMemLimit} MB Max`}</span>
+              <span>
+                {hostTotalRamGb
+                  ? `${hostTotalRamGb} GB Host`
+                  : `${containerMemLimit} MB Max`}
+              </span>
             </div>
           </div>
 
           {/* 2. CPU KARTI */}
           <div className="p-3.5 rounded-xl bg-[#121a26] border border-[#1d2a3c] flex flex-col gap-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span className="font-semibold text-slate-300 flex items-center gap-1.5 truncate max-w-[150px]" title={cpuModel}>
+              <span
+                className="font-semibold text-slate-300 flex items-center gap-1.5 truncate max-w-[150px]"
+                title={cpuModel}
+              >
                 <span>⚡</span> {cpuModel}
               </span>
-              <span className="font-mono text-cyan-400 font-bold">%{cpuPercent}</span>
+              <span className="font-mono text-cyan-400 font-bold">
+                %{cpuPercent}
+              </span>
             </div>
             <div className="w-full bg-[#0a0f16] h-2 rounded-full overflow-hidden border border-[#1b2636]">
               <div
@@ -435,7 +513,9 @@ export function MCServerHero() {
               <span className="font-semibold text-slate-300 flex items-center gap-1.5">
                 <span>💽</span> Disk / SSD Hacmi
               </span>
-              <span className="font-mono text-purple-400 font-bold">%{hostDiskPercent}</span>
+              <span className="font-mono text-purple-400 font-bold">
+                %{hostDiskPercent}
+              </span>
             </div>
             <div className="w-full bg-[#0a0f16] h-2 rounded-full overflow-hidden border border-[#1b2636]">
               <div
@@ -444,8 +524,12 @@ export function MCServerHero() {
               />
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-              <span className="truncate max-w-[110px]" title={game.volumeName}>{game.volumeName}</span>
-              <span>{hostTotalDiskGb} GB ({hostUsedDiskGb} GB Dolu)</span>
+              <span className="truncate max-w-[110px]" title={game.volumeName}>
+                {game.volumeName}
+              </span>
+              <span>
+                {hostTotalDiskGb} GB ({hostUsedDiskGb} GB Dolu)
+              </span>
             </div>
           </div>
 
@@ -467,7 +551,9 @@ export function MCServerHero() {
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
               <span>{isRunning ? "Port Aktif (25565)" : "Çevrimdışı"}</span>
-              <span className="text-[#1AD76F] font-semibold">DDoS Korumalı</span>
+              <span className="text-[#1AD76F] font-semibold">
+                DDoS Korumalı
+              </span>
             </div>
           </div>
         </div>

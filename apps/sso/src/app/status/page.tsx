@@ -5,7 +5,8 @@ import { ClusterSwitcherModal } from "@/components/ClusterSwitcherModal";
 
 export const metadata = {
   title: "Sistem Durumu & Uptime • XIVIZLEY Suite",
-  description: "XIVIZLEY bulut ekosistemi ve VDS sunucu altyapısı canlı uptime ve servis sağlık durumu.",
+  description:
+    "XIVIZLEY bulut ekosistemi ve VDS sunucu altyapısı canlı uptime ve servis sağlık durumu.",
 };
 
 export default function StatusPage() {

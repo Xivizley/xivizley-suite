@@ -91,8 +91,14 @@ export function updateNotificationConfig(config: {
     currentEnabled = config.discordEnabled;
   }
 
-  if (typeof config.debounceMinutes === "number") {
-    currentDebounceMinutes = Math.max(1, config.debounceMinutes);
+  if (
+    typeof config.debounceMinutes === "number" &&
+    !Number.isNaN(config.debounceMinutes)
+  ) {
+    currentDebounceMinutes = Math.max(
+      1,
+      Math.min(1440, Math.floor(config.debounceMinutes)),
+    );
   }
 
   return getNotificationConfig();
@@ -101,7 +107,10 @@ export function updateNotificationConfig(config: {
 /**
  * Check if the cooldown rule allows dispatching this alert
  */
-export function canSendDiscordAlert(key: string, cooldownMinutes = currentDebounceMinutes): boolean {
+export function canSendDiscordAlert(
+  key: string,
+  cooldownMinutes = currentDebounceMinutes,
+): boolean {
   const lastTime = discordAlertCooldowns.get(key);
   if (!lastTime) return true;
   const now = Date.now();
@@ -122,10 +131,10 @@ export function clearDiscordAlertCooldown(key: string): void {
  */
 export async function sendDiscordEmbed(
   embed: DiscordEmbed,
-  overrideWebhookUrl?: string | null
+  overrideWebhookUrl?: string | null,
 ): Promise<boolean> {
   const webhookUrl = overrideWebhookUrl || currentWebhookUrl;
-  if (!webhookUrl || !currentEnabled) {
+  if (!webhookUrl || (!overrideWebhookUrl && !currentEnabled)) {
     return false;
   }
 
@@ -165,7 +174,9 @@ export async function sendDiscordEmbed(
 /**
  * High-level ops alert sender with color mapping, cooldown enforcement & embed formatting
  */
-export async function dispatchOpsDiscordAlert(event: OpsAlertEvent): Promise<boolean> {
+export async function dispatchOpsDiscordAlert(
+  event: OpsAlertEvent,
+): Promise<boolean> {
   if (!canSendDiscordAlert(event.key)) {
     return false;
   }
@@ -230,13 +241,31 @@ export async function dispatchOpsDiscordAlert(event: OpsAlertEvent): Promise<boo
  * Triggers an instant test card to verify Discord webhook connectivity
  */
 export async function sendTestDiscordAlert(
-  customWebhookUrl?: string
+  customWebhookUrl?: string,
 ): Promise<{ ok: boolean; message: string }> {
-  const targetUrl = customWebhookUrl || currentWebhookUrl;
+  const targetUrl =
+    (customWebhookUrl ? customWebhookUrl.trim() : currentWebhookUrl) || null;
   if (!targetUrl) {
     return {
       ok: false,
-      message: "Discord Webhook URL tanımlı değil. Lütfen geçerli bir webhook bağlantısı girin.",
+      message:
+        "Discord Webhook URL tanımlı değil. Lütfen geçerli bir webhook bağlantısı girin.",
+    };
+  }
+
+  try {
+    const parsed = new URL(targetUrl);
+    if (!["https:", "http:"].includes(parsed.protocol)) {
+      return {
+        ok: false,
+        message:
+          "Geçersiz Discord Webhook URL protokolü. 'https://' ile başlamalıdır.",
+      };
+    }
+  } catch {
+    return {
+      ok: false,
+      message: "Geçersiz Discord Webhook URL formatı.",
     };
   }
 
@@ -288,7 +317,8 @@ export async function sendTestDiscordAlert(
   } else {
     return {
       ok: false,
-      message: "Discord Webhook isteği başarısız oldu. Webhook URL formatını kontrol ediniz.",
+      message:
+        "Discord Webhook isteği başarısız oldu. Webhook URL formatını kontrol ediniz.",
     };
   }
 }

@@ -3,11 +3,12 @@
 **Hedef Topluluk:** [r/CodingTR](https://reddit.com/r/CodingTR)  
 **Paylaşım Türü:** Metin Gönderisi  
 **Flair:** `[Proje Tanıtımı]` veya `[Açık Kaynak]`  
-**Not:** *r/CodingTR Kural 2 (yaş/abartı yerine doğrudan teknik mimariye odaklanma) ilkelerine tam uyumlu olarak kaleme alınmıştır.*
+**Not:** _r/CodingTR Kural 2 (yaş/abartı yerine doğrudan teknik mimariye odaklanma) ilkelerine tam uyumlu olarak kaleme alınmıştır._
 
 ---
 
 ## 📌 Gönderi Başlığı
+
 `[Açık Kaynak Proje] XIVIZLEY Suite: Next.js 15, Fastify ve Docker ile Geliştirdiğim Özel Bulut ve Konteyner Yönetim Ekosistemi`
 
 ---
@@ -21,7 +22,8 @@ Son dönemde homelab ortamımda ve VDS üzerinde dağınık çalışan servisler
 Projenin temel amacı; Nextcloud Hub tasarım dilini referans alarak modern web teknolojileri (Next.js 15, Fastify, Drizzle ORM) ve Docker API'si üzerinden merkezi bir özel bulut deneyimi sunmak.
 
 ### 🔗 Bağlantılar
-- **Canlı Demo (Kayıtsız/Şifresiz):** [https://suite.xivizley.com.tr](https://suite.xivizley.com.tr) *(Giriş ekranında "Canlı Demo Olarak Keşfet" butonuyla test edebilirsiniz)*
+
+- **Canlı Demo (Kayıtsız/Şifresiz):** [https://suite.xivizley.com.tr](https://suite.xivizley.com.tr) _(Giriş ekranında "Canlı Demo Olarak Keşfet" butonuyla test edebilirsiniz)_
 - **Tuval Mimarisi:** [https://xivizley.com.tr/architect](https://xivizley.com.tr/architect)
 - **GitHub Deposu (MIT):** [github.com/Xivizley/xivizley-suite](https://github.com/Xivizley/xivizley-suite)
 - **CLI Motoru:** `npx xivizley`
@@ -65,8 +67,9 @@ curl -fsSL https://suite.xivizley.com.tr/install.sh | bash
 ```
 
 ### 💬 Yorum ve Geri Bildirim
+
 Özellikle Fastify üzerinde kurguladığım asimetrik JWT doğrulama akışı, Docker soket proxy mimarisi ve port çakışma çözümleme mantığı hakkındaki görüş ve eleştirilerinizi paylaşırsanız çok sevinirim.
 
 Kodları incelemek veya katkıda bulunmak isteyenler için GitHub deposu MIT lisansıyla yayındadır.
 
-*Alperen Celal (Bursa)*
+_Alperen Celal (Bursa)_

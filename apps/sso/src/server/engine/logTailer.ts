@@ -53,7 +53,13 @@ export async function processLogLine(line: string) {
     const status = entry.status || 200;
 
     // Yerel veya güvenli IP'leri atla
-    if (!ip || ip === "127.0.0.1" || ip === "::1" || ip.startsWith("10.") || ip.startsWith("192.168.")) {
+    if (
+      !ip ||
+      ip === "127.0.0.1" ||
+      ip === "::1" ||
+      ip.startsWith("10.") ||
+      ip.startsWith("192.168.")
+    ) {
       return;
     }
 
@@ -75,7 +81,9 @@ export async function processLogLine(line: string) {
       const severity = wafResult.severity || "high";
       const geo = resolveGeoIp(ip);
 
-      console.warn(`🚨 [SHIELD RADAR] Tehdit yakalandı: ${ip} (${geo.countryCode}) -> ${method} ${uri} [${threatType}]`);
+      console.warn(
+        `🚨 [SHIELD RADAR] Tehdit yakalandı: ${ip} (${geo.countryCode}) -> ${method} ${uri} [${threatType}]`,
+      );
 
       // Olayı kaydet
       await recordSecurityEvent({
@@ -94,7 +102,12 @@ export async function processLogLine(line: string) {
 
       // Kritik veya Yüksek seviye ise IP'yi otomatik karantinaya al
       if (severity === "critical" || severity === "high") {
-        await banIp(ip, `Caddy WAF Bot Kalkanı: ${threatType} (${uri.slice(0, 40)})`, severity, false);
+        await banIp(
+          ip,
+          `Caddy WAF Bot Kalkanı: ${threatType} (${uri.slice(0, 40)})`,
+          severity,
+          false,
+        );
 
         // Telegram bildirimi gönder
         await sendShieldTelegramAlert({
@@ -121,7 +134,9 @@ export function startLogTailer(): boolean {
   if (isTailerRunning) return true;
 
   // Mevcut log dosyasını bul
-  let targetPath = LOG_FILE_PATHS.find((p) => typeof p === "string" && fs.existsSync(p));
+  let targetPath = LOG_FILE_PATHS.find(
+    (p) => typeof p === "string" && fs.existsSync(p),
+  );
 
   if (!targetPath) {
     const defaultPath = LOG_FILE_PATHS[0] || "/var/log/caddy/access.log";
@@ -131,7 +146,9 @@ export function startLogTailer(): boolean {
       fs.writeFileSync(defaultPath, "", "utf-8");
       targetPath = defaultPath;
     } catch {
-      targetPath = LOG_FILE_PATHS[1] || path.resolve(process.cwd(), ".storage/caddy-access.log");
+      targetPath =
+        LOG_FILE_PATHS[1] ||
+        path.resolve(process.cwd(), ".storage/caddy-access.log");
       const localDir = path.dirname(targetPath);
       if (!fs.existsSync(localDir)) fs.mkdirSync(localDir, { recursive: true });
       fs.writeFileSync(targetPath, "", "utf-8");

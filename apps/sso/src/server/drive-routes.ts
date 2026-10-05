@@ -10,7 +10,9 @@ import archiver from "archiver";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
 import { getDb, files, folders, shares } from "@xivizley/db";
 
-const UPLOAD_DIR = process.env["DRIVE_STORAGE_PATH"] || path.resolve(process.cwd(), ".storage/drive");
+const UPLOAD_DIR =
+  process.env["DRIVE_STORAGE_PATH"] ||
+  path.resolve(process.cwd(), ".storage/drive");
 const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000001";
 const DEMO_USER_ID = "d0000000-0000-0000-0000-000000000001";
 
@@ -69,7 +71,13 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
         userFiles = await db
           .select()
           .from(files)
-          .where(and(eq(files.userId, userId), eq(files.isFavorite, true), eq(files.isTrashed, false)))
+          .where(
+            and(
+              eq(files.userId, userId),
+              eq(files.isFavorite, true),
+              eq(files.isTrashed, false),
+            ),
+          )
           .orderBy(desc(files.createdAt));
       } else if (filter === "recent") {
         // Son kullanılanlar
@@ -104,8 +112,16 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
           .from(files)
           .where(
             folderId
-              ? and(eq(files.userId, userId), eq(files.folderId, folderId), eq(files.isTrashed, false))
-              : and(eq(files.userId, userId), isNull(files.folderId), eq(files.isTrashed, false)),
+              ? and(
+                  eq(files.userId, userId),
+                  eq(files.folderId, folderId),
+                  eq(files.isTrashed, false),
+                )
+              : and(
+                  eq(files.userId, userId),
+                  isNull(files.folderId),
+                  eq(files.isTrashed, false),
+                ),
           )
           .orderBy(desc(files.createdAt));
       }
@@ -224,7 +240,9 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
     const { name, parent_id, color } = request.body || {};
 
     if (!name || !name.trim()) {
-      return reply.status(400).send({ ok: false, message: "Klasör adı zorunludur." });
+      return reply
+        .status(400)
+        .send({ ok: false, message: "Klasör adı zorunludur." });
     }
 
     try {
@@ -241,7 +259,9 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.send({ ok: true, data: newFolder });
     } catch (err: any) {
       fastify.log.error(err);
-      return reply.status(500).send({ ok: false, message: err?.message || "Klasör oluşturulamadı." });
+      return reply
+        .status(500)
+        .send({ ok: false, message: err?.message || "Klasör oluşturulamadı." });
     }
   });
 
@@ -253,7 +273,9 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       const data = await request.file();
 
       if (!data) {
-        return reply.status(400).send({ ok: false, message: "Yüklenecek dosya bulunamadı." });
+        return reply
+          .status(400)
+          .send({ ok: false, message: "Yüklenecek dosya bulunamadı." });
       }
 
       const folderId = (data.fields?.folder_id as any)?.value || null;
@@ -293,7 +315,9 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       return reply.send({ ok: true, data: savedFile });
     } catch (err: any) {
       fastify.log.error(err);
-      return reply.status(500).send({ ok: false, message: err?.message || "Dosya yüklenemedi." });
+      return reply
+        .status(500)
+        .send({ ok: false, message: err?.message || "Dosya yüklenemedi." });
     }
   });
 
@@ -304,7 +328,8 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
   }>("/api/download/:id", async (request, reply) => {
     const userId = resolveUserId(request);
     const { id } = request.params;
-    const isInline = request.query?.inline === "true" || request.query?.inline === "1";
+    const isInline =
+      request.query?.inline === "true" || request.query?.inline === "1";
 
     const [file] = await db
       .select()
@@ -313,12 +338,17 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       .limit(1);
 
     if (!file || !fs.existsSync(file.storagePath)) {
-      return reply.status(404).send({ ok: false, message: "Dosya bulunamadı." });
+      return reply
+        .status(404)
+        .send({ ok: false, message: "Dosya bulunamadı." });
     }
 
     const dispositionType = isInline ? "inline" : "attachment";
     reply.header("Content-Type", file.mimeType || "application/octet-stream");
-    reply.header("Content-Disposition", `${dispositionType}; filename="${encodeURIComponent(file.name)}"`);
+    reply.header(
+      "Content-Disposition",
+      `${dispositionType}; filename="${encodeURIComponent(file.name)}"`,
+    );
     reply.header("Content-Length", file.sizeBytes);
 
     const stream = fs.createReadStream(file.storagePath);
@@ -339,7 +369,9 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       .limit(1);
 
     if (!file) {
-      return reply.status(404).send({ ok: false, message: "Dosya bulunamadı." });
+      return reply
+        .status(404)
+        .send({ ok: false, message: "Dosya bulunamadı." });
     }
 
     const [updated] = await db
@@ -365,7 +397,9 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       .returning();
 
     if (!updated) {
-      return reply.status(404).send({ ok: false, message: "Dosya bulunamadı." });
+      return reply
+        .status(404)
+        .send({ ok: false, message: "Dosya bulunamadı." });
     }
 
     return reply.send({ ok: true, data: updated });
@@ -385,7 +419,9 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       .returning();
 
     if (!updated) {
-      return reply.status(404).send({ ok: false, message: "Dosya bulunamadı." });
+      return reply
+        .status(404)
+        .send({ ok: false, message: "Dosya bulunamadı." });
     }
 
     return reply.send({ ok: true, data: updated });
@@ -424,11 +460,15 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
     const { fileId, folderId, expiresInDays = 7 } = request.body || {};
 
     if (!fileId && !folderId) {
-      return reply.status(400).send({ ok: false, message: "Dosya veya klasör seçilmelidir." });
+      return reply
+        .status(400)
+        .send({ ok: false, message: "Dosya veya klasör seçilmelidir." });
     }
 
     const shareToken = crypto.randomBytes(16).toString("hex");
-    const expiresAt = new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(
+      Date.now() + expiresInDays * 24 * 60 * 60 * 1000,
+    );
 
     const [newShare] = await db
       .insert(shares)
@@ -468,16 +508,30 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       .limit(1);
 
     if (!share) {
-      return reply.status(404).send({ ok: false, message: "Paylaşım bağlantısı bulunamadı veya silinmiş." });
+      return reply
+        .status(404)
+        .send({
+          ok: false,
+          message: "Paylaşım bağlantısı bulunamadı veya silinmiş.",
+        });
     }
 
     if (share.expiresAt && new Date(share.expiresAt) < new Date()) {
-      return reply.status(410).send({ ok: false, message: "Bu paylaşım bağlantısının süresi dolmuş." });
+      return reply
+        .status(410)
+        .send({
+          ok: false,
+          message: "Bu paylaşım bağlantısının süresi dolmuş.",
+        });
     }
 
     let fileData: any = null;
     if (share.fileId) {
-      const [f] = await db.select().from(files).where(eq(files.id, share.fileId)).limit(1);
+      const [f] = await db
+        .select()
+        .from(files)
+        .where(eq(files.id, share.fileId))
+        .limit(1);
       if (f) {
         fileData = {
           name: f.name,
@@ -512,16 +566,29 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       .limit(1);
 
     if (!share || !share.fileId) {
-      return reply.status(404).send({ ok: false, message: "Paylaşım bağlantısı geçersiz." });
+      return reply
+        .status(404)
+        .send({ ok: false, message: "Paylaşım bağlantısı geçersiz." });
     }
 
     if (share.expiresAt && new Date(share.expiresAt) < new Date()) {
-      return reply.status(410).send({ ok: false, message: "Bu paylaşım bağlantısının süresi dolmuş." });
+      return reply
+        .status(410)
+        .send({
+          ok: false,
+          message: "Bu paylaşım bağlantısının süresi dolmuş.",
+        });
     }
 
-    const [file] = await db.select().from(files).where(eq(files.id, share.fileId)).limit(1);
+    const [file] = await db
+      .select()
+      .from(files)
+      .where(eq(files.id, share.fileId))
+      .limit(1);
     if (!file || !fs.existsSync(file.storagePath)) {
-      return reply.status(404).send({ ok: false, message: "Dosya bulunamadı." });
+      return reply
+        .status(404)
+        .send({ ok: false, message: "Dosya bulunamadı." });
     }
 
     // İndirme sayısını artır
@@ -547,7 +614,12 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
     const { fileIds } = request.body || {};
 
     if (!fileIds || !Array.isArray(fileIds) || fileIds.length === 0) {
-      return reply.status(400).send({ ok: false, message: "İndirilecek en az bir dosya seçilmelidir." });
+      return reply
+        .status(400)
+        .send({
+          ok: false,
+          message: "İndirilecek en az bir dosya seçilmelidir.",
+        });
     }
 
     const fileRecords = await db
@@ -556,7 +628,9 @@ export const driveRoutes: FastifyPluginAsync = async (fastify) => {
       .where(and(eq(files.userId, userId), inArray(files.id, fileIds)));
 
     if (fileRecords.length === 0) {
-      return reply.status(404).send({ ok: false, message: "Seçili dosyalar bulunamadı." });
+      return reply
+        .status(404)
+        .send({ ok: false, message: "Seçili dosyalar bulunamadı." });
     }
 
     const archive = archiver("zip", { zlib: { level: 6 } });

@@ -9,11 +9,22 @@ import { SentinelRadarWidget } from "./SentinelRadarWidget";
 import { VaultQuickWidget } from "./VaultQuickWidget";
 import { GameCockpitWidget } from "./GameCockpitWidget";
 import { SuiteAppsWidget } from "./SuiteAppsWidget";
-import { DashboardCustomizeModal, type DashboardConfig } from "./DashboardCustomizeModal";
+import {
+  DashboardCustomizeModal,
+  type DashboardConfig,
+} from "./DashboardCustomizeModal";
 import { Server, CheckCircle2, Clock } from "lucide-react";
 
 const DEFAULT_CONFIG: DashboardConfig = {
-  widgets: ["hero", "recentFiles", "stickyNote", "sentinel", "vault", "game", "apps"],
+  widgets: [
+    "hero",
+    "recentFiles",
+    "stickyNote",
+    "sentinel",
+    "vault",
+    "game",
+    "apps",
+  ],
   theme: "system",
 };
 
@@ -24,8 +35,12 @@ export function DashboardClient({
   initialUser?: { displayName: string; email: string; role?: string } | null;
   initialConfig?: DashboardConfig | null;
 }) {
-  const [user, setUser] = useState(initialUser || { displayName: "Alperen", email: "alperen@xivizley.com.tr" });
-  const [config, setConfig] = useState<DashboardConfig>(initialConfig || DEFAULT_CONFIG);
+  const [user, setUser] = useState(
+    initialUser || { displayName: "Alperen", email: "alperen@xivizley.com.tr" },
+  );
+  const [config, setConfig] = useState<DashboardConfig>(
+    initialConfig || DEFAULT_CONFIG,
+  );
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
 
   // Kullanıcı ve tercihleri backend'den güncelle
@@ -61,7 +76,10 @@ export function DashboardClient({
     const handleOpenCustomize = () => setIsCustomizeOpen(true);
     window.addEventListener("xivizley:open-customize", handleOpenCustomize);
     return () => {
-      window.removeEventListener("xivizley:open-customize", handleOpenCustomize);
+      window.removeEventListener(
+        "xivizley:open-customize",
+        handleOpenCustomize,
+      );
     };
   }, []);
 
@@ -120,9 +138,12 @@ export function DashboardClient({
               <Server className="w-4 h-4" />
             </div>
             <div>
-              <p className="font-medium text-slate-200">XIVIZLEY Enterprise Homelab Engine</p>
+              <p className="font-medium text-slate-200">
+                XIVIZLEY Enterprise Homelab Engine
+              </p>
               <p className="text-slate-400 text-[11px]">
-                OWEB TR 10 Gbps NVMe • Docker Engine Native • XIVIZLEY Hub Standartları
+                OWEB TR 10 Gbps NVMe • Docker Engine Native • XIVIZLEY Hub
+                Standartları
               </p>
             </div>
           </div>

@@ -9,7 +9,8 @@ import { TarArchive } from "archiver";
 import type { GameId } from "@xivizley/types";
 import { GAME_CATALOG } from "../data/game-catalog.js";
 
-const BACKUP_DIR = process.env.BACKUP_DIR || path.resolve(process.cwd(), "backups");
+const BACKUP_DIR =
+  process.env.BACKUP_DIR || path.resolve(process.cwd(), "backups");
 
 // Ensure backup storage directory exists
 if (!fs.existsSync(BACKUP_DIR)) {
@@ -60,7 +61,9 @@ function getContainerName(gameId?: string): string {
 }
 
 export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
-  const docker = new Docker({ socketPath: process.env.DOCKER_SOCKET || "/var/run/docker.sock" });
+  const docker = new Docker({
+    socketPath: process.env.DOCKER_SOCKET || "/var/run/docker.sock",
+  });
 
   // ─── 1. GET /api/server/backups (Yedekleri Listele) ────────────
   fastify.get<{
@@ -69,7 +72,9 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       const targetGame = request.query?.gameId;
       const meta = loadMeta();
-      const files = fs.readdirSync(BACKUP_DIR).filter((f) => f.endsWith(".tar.gz") || f.endsWith(".zip"));
+      const files = fs
+        .readdirSync(BACKUP_DIR)
+        .filter((f) => f.endsWith(".tar.gz") || f.endsWith(".zip"));
 
       const backups: BackupMetadata[] = [];
 
@@ -82,7 +87,9 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
           // Infer from filename e.g. backup-minecraft-20261002.tar.gz
           const parts = file.split("-");
           const rawGame = parts[1] || "";
-          const inferredGame = (rawGame in GAME_CATALOG ? rawGame : "minecraft") as GameId;
+          const inferredGame = (
+            rawGame in GAME_CATALOG ? rawGame : "minecraft"
+          ) as GameId;
           itemMeta = {
             filename: file,
             gameId: inferredGame,
@@ -103,7 +110,10 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
       }
 
       // Sort newest first
-      backups.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      backups.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
       saveMeta(meta);
 
       return reply.send({ ok: true, data: backups });
@@ -150,7 +160,10 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
         // Create a standalone backup archive with configuration and files
         await new Promise<void>((resolve, reject) => {
           const output = fs.createWriteStream(destPath);
-          const archive = new (TarArchive as any)({ gzip: true, gzipOptions: { level: 6 } });
+          const archive = new (TarArchive as any)({
+            gzip: true,
+            gzipOptions: { level: 6 },
+          });
 
           output.on("close", resolve);
           archive.on("error", reject);
@@ -166,10 +179,12 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
               catalogInfo: GAME_CATALOG[gameId] || null,
             },
             null,
-            2
+            2,
           );
 
-          archive.append(manifestContent, { name: "xivizley_backup_manifest.json" });
+          archive.append(manifestContent, {
+            name: "xivizley_backup_manifest.json",
+          });
 
           // If game volume directory exists locally, archive it
           const localVolume = path.resolve(process.cwd(), `.storage/${gameId}`);
@@ -202,7 +217,9 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
       });
     } catch (err: any) {
       if (fs.existsSync(destPath)) {
-        try { fs.unlinkSync(destPath); } catch {}
+        try {
+          fs.unlinkSync(destPath);
+        } catch {}
       }
       return reply.status(500).send({
         ok: false,
@@ -219,18 +236,24 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
     const gameId = (request.body?.gameId as GameId) || "minecraft";
 
     if (!rawFilename) {
-      return reply.status(400).send({ ok: false, message: "filename parametresi zorunludur." });
+      return reply
+        .status(400)
+        .send({ ok: false, message: "filename parametresi zorunludur." });
     }
 
     const safeFilename = path.basename(rawFilename);
     if (!safeFilename.endsWith(".tar.gz") && !safeFilename.endsWith(".zip")) {
-      return reply.status(400).send({ ok: false, message: "Geçersiz yedek dosya biçimi." });
+      return reply
+        .status(400)
+        .send({ ok: false, message: "Geçersiz yedek dosya biçimi." });
     }
 
     const backupPath = path.join(BACKUP_DIR, safeFilename);
 
     if (!fs.existsSync(backupPath)) {
-      return reply.status(404).send({ ok: false, message: "Yedek dosyası diskte bulunamadı." });
+      return reply
+        .status(404)
+        .send({ ok: false, message: "Yedek dosyası diskte bulunamadı." });
     }
 
     const containerName = getContainerName(gameId);
@@ -277,7 +300,9 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
     const safeFilename = path.basename(rawFilename);
 
     if (!safeFilename.endsWith(".tar.gz") && !safeFilename.endsWith(".zip")) {
-      return reply.status(400).send({ ok: false, message: "Geçersiz yedek dosya biçimi." });
+      return reply
+        .status(400)
+        .send({ ok: false, message: "Geçersiz yedek dosya biçimi." });
     }
 
     const backupPath = path.join(BACKUP_DIR, safeFilename);
@@ -311,18 +336,25 @@ export const gameBackupRoutes: FastifyPluginAsync = async (fastify) => {
     const safeFilename = path.basename(rawFilename);
 
     if (!safeFilename.endsWith(".tar.gz") && !safeFilename.endsWith(".zip")) {
-      return reply.status(400).send({ ok: false, message: "Geçersiz yedek dosya biçimi." });
+      return reply
+        .status(400)
+        .send({ ok: false, message: "Geçersiz yedek dosya biçimi." });
     }
 
     const backupPath = path.join(BACKUP_DIR, safeFilename);
 
     if (!fs.existsSync(backupPath)) {
-      return reply.status(404).send({ ok: false, message: "Yedek dosyası bulunamadı." });
+      return reply
+        .status(404)
+        .send({ ok: false, message: "Yedek dosyası bulunamadı." });
     }
 
     const stats = fs.statSync(backupPath);
     reply.header("Content-Type", "application/gzip");
-    reply.header("Content-Disposition", `attachment; filename="${encodeURIComponent(safeFilename)}"`);
+    reply.header(
+      "Content-Disposition",
+      `attachment; filename="${encodeURIComponent(safeFilename)}"`,
+    );
     reply.header("Content-Length", stats.size);
 
     return reply.send(fs.createReadStream(backupPath));

@@ -1,16 +1,18 @@
 # Hacker News `Show HN` Submission
 
 **Platform:** [news.ycombinator.com](https://news.ycombinator.com)  
-**Submission Type:** Show HN Link / Text Post  
+**Submission Type:** Show HN Link / Text Post
 
 ---
 
 ## 📌 Title
+
 `Show HN: XIVIZLEY Suite – Nextcloud-styled private cloud with 115 Docker apps and pre-flight port resolver`
 
 ---
 
 ## 🔗 URL (if submitting as Link)
+
 `https://github.com/Xivizley/xivizley-suite`
 
 ---
@@ -29,6 +31,7 @@ I built **XIVIZLEY Suite**, an open-source private cloud and container orchestra
 ### Why build this?
 
 Most self-hosted dashboards fall into two extremes:
+
 1. Pure bookmark launchers (Dashy, Flame, Homepage) that don't manage state or container orchestration.
 2. Heavy appliance OS distributions (Umbrel, CasaOS) that want full control over your OS and often use non-standard Docker wrappers.
 
@@ -54,4 +57,4 @@ curl -fsSL https://suite.xivizley.com.tr/install.sh | bash
 
 The project is 100% open-source under the MIT license. I'd love to hear your thoughts, critique on the architectural design, and feedback on the container orchestration pipeline.
 
-*Alperen Celal (14, Bursa, Turkey)*
+_Alperen Celal (14, Bursa, Turkey)_

@@ -16,7 +16,9 @@ export interface GetSessionOptions {
  * Next.js Server Component ve Server Actions için oturum bilgisini getiren yardımcı.
  * next/headers paketini dinamik import ederek Next.js bağımlılığı olmayan ortamlarda patlamasını önler.
  */
-export async function getSession(options: GetSessionOptions = {}): Promise<XivizleyUser | null> {
+export async function getSession(
+  options: GetSessionOptions = {},
+): Promise<XivizleyUser | null> {
   let token = options.token;
 
   if (!token) {

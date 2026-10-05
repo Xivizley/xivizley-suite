@@ -77,13 +77,24 @@ export function VaultQuickWidget() {
   const offset = circumference * (1 - remainingSeconds / 30);
   const isCritical = remainingSeconds <= 3;
   const isWarning = remainingSeconds <= 7 && !isCritical;
-  const strokeColor = isCritical ? "#f43f5e" : isWarning ? "#f59e0b" : "#10b981";
-  const textColor = isCritical ? "text-rose-400" : isWarning ? "text-amber-400" : "text-emerald-400";
+  const strokeColor = isCritical
+    ? "#f43f5e"
+    : isWarning
+      ? "#f59e0b"
+      : "#10b981";
+  const textColor = isCritical
+    ? "text-rose-400"
+    : isWarning
+      ? "text-amber-400"
+      : "text-emerald-400";
 
   const filteredItems = items.filter((item) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();
-    return item.title.toLowerCase().includes(q) || (item.username && item.username.toLowerCase().includes(q));
+    return (
+      item.title.toLowerCase().includes(q) ||
+      (item.username && item.username.toLowerCase().includes(q))
+    );
   });
 
   return (
@@ -100,7 +111,9 @@ export function VaultQuickWidget() {
                 <span>Hızlı Kasa & 2FA</span>
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               </h3>
-              <p className="text-[10px] text-slate-400">Sıfır bilgili parola yöneticisi</p>
+              <p className="text-[10px] text-slate-400">
+                Sıfır bilgili parola yöneticisi
+              </p>
             </div>
           </div>
 
@@ -127,11 +140,16 @@ export function VaultQuickWidget() {
                   strokeDasharray={circumference}
                   strokeDashoffset={offset}
                   style={{
-                    transition: remainingSeconds >= 30 ? "none" : "stroke-dashoffset 1s linear, stroke 0.3s ease",
+                    transition:
+                      remainingSeconds >= 30
+                        ? "none"
+                        : "stroke-dashoffset 1s linear, stroke 0.3s ease",
                   }}
                 />
               </svg>
-              <span className={`absolute inset-0 flex items-center justify-center text-[9px] font-mono font-bold ${textColor}`}>
+              <span
+                className={`absolute inset-0 flex items-center justify-center text-[9px] font-mono font-bold ${textColor}`}
+              >
                 {remainingSeconds}
               </span>
             </div>
@@ -148,8 +166,12 @@ export function VaultQuickWidget() {
         ) : filteredItems.length === 0 ? (
           <div className="py-8 text-center rounded-lg border border-dashed border-[#3b4758] bg-[#181e24] p-4">
             <Lock className="w-6 h-6 text-slate-500 mx-auto mb-1.5" />
-            <p className="text-xs font-medium text-slate-300">Henüz parola eklenmedi</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">Parola veya 2FA eklemek için Kasayı açın.</p>
+            <p className="text-xs font-medium text-slate-300">
+              Henüz parola eklenmedi
+            </p>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Parola veya 2FA eklemek için Kasayı açın.
+            </p>
           </div>
         ) : (
           <div className="divide-y divide-[#2d3748]/60">
@@ -176,7 +198,9 @@ export function VaultQuickWidget() {
                   {item.password && (
                     <button
                       type="button"
-                      onClick={() => copyToClipboard(item.password!, `pass-${item.id}`)}
+                      onClick={() =>
+                        copyToClipboard(item.password!, `pass-${item.id}`)
+                      }
                       className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#181e24] transition-colors"
                       title="Parolayı Kopyala"
                       aria-label="Parolayı Kopyala"
@@ -193,11 +217,17 @@ export function VaultQuickWidget() {
                       type="button"
                       onClick={async () => {
                         try {
-                          const res = await fetch(`/api/vault/${item.id}/totp`, { credentials: "include" });
+                          const res = await fetch(
+                            `/api/vault/${item.id}/totp`,
+                            { credentials: "include" },
+                          );
                           if (res.ok) {
                             const json = await res.json();
                             if (json.data?.code) {
-                              copyToClipboard(json.data.code, `totp-${item.id}`);
+                              copyToClipboard(
+                                json.data.code,
+                                `totp-${item.id}`,
+                              );
                             }
                           }
                         } catch {}

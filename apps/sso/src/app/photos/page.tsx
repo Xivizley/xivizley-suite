@@ -66,7 +66,7 @@ export default function PhotosPage() {
   };
 
   const filteredMedia = mediaList.filter((m) =>
-    m.name.toLowerCase().includes(searchQuery.toLowerCase())
+    m.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Lightbox sonraki / önceki
@@ -103,7 +103,13 @@ export default function PhotosPage() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-[#2d3748]">
           <div>
             <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-              <svg className="w-5 h-5 text-[#0082c9]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                className="w-5 h-5 text-[#0082c9]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
                 <circle cx="9" cy="9" r="2" />
                 <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
@@ -111,7 +117,8 @@ export default function PhotosPage() {
               <span>Fotoğraflar & Medya Galerisi</span>
             </h1>
             <p className="text-xs text-slate-400 mt-0.5">
-              Drive alanınızdaki tüm görsel ve videolar otomatik olarak burada albümlenir.
+              Drive alanınızdaki tüm görsel ve videolar otomatik olarak burada
+              albümlenir.
             </p>
           </div>
 
@@ -133,7 +140,13 @@ export default function PhotosPage() {
               disabled={isUploading}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#0082c9] hover:bg-[#006aa3] text-white text-xs font-semibold shadow-sm transition-colors disabled:opacity-50"
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
@@ -150,15 +163,24 @@ export default function PhotosPage() {
         ) : filteredMedia.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center py-20 text-center text-slate-500">
             <div className="w-16 h-16 rounded-2xl bg-[#222933] flex items-center justify-center text-slate-600 mb-3 border border-[#2d3748]">
-              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg
+                className="w-8 h-8"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
                 <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
                 <circle cx="9" cy="9" r="2" />
                 <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
               </svg>
             </div>
-            <p className="text-sm font-medium text-slate-300">Henüz fotoğraf bulunmuyor</p>
+            <p className="text-sm font-medium text-slate-300">
+              Henüz fotoğraf bulunmuyor
+            </p>
             <p className="text-xs text-slate-500 mt-1 max-w-sm">
-              Drive'a görsel veya video yüklediğinizde burada anında zaman tüneli olarak listelenecektir.
+              Drive'a görsel veya video yüklediğinizde burada anında zaman
+              tüneli olarak listelenecektir.
             </p>
             <button
               onClick={() => fileInputRef.current?.click()}
@@ -179,10 +201,16 @@ export default function PhotosPage() {
                 >
                   {isVideo ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black/40 text-slate-400">
-                      <svg className="w-10 h-10 text-white/80 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                      <svg
+                        className="w-10 h-10 text-white/80 group-hover:scale-110 transition-transform"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                      >
                         <polygon points="5 3 19 12 5 21 5 3" />
                       </svg>
-                      <span className="text-[10px] mt-2 font-mono text-white/70">Video</span>
+                      <span className="text-[10px] mt-2 font-mono text-white/70">
+                        Video
+                      </span>
                     </div>
                   ) : (
                     <img
@@ -195,7 +223,9 @@ export default function PhotosPage() {
 
                   {/* Hover Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-2.5 flex flex-col justify-end">
-                    <p className="text-white text-xs font-medium truncate">{media.name}</p>
+                    <p className="text-white text-xs font-medium truncate">
+                      {media.name}
+                    </p>
                     <p className="text-slate-300 text-[10px]">
                       {new Date(media.createdAt).toLocaleDateString("tr-TR")}
                     </p>
@@ -219,7 +249,9 @@ export default function PhotosPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-3">
-              <span className="font-medium text-sm truncate max-w-md">{selectedMedia.name}</span>
+              <span className="font-medium text-sm truncate max-w-md">
+                {selectedMedia.name}
+              </span>
               <span className="text-xs text-slate-400">
                 ({(selectedMedia.sizeBytes / 1024 / 1024).toFixed(2)} MB)
               </span>

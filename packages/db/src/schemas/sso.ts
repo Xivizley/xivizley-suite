@@ -1,10 +1,4 @@
-import {
-  pgSchema,
-  uuid,
-  varchar,
-  text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+import { pgSchema, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
 
 // ─── SSO Şeması ──────────────────────────────────────────────
 export const sso = pgSchema("sso");
@@ -17,7 +11,9 @@ export const users = sso.table("users", {
   displayName: varchar("display_name", { length: 100 }).notNull(),
   avatarUrl: text("avatar_url"),
   role: varchar("role", { length: 20 }).notNull().default("member"), // 'owner' | 'admin' | 'member' | 'guest'
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow()
@@ -32,7 +28,9 @@ export const sessions = sso.table("sessions", {
     .references(() => users.id, { onDelete: "cascade" }),
   userAgent: text("user_agent"),
   ipAddress: varchar("ip_address", { length: 45 }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });
 
@@ -43,7 +41,9 @@ export const oauthClients = sso.table("oauth_clients", {
   clientName: varchar("client_name", { length: 100 }).notNull(),
   redirectUris: text("redirect_uris").notNull(), // JSON array string formatında kayıtlı URI listesi
   clientSecretHash: text("client_secret_hash"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 // ─── sso.refresh_tokens ──────────────────────────────────────
@@ -57,7 +57,9 @@ export const refreshTokens = sso.table("refresh_tokens", {
   familyId: uuid("family_id").notNull(), // Token rotation tespiti için
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   revokedAt: timestamp("revoked_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
 
 // ─── Tip Tanımlamaları ───────────────────────────────────────
@@ -78,8 +80,8 @@ export const hubPreferences = sso.table("hub_preferences", {
   userId: uuid("user_id")
     .primaryKey()
     .references(() => users.id, { onDelete: "cascade" }),
-  widgets: text("widgets").notNull().default('[]'),
-  theme: varchar("theme", { length: 50 }).notNull().default('system'),
+  widgets: text("widgets").notNull().default("[]"),
+  theme: varchar("theme", { length: 50 }).notNull().default("system"),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow()

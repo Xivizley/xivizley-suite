@@ -50,7 +50,7 @@ export function ServerPlayerRoster() {
   const handlePlayerAction = async (
     action: "kick" | "ban" | "op" | "deop" | "msg",
     player: string,
-    reasonOrMsg?: string
+    reasonOrMsg?: string,
   ) => {
     setActionFeedback(null);
     try {
@@ -95,7 +95,8 @@ export function ServerPlayerRoster() {
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
-            Sunucudaki aktif oyuncuları anlık izleyin, yetkilendirin veya yaptırım uygulayın.
+            Sunucudaki aktif oyuncuları anlık izleyin, yetkilendirin veya
+            yaptırım uygulayın.
           </p>
         </div>
 
@@ -114,7 +115,9 @@ export function ServerPlayerRoster() {
       {/* Doluluk Çubuğu */}
       <div className="p-3.5 rounded-xl bg-[#111824] border border-[#1c2838] flex flex-col gap-1.5">
         <div className="flex items-center justify-between text-xs font-mono text-slate-300">
-          <span className="font-semibold text-slate-200">Sunucu Doluluk Oranı</span>
+          <span className="font-semibold text-slate-200">
+            Sunucu Doluluk Oranı
+          </span>
           <span className="font-bold text-[#1AD76F]">
             %{maxPlayers > 0 ? Math.round((onlineCount / maxPlayers) * 100) : 0}
           </span>
@@ -122,7 +125,9 @@ export function ServerPlayerRoster() {
         <div className="w-full h-2 bg-[#0a0f16] rounded-full overflow-hidden border border-[#1b2636]">
           <div
             className="h-full bg-gradient-to-r from-[#10b981] to-[#1AD76F] transition-all duration-500 shadow-[0_0_8px_rgba(26,215,111,0.5)]"
-            style={{ width: `${Math.min(100, maxPlayers > 0 ? (onlineCount / maxPlayers) * 100 : 0)}%` }}
+            style={{
+              width: `${Math.min(100, maxPlayers > 0 ? (onlineCount / maxPlayers) * 100 : 0)}%`,
+            }}
           />
         </div>
       </div>
@@ -147,7 +152,11 @@ export function ServerPlayerRoster() {
               Şu anda sunucuda bağlı oyuncu bulunmuyor.
             </span>
             <span className="text-[11px] text-slate-500 font-mono">
-              IP: {typeof window !== "undefined" ? window.location.hostname : "localhost"}:{game.defaultPort}
+              IP:{" "}
+              {typeof window !== "undefined"
+                ? window.location.hostname
+                : "localhost"}
+              :{game.defaultPort}
             </span>
           </div>
         ) : (
@@ -178,7 +187,9 @@ export function ServerPlayerRoster() {
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-[#1AD76F] font-mono font-semibold">● Çevrimiçi</span>
+                    <span className="text-[10px] text-[#1AD76F] font-mono font-semibold">
+                      ● Çevrimiçi
+                    </span>
                   </div>
                 </div>
 
@@ -207,7 +218,10 @@ export function ServerPlayerRoster() {
                   <button
                     type="button"
                     onClick={() => {
-                      const reason = window.prompt(`${p.name} oyuncusunu atma sebebi:`, "Sunucu yöneticisi tarafından atıldınız.");
+                      const reason = window.prompt(
+                        `${p.name} oyuncusunu atma sebebi:`,
+                        "Sunucu yöneticisi tarafından atıldınız.",
+                      );
                       if (reason !== null) {
                         handlePlayerAction("kick", p.name, reason);
                       }
@@ -221,7 +235,10 @@ export function ServerPlayerRoster() {
                   <button
                     type="button"
                     onClick={() => {
-                      const reason = window.prompt(`${p.name} oyuncusunu banlama sebebi:`, "Sunucu kurallarına uymadığınız için yasaklandınız.");
+                      const reason = window.prompt(
+                        `${p.name} oyuncusunu banlama sebebi:`,
+                        "Sunucu kurallarına uymadığınız için yasaklandınız.",
+                      );
                       if (reason !== null) {
                         handlePlayerAction("ban", p.name, reason);
                       }
@@ -241,7 +258,8 @@ export function ServerPlayerRoster() {
       {/* Manuel / Çevrimdışı Oyuncu İşlemleri */}
       <div className="p-3.5 rounded-xl bg-[#111824] border border-[#1c2838] flex flex-col gap-2 mt-2">
         <span className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-          <span className="text-[#1AD76F]">⚡</span> Hızlı Yönetici Komutu veya Çevrimdışı Oyuncu İşlemi
+          <span className="text-[#1AD76F]">⚡</span> Hızlı Yönetici Komutu veya
+          Çevrimdışı Oyuncu İşlemi
         </span>
 
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
@@ -275,7 +293,11 @@ export function ServerPlayerRoster() {
               type="button"
               disabled={!manualPlayerName.trim()}
               onClick={() => {
-                handlePlayerAction("kick", manualPlayerName.trim(), manualMessage.trim());
+                handlePlayerAction(
+                  "kick",
+                  manualPlayerName.trim(),
+                  manualMessage.trim(),
+                );
                 setManualPlayerName("");
                 setManualMessage("");
               }}

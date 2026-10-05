@@ -83,52 +83,59 @@ export const userPreferencesRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // ─── 2. PUT /api/user/preferences ─────────────────────────────
-  fastify.put<{ Body: PreferencesBody }>("/api/user/preferences", async (request, reply) => {
-    try {
-      const userId = resolveUserId(request);
-      const { widgets, theme } = request.body || {};
+  fastify.put<{ Body: PreferencesBody }>(
+    "/api/user/preferences",
+    async (request, reply) => {
+      try {
+        const userId = resolveUserId(request);
+        const { widgets, theme } = request.body || {};
 
-      const widgetsString = widgets ? JSON.stringify(widgets) : JSON.stringify(DEFAULT_WIDGETS);
-      const themeValue = theme || "system";
+        const widgetsString = widgets
+          ? JSON.stringify(widgets)
+          : JSON.stringify(DEFAULT_WIDGETS);
+        const themeValue = theme || "system";
 
-      const [saved] = await db
-        .insert(hubPreferences)
-        .values({
-          userId,
-          widgets: widgetsString,
-          theme: themeValue,
-          updatedAt: new Date(),
-        })
-        .onConflictDoUpdate({
-          target: hubPreferences.userId,
-          set: {
+        const [saved] = await db
+          .insert(hubPreferences)
+          .values({
+            userId,
             widgets: widgetsString,
             theme: themeValue,
             updatedAt: new Date(),
+          })
+          .onConflictDoUpdate({
+            target: hubPreferences.userId,
+            set: {
+              widgets: widgetsString,
+              theme: themeValue,
+              updatedAt: new Date(),
+            },
+          })
+          .returning();
+
+        let parsedWidgets: string[] = DEFAULT_WIDGETS;
+        try {
+          parsedWidgets = saved
+            ? JSON.parse(saved.widgets)
+            : widgets || DEFAULT_WIDGETS;
+        } catch {
+          parsedWidgets = widgets || DEFAULT_WIDGETS;
+        }
+
+        return reply.send({
+          ok: true,
+          data: {
+            widgets: parsedWidgets,
+            theme: saved?.theme || themeValue,
+            updatedAt: saved?.updatedAt || new Date(),
           },
-        })
-        .returning();
-
-      let parsedWidgets: string[] = DEFAULT_WIDGETS;
-      try {
-        parsedWidgets = saved ? JSON.parse(saved.widgets) : (widgets || DEFAULT_WIDGETS);
-      } catch {
-        parsedWidgets = widgets || DEFAULT_WIDGETS;
+        });
+      } catch (err: any) {
+        return reply.status(500).send({
+          ok: false,
+          message: err?.message || "Kullanıcı tercihleri kaydedilemedi.",
+        });
       }
-
-      return reply.send({
-        ok: true,
-        data: {
-          widgets: parsedWidgets,
-          theme: saved?.theme || themeValue,
-          updatedAt: saved?.updatedAt || new Date(),
-        },
-      });
-    } catch (err: any) {
-      return reply.status(500).send({
-        ok: false,
-        message: err?.message || "Kullanıcı tercihleri kaydedilemedi.",
-      });
-    }
-  });
+    },
+  );
 };

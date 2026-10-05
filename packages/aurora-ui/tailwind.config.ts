@@ -1,10 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: [
-    "./src/**/*.{ts,tsx}",
-    "./preview/**/*.{ts,tsx,html}",
-  ],
+  content: ["./src/**/*.{ts,tsx}", "./preview/**/*.{ts,tsx,html}"],
   theme: {
     extend: {
       // ─── Aurora Night Renk Paleti ───────────────────────────
@@ -53,8 +50,10 @@ const config: Config = {
       // ─── Doğal Gölgeler (Nextcloud Tarzı) ───────────────────
       boxShadow: {
         "aurora-sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-        "aurora-md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-        "aurora-lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+        "aurora-md":
+          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        "aurora-lg":
+          "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
         "aurora-danger": "0 1px 2px 0 rgba(225, 29, 72, 0.2)",
       },
 
@@ -70,13 +69,19 @@ const config: Config = {
 
       // ─── Font Ailesi ───────────────────────────────────────
       fontFamily: {
-        sans: ["Inter", "-apple-system", "BlinkMacSystemFont", "system-ui", "sans-serif"],
+        sans: [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "system-ui",
+          "sans-serif",
+        ],
         mono: ["JetBrains Mono", "monospace"],
       },
 
       // ─── Border Radius ─────────────────────────────────────
       borderRadius: {
-        aurora: "0.625rem",   // 10px — standart Nextcloud kart/input radius
+        aurora: "0.625rem", // 10px — standart Nextcloud kart/input radius
         "aurora-sm": "0.375rem", // 6px — badge/chip radius
         "aurora-lg": "0.875rem", // 14px — modal/dialog radius
       },

@@ -54,7 +54,10 @@ export async function verifyAccessToken(token: string): Promise<XivizleyUser> {
     id: payload.sub,
     email: (payload["email"] as string) || "",
     username: (payload["username"] as string) || "",
-    displayName: (payload["displayName"] as string) || (payload["username"] as string) || "",
+    displayName:
+      (payload["displayName"] as string) ||
+      (payload["username"] as string) ||
+      "",
     avatarUrl: (payload["avatarUrl"] as string) || undefined,
     role: (payload["role"] as UserRole) || "member",
     createdAt: new Date((payload["createdAt"] as string) || Date.now()),

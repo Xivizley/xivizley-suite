@@ -46,7 +46,10 @@ export function ContainerManagerDrawer({
   const [isLoadingLogs, setIsLoadingLogs] = useState<boolean>(false);
   const [stats, setStats] = useState<ContainerStats | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [actionMessage, setActionMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [autoScroll, setAutoScroll] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<"logs" | "details">("logs");
@@ -67,7 +70,9 @@ export function ContainerManagerDrawer({
 
     const fetchLogs = async () => {
       try {
-        const res = await fetch(`/api/store/containers/${app.id}/logs`, { credentials: "include" });
+        const res = await fetch(`/api/store/containers/${app.id}/logs`, {
+          credentials: "include",
+        });
         if (res.ok && isMounted) {
           const json = await res.json();
           if (json.ok && json.logs) {
@@ -83,7 +88,9 @@ export function ContainerManagerDrawer({
 
     const fetchStats = async () => {
       try {
-        const res = await fetch(`/api/store/containers/${app.id}/stats`, { credentials: "include" });
+        const res = await fetch(`/api/store/containers/${app.id}/stats`, {
+          credentials: "include",
+        });
         if (res.ok && isMounted) {
           const json = await res.json();
           if (json.ok && json.data) {
@@ -132,13 +139,22 @@ export function ContainerManagerDrawer({
       });
       const json = await res.json();
       if (json.ok) {
-        setActionMessage({ type: "success", text: json.message || "İşlem başarıyla tamamlandı." });
+        setActionMessage({
+          type: "success",
+          text: json.message || "İşlem başarıyla tamamlandı.",
+        });
         if (onAppUpdated) onAppUpdated();
       } else {
-        setActionMessage({ type: "error", text: json.message || "İşlem başarısız." });
+        setActionMessage({
+          type: "error",
+          text: json.message || "İşlem başarısız.",
+        });
       }
     } catch (err: any) {
-      setActionMessage({ type: "error", text: err?.message || "Bağlantı hatası oluştu." });
+      setActionMessage({
+        type: "error",
+        text: err?.message || "Bağlantı hatası oluştu.",
+      });
     } finally {
       setActionLoading(null);
     }
@@ -147,7 +163,12 @@ export function ContainerManagerDrawer({
   // Uninstall container
   const handleUninstall = async () => {
     if (!app) return;
-    if (!confirm(`${app.name} (${app.id}) uygulamasını durdurup kaldırmak istediğinize emin misiniz?`)) return;
+    if (
+      !confirm(
+        `${app.name} (${app.id}) uygulamasını durdurup kaldırmak istediğinize emin misiniz?`,
+      )
+    )
+      return;
 
     try {
       setActionLoading("uninstall");
@@ -160,11 +181,17 @@ export function ContainerManagerDrawer({
       });
       const json = await res.json();
       if (json.ok) {
-        setActionMessage({ type: "success", text: json.message || "Uygulama başarıyla kaldırıldı." });
+        setActionMessage({
+          type: "success",
+          text: json.message || "Uygulama başarıyla kaldırıldı.",
+        });
         if (onAppUpdated) onAppUpdated();
         setTimeout(() => onClose(), 1200);
       } else {
-        setActionMessage({ type: "error", text: json.message || "Kaldırma işlemi başarısız." });
+        setActionMessage({
+          type: "error",
+          text: json.message || "Kaldırma işlemi başarısız.",
+        });
       }
     } catch (err: any) {
       setActionMessage({ type: "error", text: err?.message || "Hata oluştu." });
@@ -204,7 +231,9 @@ export function ContainerManagerDrawer({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">{app.name}</h2>
+                <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                  {app.name}
+                </h2>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-[#181e24] text-slate-300 border border-[#2d3748] font-mono">
                   {app.category}
                 </span>
@@ -286,8 +315,8 @@ export function ContainerManagerDrawer({
                   (stats?.cpuPercent || 0) > 80
                     ? "bg-rose-500"
                     : (stats?.cpuPercent || 0) > 50
-                    ? "bg-amber-400"
-                    : "bg-[#0082c9]"
+                      ? "bg-amber-400"
+                      : "bg-[#0082c9]"
                 }`}
                 style={{ width: `${Math.min(stats?.cpuPercent || 0, 100)}%` }}
               />
@@ -310,8 +339,10 @@ export function ContainerManagerDrawer({
                 className="h-full bg-emerald-500 transition-all duration-300"
                 style={{
                   width: `${Math.min(
-                    stats?.memoryLimitMb ? (stats.memoryUsedMb / stats.memoryLimitMb) * 100 : 0,
-                    100
+                    stats?.memoryLimitMb
+                      ? (stats.memoryUsedMb / stats.memoryLimitMb) * 100
+                      : 0,
+                    100,
                   )}%`,
                 }}
               />
@@ -339,8 +370,14 @@ export function ContainerManagerDrawer({
               onClick={() => handleAction("restart")}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#2b3442] hover:bg-[#343e4f] text-slate-200 text-xs font-semibold border border-[#3b4758] transition-colors disabled:opacity-50"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-[#0082c9]" : ""}`} />
-              <span>{actionLoading === "restart" ? "Yeniden Başlatılıyor..." : "Yeniden Başlat"}</span>
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${actionLoading === "restart" ? "animate-spin text-[#0082c9]" : ""}`}
+              />
+              <span>
+                {actionLoading === "restart"
+                  ? "Yeniden Başlatılıyor..."
+                  : "Yeniden Başlat"}
+              </span>
             </button>
 
             {isRunning ? (
@@ -351,7 +388,9 @@ export function ContainerManagerDrawer({
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-semibold border border-amber-500/30 transition-colors disabled:opacity-50"
               >
                 <Square className="w-3.5 h-3.5 fill-current" />
-                <span>{actionLoading === "stop" ? "Durduruluyor..." : "Durdur"}</span>
+                <span>
+                  {actionLoading === "stop" ? "Durduruluyor..." : "Durdur"}
+                </span>
               </button>
             ) : (
               <button
@@ -361,7 +400,9 @@ export function ContainerManagerDrawer({
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/30 transition-colors disabled:opacity-50"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>{actionLoading === "start" ? "Başlatılıyor..." : "Başlat"}</span>
+                <span>
+                  {actionLoading === "start" ? "Başlatılıyor..." : "Başlat"}
+                </span>
               </button>
             )}
 
@@ -385,7 +426,11 @@ export function ContainerManagerDrawer({
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold border border-rose-500/30 transition-colors disabled:opacity-50 ml-auto"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span>{actionLoading === "uninstall" ? "Kaldırılıyor..." : "Konteyneri Kaldır"}</span>
+            <span>
+              {actionLoading === "uninstall"
+                ? "Kaldırılıyor..."
+                : "Konteyneri Kaldır"}
+            </span>
           </button>
         </div>
 
@@ -429,7 +474,9 @@ export function ContainerManagerDrawer({
                 title="Canlı Takip / Otomatik Kaydırma"
               >
                 <ArrowDown className="w-3 h-3" />
-                <span className="hidden sm:inline">{autoScroll ? "Oto-Kaydır: Açık" : "Oto-Kaydır: Kapalı"}</span>
+                <span className="hidden sm:inline">
+                  {autoScroll ? "Oto-Kaydır: Açık" : "Oto-Kaydır: Kapalı"}
+                </span>
               </button>
 
               <button
@@ -438,8 +485,14 @@ export function ContainerManagerDrawer({
                 className="p-1.5 rounded text-[11px] font-mono flex items-center gap-1 bg-[#181e24] text-slate-300 border border-[#2d3748] hover:text-white hover:bg-[#2b3442] transition-colors"
                 title="Logları Kopyala"
               >
-                {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                <span className="hidden sm:inline">{copied ? "Kopyalandı" : "Kopyala"}</span>
+                {copied ? (
+                  <Check className="w-3 h-3 text-emerald-400" />
+                ) : (
+                  <Copy className="w-3 h-3" />
+                )}
+                <span className="hidden sm:inline">
+                  {copied ? "Kopyalandı" : "Kopyala"}
+                </span>
               </button>
 
               <button
@@ -497,7 +550,9 @@ export function ContainerManagerDrawer({
                         key={i}
                         className="p-2 rounded bg-[#12161b] border border-[#2d3748] flex items-center justify-between gap-2"
                       >
-                        <span className="text-sky-300 font-semibold">{env.key}</span>
+                        <span className="text-sky-300 font-semibold">
+                          {env.key}
+                        </span>
                         <span className="text-slate-400 text-[11px] truncate max-w-[280px]">
                           {env.defaultValue || "—"}
                         </span>
@@ -505,7 +560,9 @@ export function ContainerManagerDrawer({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400">Özel ortam değişkeni tanımlanmamış.</p>
+                  <p className="text-xs text-slate-400">
+                    Özel ortam değişkeni tanımlanmamış.
+                  </p>
                 )}
               </div>
 
@@ -522,17 +579,25 @@ export function ContainerManagerDrawer({
                         key={i}
                         className="p-2 rounded bg-[#12161b] border border-[#2d3748] flex flex-col gap-1 text-[11px]"
                       >
-                        <span className="text-slate-300 font-semibold">{vol.label || "Hacim"}</span>
+                        <span className="text-slate-300 font-semibold">
+                          {vol.label || "Hacim"}
+                        </span>
                         <div className="text-slate-400 flex items-center gap-1.5 truncate">
-                          <span className="text-emerald-400">{vol.hostPath}</span>
+                          <span className="text-emerald-400">
+                            {vol.hostPath}
+                          </span>
                           <span>➔</span>
-                          <span className="text-sky-300">{vol.containerPath}</span>
+                          <span className="text-sky-300">
+                            {vol.containerPath}
+                          </span>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400">Kalıcı hacim yapılandırılmamış.</p>
+                  <p className="text-xs text-slate-400">
+                    Kalıcı hacim yapılandırılmamış.
+                  </p>
                 )}
               </div>
 
@@ -550,7 +615,8 @@ export function ContainerManagerDrawer({
                     >
                       <span className="text-slate-300">{p.label}</span>
                       <span className="text-sky-400 font-semibold">
-                        Host {app.assignedPort || p.default} ➔ Konteyner {p.internal}/{p.protocol || "tcp"}
+                        Host {app.assignedPort || p.default} ➔ Konteyner{" "}
+                        {p.internal}/{p.protocol || "tcp"}
                       </span>
                     </div>
                   ))}

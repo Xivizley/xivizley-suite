@@ -15,7 +15,8 @@ import { ServerBackupStudio } from "@/components/ServerBackupStudio";
 import { ServerPluginManager } from "@/components/ServerPluginManager";
 import { NextcloudHeader } from "@xivizley/aurora-ui";
 
-type CockpitTab = "console" | "config" | "files" | "backups" | "plugins" | "players";
+type CockpitTab =
+  "console" | "config" | "files" | "backups" | "plugins" | "players";
 
 interface TabItem {
   id: CockpitTab;
@@ -25,17 +26,44 @@ interface TabItem {
 }
 
 const TABS: TabItem[] = [
-  { id: "console", label: "Canlı Konsol & Terminal", icon: "🖥️", badge: "xterm" },
-  { id: "config", label: "Sunucu Ayarları & Motor", icon: "⚙️", badge: "12 Motor" },
-  { id: "files", label: "Dosya Yöneticisi & Editör", icon: "📁", badge: "Pterodactyl" },
+  {
+    id: "console",
+    label: "Canlı Konsol & Terminal",
+    icon: "🖥️",
+    badge: "xterm",
+  },
+  {
+    id: "config",
+    label: "Sunucu Ayarları & Motor",
+    icon: "⚙️",
+    badge: "12 Motor",
+  },
+  {
+    id: "files",
+    label: "Dosya Yöneticisi & Editör",
+    icon: "📁",
+    badge: "Pterodactyl",
+  },
   { id: "backups", label: "Yedekler & Kurtarma", icon: "🗄️", badge: "tar.gz" },
-  { id: "plugins", label: "Eklentiler & Modlar", icon: "🧩", badge: "Pazar Yeri" },
+  {
+    id: "plugins",
+    label: "Eklentiler & Modlar",
+    icon: "🧩",
+    badge: "Pazar Yeri",
+  },
   { id: "players", label: "Canlı Oyuncular", icon: "👥", badge: "Moderasyon" },
 ];
 
 export default function GameCockpitPage() {
   const [activeTab, setActiveTab] = useState<CockpitTab>("console");
-  const { activeGameId, setActiveGame, isAdmin, authChecked, adminUser, checkAdminAuth } = useGameStore();
+  const {
+    activeGameId,
+    setActiveGame,
+    isAdmin,
+    authChecked,
+    adminUser,
+    checkAdminAuth,
+  } = useGameStore();
 
   useEffect(() => {
     checkAdminAuth();
@@ -60,8 +88,8 @@ export default function GameCockpitPage() {
           title="Oyun Sunucuları"
           rightActions={
             <div className="flex items-center gap-2">
-              {authChecked && (
-                isAdmin ? (
+              {authChecked &&
+                (isAdmin ? (
                   <span className="flex items-center gap-1.5 text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 px-2.5 py-1 rounded-lg">
                     <span>👑</span>
                     <span>Yönetici ({adminUser?.displayName || "Admin"})</span>
@@ -75,8 +103,7 @@ export default function GameCockpitPage() {
                     <span>🔐</span>
                     <span>Misafir Modu • Yönetici Girişi</span>
                   </a>
-                )
-              )}
+                ))}
               <span className="text-white flex items-center gap-1.5 text-xs font-semibold bg-[#1AD76F]/20 text-[#1AD76F] border border-[#1AD76F]/30 px-2.5 py-1 rounded-lg">
                 <span className="w-2 h-2 rounded-full bg-[#1AD76F] animate-pulse" />
                 VDS Motoru Aktif
@@ -173,5 +200,3 @@ export default function GameCockpitPage() {
     </StoreHydration>
   );
 }
-
-

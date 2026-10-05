@@ -7,7 +7,10 @@ import { Terminal as TerminalIcon, Network } from "lucide-react";
 import { NetworkTopologyMap } from "@/components/NetworkTopologyMap";
 
 const WebTerminalClient = dynamic(
-  () => import("@/components/WebTerminalClient").then((mod) => mod.WebTerminalClient),
+  () =>
+    import("@/components/WebTerminalClient").then(
+      (mod) => mod.WebTerminalClient,
+    ),
   {
     ssr: false,
     loading: () => (
@@ -16,11 +19,13 @@ const WebTerminalClient = dynamic(
         Terminal altyapısı yükleniyor...
       </div>
     ),
-  }
+  },
 );
 
 export default function TerminalPage() {
-  const [activeTab, setActiveTab] = useState<"terminal" | "topology">("terminal");
+  const [activeTab, setActiveTab] = useState<"terminal" | "topology">(
+    "terminal",
+  );
 
   return (
     <div className="min-h-screen bg-[#181e24] text-slate-100 flex flex-col font-sans">
@@ -55,7 +60,11 @@ export default function TerminalPage() {
         }
       />
       <main className="flex-1 p-2 sm:p-4 max-w-7xl w-full mx-auto space-y-4">
-        {activeTab === "terminal" ? <WebTerminalClient /> : <NetworkTopologyMap />}
+        {activeTab === "terminal" ? (
+          <WebTerminalClient />
+        ) : (
+          <NetworkTopologyMap />
+        )}
       </main>
     </div>
   );

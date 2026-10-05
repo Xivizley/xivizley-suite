@@ -36,8 +36,8 @@ export function getDb(url?: string) {
       "postgresql://xivizley:xivizley@localhost:5432/xivizley_suite";
 
     _client = postgres(connectionString, {
-      max: 10,           // maksimum bağlantı havuzu büyüklüğü
-      idle_timeout: 30,  // 30 sn atıl kalırsa bağlantıyı kapat
+      max: 10, // maksimum bağlantı havuzu büyüklüğü
+      idle_timeout: 30, // 30 sn atıl kalırsa bağlantıyı kapat
     });
 
     _db = drizzle(_client);

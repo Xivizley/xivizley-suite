@@ -1,9 +1,10 @@
-import type { Metadata } from 'next';
-import '../styles/globals.css';
+import type { Metadata } from "next";
+import "../styles/globals.css";
 
 export const metadata: Metadata = {
-  title: 'XIVIZLEY Shield — Siber Tehdit Radarı & WAF Savunma Kokpiti',
-  description: 'Self-hosted Intrusion Prevention, Heuristic WAF, and Threat Intelligence Cockpit by XIVIZLEY.',
+  title: "XIVIZLEY Shield — Siber Tehdit Radarı & WAF Savunma Kokpiti",
+  description:
+    "Self-hosted Intrusion Prevention, Heuristic WAF, and Threat Intelligence Cockpit by XIVIZLEY.",
 };
 
 export default function RootLayout({

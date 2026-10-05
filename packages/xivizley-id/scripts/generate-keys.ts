@@ -4,11 +4,13 @@ import path from "node:path";
 
 /**
  * XIVIZLEY Suite — RS256 Anahtar Çifti Üretici
- * SSO servisinin JWT imzalaması (Private Key) ve 
+ * SSO servisinin JWT imzalaması (Private Key) ve
  * tüm alt uygulamaların stateless doğrulaması (Public Key) için çalıştırılır.
  */
 async function main() {
-  console.log("🔐 XIVIZLEY ID — RS256 Anahtar Çifti Üretiliyor (2048-bit RSA)...");
+  console.log(
+    "🔐 XIVIZLEY ID — RS256 Anahtar Çifti Üretiliyor (2048-bit RSA)...",
+  );
 
   const { publicKey, privateKey } = crypto.generateKeyPairSync("rsa", {
     modulusLength: 2048,
@@ -26,10 +28,14 @@ async function main() {
   const pubBase64 = Buffer.from(publicKey).toString("base64");
   const privBase64 = Buffer.from(privateKey).toString("base64");
 
-  console.log("\n================ [ KOPYALANACAK .ENV DEĞERLERİ ] ================\n");
+  console.log(
+    "\n================ [ KOPYALANACAK .ENV DEĞERLERİ ] ================\n",
+  );
   console.log(`JWT_PUBLIC_KEY="${pubBase64}"\n`);
   console.log(`JWT_PRIVATE_KEY="${privBase64}"\n`);
-  console.log("==================================================================\n");
+  console.log(
+    "==================================================================\n",
+  );
 
   // Kolaylık sağlamak için anahtarları doğrudan .keys klasörüne de kaydet
   const keysDir = path.resolve(process.cwd(), ".keys");
@@ -40,7 +46,9 @@ async function main() {
   fs.writeFileSync(path.join(keysDir, "public.pem"), publicKey, "utf-8");
   fs.writeFileSync(path.join(keysDir, "private.pem"), privateKey, "utf-8");
 
-  console.log(`✅ Anahtar dosyaları kaydedildi: ${keysDir}/public.pem & private.pem`);
+  console.log(
+    `✅ Anahtar dosyaları kaydedildi: ${keysDir}/public.pem & private.pem`,
+  );
 }
 
 main().catch((err) => {

@@ -10,7 +10,12 @@ export interface TerminalLogViewerProps {
   title: string;
   status: ServerStatus;
   gameId?: string;
-  onTerminalReady?: (term: { write: (text: string) => void; writeln: (text: string) => void } | null) => void;
+  onTerminalReady?: (
+    term: {
+      write: (text: string) => void;
+      writeln: (text: string) => void;
+    } | null,
+  ) => void;
 }
 
 export function TerminalLogViewer({
@@ -70,10 +75,14 @@ export function TerminalLogViewer({
     termInstanceRef.current = term;
     onTerminalReady?.(term);
 
-    term.writeln(`\x1b[36m[XIVIZLEY]\x1b[0m ${title} konsol akışı bağlanıyor...`);
+    term.writeln(
+      `\x1b[36m[XIVIZLEY]\x1b[0m ${title} konsol akışı bağlanıyor...`,
+    );
 
     // SSE Log Stream dinle (oyun ID'sine göre)
-    const eventSource = new EventSource(`/api/logs/stream?gameId=${encodeURIComponent(gameId)}`);
+    const eventSource = new EventSource(
+      `/api/logs/stream?gameId=${encodeURIComponent(gameId)}`,
+    );
 
     let hasShownDisconnect = false;
 
@@ -100,7 +109,9 @@ export function TerminalLogViewer({
 
     eventSource.onerror = () => {
       if (!hasShownDisconnect) {
-        term.writeln("\x1b[33m[XIVIZLEY]\x1b[0m Bağlantı yenileniyor veya sunucu bekleniyor...");
+        term.writeln(
+          "\x1b[33m[XIVIZLEY]\x1b[0m Bağlantı yenileniyor veya sunucu bekleniyor...",
+        );
         hasShownDisconnect = true;
       }
     };

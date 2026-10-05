@@ -4,18 +4,21 @@ import { useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, Button, Input, Badge } from "@xivizley/aurora-ui";
 
-const clientNameMap: Record<string, { name: string; variant: "cyan" | "purple" | "green" | "amber" }> = {
+const clientNameMap: Record<
+  string,
+  { name: string; variant: "cyan" | "purple" | "green" | "amber" }
+> = {
   "game-panel": { name: "Game Panel", variant: "cyan" },
-  "drive": { name: "Drive", variant: "purple" },
-  "cinema": { name: "Cinema", variant: "purple" },
-  "vault": { name: "Vault", variant: "amber" },
-  "pulse": { name: "Pulse", variant: "green" },
-  "sound": { name: "Sound", variant: "cyan" },
-  "docs": { name: "Docs", variant: "cyan" },
-  "pass": { name: "Pass", variant: "amber" },
-  "fortress": { name: "Fortress", variant: "green" },
-  "brain": { name: "Brain", variant: "purple" },
-  "flow": { name: "Flow", variant: "amber" },
+  drive: { name: "Drive", variant: "purple" },
+  cinema: { name: "Cinema", variant: "purple" },
+  vault: { name: "Vault", variant: "amber" },
+  pulse: { name: "Pulse", variant: "green" },
+  sound: { name: "Sound", variant: "cyan" },
+  docs: { name: "Docs", variant: "cyan" },
+  pass: { name: "Pass", variant: "amber" },
+  fortress: { name: "Fortress", variant: "green" },
+  brain: { name: "Brain", variant: "purple" },
+  flow: { name: "Flow", variant: "amber" },
 };
 
 export function LoginForm() {
@@ -90,7 +93,9 @@ export function LoginForm() {
         const data = await res.json();
 
         if (!res.ok || !data.ok) {
-          setError(data.message || "Giriş yapılamadı. Bilgilerinizi kontrol edin.");
+          setError(
+            data.message || "Giriş yapılamadı. Bilgilerinizi kontrol edin.",
+          );
           return;
         }
 
@@ -133,7 +138,10 @@ export function LoginForm() {
       </div>
 
       {/* Oturum Açma Kartı */}
-      <Card variant="outlined" className="p-6 md:p-8 bg-[#222933] border-[#2d3748] rounded-2xl shadow-xl">
+      <Card
+        variant="outlined"
+        className="p-6 md:p-8 bg-[#222933] border-[#2d3748] rounded-2xl shadow-xl"
+      >
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {error && (
             <div
@@ -154,7 +162,12 @@ export function LoginForm() {
             autoComplete="email"
             autoFocus
             leftIcon={
-              <svg className="w-4 h-4 text-slate-400" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <svg
+                className="w-4 h-4 text-slate-400"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z" />
               </svg>
             }
@@ -169,7 +182,12 @@ export function LoginForm() {
             disabled={isPending}
             autoComplete="current-password"
             leftIcon={
-              <svg className="w-4 h-4 text-slate-400" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <svg
+                className="w-4 h-4 text-slate-400"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+              >
                 <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z" />
               </svg>
             }
@@ -204,15 +222,32 @@ export function LoginForm() {
         >
           {isDemoPending ? (
             <>
-              <svg className="animate-spin h-4 w-4 text-[#0082c9]" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              <svg
+                className="animate-spin h-4 w-4 text-[#0082c9]"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
               </svg>
               <span>Demo Başlatılıyor...</span>
             </>
           ) : (
             <>
-              <span className="text-base group-hover:scale-110 transition-transform">👁️</span>
+              <span className="text-base group-hover:scale-110 transition-transform">
+                👁️
+              </span>
               <span>Canlı Demo Olarak Keşfet (Şifresiz)</span>
             </>
           )}

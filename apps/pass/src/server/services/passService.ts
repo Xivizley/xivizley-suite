@@ -3,18 +3,18 @@
 // Dual-mode: PostgreSQL (Drizzle) with Resilient In-Memory Fallback
 // ============================================================
 
-import { getDb, vaultItems, passFolders } from '@xivizley/db';
-import { eq, desc } from 'drizzle-orm';
+import { getDb, vaultItems, passFolders } from "@xivizley/db";
+import { eq, desc } from "drizzle-orm";
 import {
   encryptVaultData,
   decryptVaultData,
   generateTotp,
   type EncryptedPayload,
-} from '../crypto/vaultCrypto';
+} from "../crypto/vaultCrypto";
 
 export interface VaultItem {
   id: string;
-  type: 'login' | 'secure_note' | 'server_ssh' | 'api_key' | 'card';
+  type: "login" | "secure_note" | "server_ssh" | "api_key" | "card";
   title: string;
   username?: string | undefined;
   password?: string | undefined; // Client'a decrypted veya maskeli döner
@@ -31,67 +31,67 @@ export interface VaultItem {
 // In-Memory Güvenli Tohum Verileri (Resilient Fallback)
 const inMemoryVault: VaultItem[] = [
   {
-    id: 'vault-sunucu-a',
-    type: 'server_ssh',
-    title: '🖥️ Sunucu A: Odeaweb Test VDS',
-    username: 'root',
-    password: 'demo_odeaweb_password_sample',
-    url: '10.0.0.1:22',
-    notes: 'CasaOS (Port 80), Jellyfin (8096), Nginx Proxy Manager (81)',
-    folder: 'Sunucular & Altyapı',
+    id: "vault-sunucu-a",
+    type: "server_ssh",
+    title: "🖥️ Sunucu A: Odeaweb Test VDS",
+    username: "root",
+    password: "demo_odeaweb_password_sample",
+    url: "10.0.0.1:22",
+    notes: "CasaOS (Port 80), Jellyfin (8096), Nginx Proxy Manager (81)",
+    folder: "Sunucular & Altyapı",
     isFavorite: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: 'vault-sunucu-b',
-    type: 'server_ssh',
-    title: '🎮 Sunucu B: Minecraft PaperMC VDS',
-    username: 'root',
-    password: 'demo_papermc_password_sample',
-    url: '10.0.0.2:25565',
-    notes: 'Minecraft PaperMC Port 25565 test sunucusu.',
-    folder: 'Sunucular & Altyapı',
+    id: "vault-sunucu-b",
+    type: "server_ssh",
+    title: "🎮 Sunucu B: Minecraft PaperMC VDS",
+    username: "root",
+    password: "demo_papermc_password_sample",
+    url: "10.0.0.2:25565",
+    notes: "Minecraft PaperMC Port 25565 test sunucusu.",
+    folder: "Sunucular & Altyapı",
     isFavorite: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: 'vault-email',
-    type: 'login',
-    title: '📬 XIVIZLEY Kurumsal Yönetici Maili (Örnek)',
-    username: 'admin@example.com',
-    password: 'demo_mail_password_secure',
-    url: 'https://mail.example.com',
-    totpSecret: 'JBSWY3DPEHPK3PXP', // 2FA Örnek Anahtarı
-    notes: 'Kurumsal e-posta hesabı (IMAP 993, SMTP 465)',
-    folder: 'E-Posta & İletişim',
+    id: "vault-email",
+    type: "login",
+    title: "📬 XIVIZLEY Kurumsal Yönetici Maili (Örnek)",
+    username: "admin@example.com",
+    password: "demo_mail_password_secure",
+    url: "https://mail.example.com",
+    totpSecret: "JBSWY3DPEHPK3PXP", // 2FA Örnek Anahtarı
+    notes: "Kurumsal e-posta hesabı (IMAP 993, SMTP 465)",
+    folder: "E-Posta & İletişim",
     isFavorite: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: 'vault-cloudflare',
-    type: 'api_key',
-    title: '🌐 Cloudflare DNS & Zone Token',
-    username: 'dev@example.com',
-    password: 'cf_api_token_sample_dns_master_2026',
-    url: 'https://dash.cloudflare.com',
-    notes: 'NS: kai.ns.cloudflare.com & serena.ns.cloudflare.com',
-    folder: 'API & Servisler',
+    id: "vault-cloudflare",
+    type: "api_key",
+    title: "🌐 Cloudflare DNS & Zone Token",
+    username: "dev@example.com",
+    password: "cf_api_token_sample_dns_master_2026",
+    url: "https://dash.cloudflare.com",
+    notes: "NS: kai.ns.cloudflare.com & serena.ns.cloudflare.com",
+    folder: "API & Servisler",
     isFavorite: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
-    id: 'vault-telegram-bot',
-    type: 'api_key',
-    title: '🤖 Telegram AI Destek Botu',
-    username: '@xivizley_destek_bot',
-    password: '0000000000:AA_DEMO_BOT_TOKEN_SAMPLE_ONLY',
-    url: 'https://t.me/xivizley_destek_bot',
-    notes: 'SendPulse AI Chatbot & Pulse Alarm Bildirim Botu',
-    folder: 'API & Servisler',
+    id: "vault-telegram-bot",
+    type: "api_key",
+    title: "🤖 Telegram AI Destek Botu",
+    username: "@xivizley_destek_bot",
+    password: "0000000000:AA_DEMO_BOT_TOKEN_SAMPLE_ONLY",
+    url: "https://t.me/xivizley_destek_bot",
+    notes: "SendPulse AI Chatbot & Pulse Alarm Bildirim Botu",
+    folder: "API & Servisler",
     isFavorite: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -101,10 +101,15 @@ const inMemoryVault: VaultItem[] = [
 export async function getAllVaultItems(folder?: string): Promise<VaultItem[]> {
   try {
     const db = getDb();
-    const rows = await db.select().from(vaultItems).orderBy(desc(vaultItems.createdAt));
+    const rows = await db
+      .select()
+      .from(vaultItems)
+      .orderBy(desc(vaultItems.createdAt));
 
     if (rows.length === 0) {
-      return folder ? inMemoryVault.filter((i) => i.folder === folder) : inMemoryVault;
+      return folder
+        ? inMemoryVault.filter((i) => i.folder === folder)
+        : inMemoryVault;
     }
 
     const items: VaultItem[] = rows.map((r) => {
@@ -125,7 +130,7 @@ export async function getAllVaultItems(folder?: string): Promise<VaultItem[]> {
         url: r.url || undefined,
         totpSecret: r.totpSecret || undefined,
         notes: r.notes || undefined,
-        folder: r.folder || 'Genel',
+        folder: r.folder || "Genel",
         isFavorite: r.isFavorite,
         lastUsedAt: r.lastUsedAt ? r.lastUsedAt.toISOString() : undefined,
         createdAt: r.createdAt.toISOString(),
@@ -135,7 +140,9 @@ export async function getAllVaultItems(folder?: string): Promise<VaultItem[]> {
 
     return folder ? items.filter((i) => i.folder === folder) : items;
   } catch {
-    return folder ? inMemoryVault.filter((i) => i.folder === folder) : inMemoryVault;
+    return folder
+      ? inMemoryVault.filter((i) => i.folder === folder)
+      : inMemoryVault;
   }
 }
 
@@ -144,8 +151,10 @@ export async function getVaultItemById(id: string): Promise<VaultItem | null> {
   return all.find((i) => i.id === id) || null;
 }
 
-export async function createVaultItem(data: Omit<VaultItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<VaultItem> {
-  const enc = encryptVaultData(data.password || '');
+export async function createVaultItem(
+  data: Omit<VaultItem, "id" | "createdAt" | "updatedAt">,
+): Promise<VaultItem> {
+  const enc = encryptVaultData(data.password || "");
   const encString = JSON.stringify(enc);
 
   try {
@@ -160,7 +169,7 @@ export async function createVaultItem(data: Omit<VaultItem, 'id' | 'createdAt' |
         url: data.url,
         totpSecret: data.totpSecret,
         notes: data.notes,
-        folder: data.folder || 'Genel',
+        folder: data.folder || "Genel",
         isFavorite: data.isFavorite || false,
       })
       .returning();
@@ -175,7 +184,7 @@ export async function createVaultItem(data: Omit<VaultItem, 'id' | 'createdAt' |
         url: row.url || undefined,
         totpSecret: row.totpSecret || undefined,
         notes: row.notes || undefined,
-        folder: row.folder || 'Genel',
+        folder: row.folder || "Genel",
         isFavorite: row.isFavorite,
         createdAt: row.createdAt.toISOString(),
         updatedAt: row.updatedAt.toISOString(),
@@ -195,12 +204,17 @@ export async function createVaultItem(data: Omit<VaultItem, 'id' | 'createdAt' |
   return newItem;
 }
 
-export async function updateVaultItem(id: string, data: Partial<VaultItem>): Promise<VaultItem | null> {
+export async function updateVaultItem(
+  id: string,
+  data: Partial<VaultItem>,
+): Promise<VaultItem | null> {
   try {
     const db = getDb();
     const updatePayload: any = { ...data };
     if (data.password) {
-      updatePayload.encryptedPassword = JSON.stringify(encryptVaultData(data.password));
+      updatePayload.encryptedPassword = JSON.stringify(
+        encryptVaultData(data.password),
+      );
       delete updatePayload.password;
     }
     updatePayload.updatedAt = new Date();
@@ -220,7 +234,7 @@ export async function updateVaultItem(id: string, data: Partial<VaultItem>): Pro
         url: updatedRow.url || undefined,
         totpSecret: updatedRow.totpSecret || undefined,
         notes: updatedRow.notes || undefined,
-        folder: updatedRow.folder || 'Genel',
+        folder: updatedRow.folder || "Genel",
         isFavorite: updatedRow.isFavorite,
         createdAt: updatedRow.createdAt.toISOString(),
         updatedAt: updatedRow.updatedAt.toISOString(),
@@ -242,7 +256,10 @@ export async function deleteVaultItemById(id: string): Promise<boolean> {
   let dbDeleted = false;
   try {
     const db = getDb();
-    const deleted = await db.delete(vaultItems).where(eq(vaultItems.id, id)).returning();
+    const deleted = await db
+      .delete(vaultItems)
+      .where(eq(vaultItems.id, id))
+      .returning();
     if (deleted.length > 0) dbDeleted = true;
   } catch {
     // ignore
@@ -261,7 +278,10 @@ export const deleteVaultItem = deleteVaultItemById;
 export async function toggleVaultFavorite(id: string): Promise<boolean> {
   try {
     const db = getDb();
-    const [existing] = await db.select().from(vaultItems).where(eq(vaultItems.id, id));
+    const [existing] = await db
+      .select()
+      .from(vaultItems)
+      .where(eq(vaultItems.id, id));
     if (existing) {
       const [updated] = await db
         .update(vaultItems)

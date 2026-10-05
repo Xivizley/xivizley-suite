@@ -33,19 +33,22 @@ interface VaultParams {
 
 export const passRoutes: FastifyPluginAsync = async (fastify) => {
   // ─── 1. GET /api/vault ─────────────────────────────────────────
-  fastify.get<{ Querystring: VaultQuery }>("/api/vault", async (request, reply) => {
-    try {
-      const user = (request as any).user;
-      const isGuest = user?.role === "guest" || user?.id === DEMO_USER_ID;
-      const items = await getAllVaultItems(request.query.folder, isGuest);
-      return reply.send({ ok: true, data: items });
-    } catch (err: any) {
-      return reply.status(500).send({
-        ok: false,
-        error: err?.message || "Kasa verileri alınamadı",
-      });
-    }
-  });
+  fastify.get<{ Querystring: VaultQuery }>(
+    "/api/vault",
+    async (request, reply) => {
+      try {
+        const user = (request as any).user;
+        const isGuest = user?.role === "guest" || user?.id === DEMO_USER_ID;
+        const items = await getAllVaultItems(request.query.folder, isGuest);
+        return reply.send({ ok: true, data: items });
+      } catch (err: any) {
+        return reply.status(500).send({
+          ok: false,
+          error: err?.message || "Kasa verileri alınamadı",
+        });
+      }
+    },
+  );
 
   // ─── 2. POST /api/vault ────────────────────────────────────────
   fastify.post<{ Body: VaultBody }>("/api/vault", async (request, reply) => {
@@ -80,111 +83,128 @@ export const passRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // ─── 2b. POST /api/vault/import (Toplu Kasa İçe Aktarma) ───────
-  fastify.post<{ Body: { items: VaultBody[] } }>("/api/vault/import", async (request, reply) => {
-    try {
-      const incoming = request.body?.items || [];
-      if (!Array.isArray(incoming) || incoming.length === 0) {
-        return reply.status(400).send({ ok: false, error: "İçe aktarılacak öğe bulunamadı." });
-      }
-
-      const importedItems = [];
-      for (const item of incoming) {
-        if (!item.title || !item.title.trim()) continue;
-        try {
-          const created = await createVaultItem({
-            type: item.type || "login",
-            title: item.title.trim(),
-            username: item.username || "",
-            password: item.password || "",
-            url: item.url || "",
-            totpSecret: item.totpSecret || "",
-            notes: item.notes || "",
-            folder: item.folder || "İçe Aktarılanlar",
-            isFavorite: Boolean(item.isFavorite),
-          });
-          importedItems.push(created);
-        } catch (innerErr) {
-          console.warn("[Pass Import] Öğe atlandı:", innerErr);
+  fastify.post<{ Body: { items: VaultBody[] } }>(
+    "/api/vault/import",
+    async (request, reply) => {
+      try {
+        const incoming = request.body?.items || [];
+        if (!Array.isArray(incoming) || incoming.length === 0) {
+          return reply
+            .status(400)
+            .send({ ok: false, error: "İçe aktarılacak öğe bulunamadı." });
         }
-      }
 
-      return reply.send({
-        ok: true,
-        message: `${importedItems.length} parola/öğe başarıyla kasanıza aktarıldı.`,
-        importedCount: importedItems.length,
-        items: importedItems,
-      });
-    } catch (err: any) {
-      return reply.status(500).send({
-        ok: false,
-        error: err?.message || "İçe aktarma işlemi başarısız.",
-      });
-    }
-  });
+        const importedItems = [];
+        for (const item of incoming) {
+          if (!item.title || !item.title.trim()) continue;
+          try {
+            const created = await createVaultItem({
+              type: item.type || "login",
+              title: item.title.trim(),
+              username: item.username || "",
+              password: item.password || "",
+              url: item.url || "",
+              totpSecret: item.totpSecret || "",
+              notes: item.notes || "",
+              folder: item.folder || "İçe Aktarılanlar",
+              isFavorite: Boolean(item.isFavorite),
+            });
+            importedItems.push(created);
+          } catch (innerErr) {
+            console.warn("[Pass Import] Öğe atlandı:", innerErr);
+          }
+        }
 
-  // ─── 3. GET /api/vault/:id ─────────────────────────────────────
-  fastify.get<{ Params: VaultParams }>("/api/vault/:id", async (request, reply) => {
-    try {
-      const user = (request as any).user;
-      const isGuest = user?.role === "guest" || user?.id === DEMO_USER_ID;
-      const item = await getVaultItemById(request.params.id, isGuest);
-      if (!item) {
-        return reply.status(404).send({ ok: false, error: "Öğe bulunamadı" });
-      }
-      return reply.send({ ok: true, data: item });
-    } catch (err: any) {
-      return reply.status(500).send({ ok: false, error: err?.message });
-    }
-  });
-
-  // ─── 4. PUT /api/vault/:id ─────────────────────────────────────
-  fastify.put<{ Params: VaultParams; Body: Record<string, any> }>("/api/vault/:id", async (request, reply) => {
-    try {
-      const body = request.body || {};
-      const { id } = request.params;
-
-      if (body.toggleFavorite) {
-        const isFav = await toggleVaultFavorite(id);
-        return reply.send({ ok: true, isFavorite: isFav });
-      }
-
-      const updated = await updateVaultItem(id, body);
-      if (!updated) {
-        return reply.status(404).send({ ok: false, error: "Öğe bulunamadı" });
-      }
-      return reply.send({ ok: true, data: updated });
-    } catch (err: any) {
-      return reply.status(500).send({ ok: false, error: err?.message });
-    }
-  });
-
-  // ─── 5. DELETE /api/vault/:id ──────────────────────────────────
-  fastify.delete<{ Params: VaultParams }>("/api/vault/:id", async (request, reply) => {
-    try {
-      const success = await deleteVaultItemById(request.params.id);
-      return reply.send({ ok: success });
-    } catch (err: any) {
-      return reply.status(500).send({ ok: false, error: err?.message });
-    }
-  });
-
-  // ─── 6. GET /api/vault/:id/totp ────────────────────────────────
-  fastify.get<{ Params: VaultParams }>("/api/vault/:id/totp", async (request, reply) => {
-    try {
-      const user = (request as any).user;
-      const isGuest = user?.role === "guest" || user?.id === DEMO_USER_ID;
-      const item = await getVaultItemById(request.params.id, isGuest);
-      if (!item || !item.totpSecret) {
-        return reply.status(404).send({
+        return reply.send({
+          ok: true,
+          message: `${importedItems.length} parola/öğe başarıyla kasanıza aktarıldı.`,
+          importedCount: importedItems.length,
+          items: importedItems,
+        });
+      } catch (err: any) {
+        return reply.status(500).send({
           ok: false,
-          error: "Bu öğede 2FA anahtarı tanımlı değil",
+          error: err?.message || "İçe aktarma işlemi başarısız.",
         });
       }
+    },
+  );
 
-      const totp = generateTotp(item.totpSecret);
-      return reply.send({ ok: true, data: totp });
-    } catch (err: any) {
-      return reply.status(500).send({ ok: false, error: err?.message });
-    }
-  });
+  // ─── 3. GET /api/vault/:id ─────────────────────────────────────
+  fastify.get<{ Params: VaultParams }>(
+    "/api/vault/:id",
+    async (request, reply) => {
+      try {
+        const user = (request as any).user;
+        const isGuest = user?.role === "guest" || user?.id === DEMO_USER_ID;
+        const item = await getVaultItemById(request.params.id, isGuest);
+        if (!item) {
+          return reply.status(404).send({ ok: false, error: "Öğe bulunamadı" });
+        }
+        return reply.send({ ok: true, data: item });
+      } catch (err: any) {
+        return reply.status(500).send({ ok: false, error: err?.message });
+      }
+    },
+  );
+
+  // ─── 4. PUT /api/vault/:id ─────────────────────────────────────
+  fastify.put<{ Params: VaultParams; Body: Record<string, any> }>(
+    "/api/vault/:id",
+    async (request, reply) => {
+      try {
+        const body = request.body || {};
+        const { id } = request.params;
+
+        if (body.toggleFavorite) {
+          const isFav = await toggleVaultFavorite(id);
+          return reply.send({ ok: true, isFavorite: isFav });
+        }
+
+        const updated = await updateVaultItem(id, body);
+        if (!updated) {
+          return reply.status(404).send({ ok: false, error: "Öğe bulunamadı" });
+        }
+        return reply.send({ ok: true, data: updated });
+      } catch (err: any) {
+        return reply.status(500).send({ ok: false, error: err?.message });
+      }
+    },
+  );
+
+  // ─── 5. DELETE /api/vault/:id ──────────────────────────────────
+  fastify.delete<{ Params: VaultParams }>(
+    "/api/vault/:id",
+    async (request, reply) => {
+      try {
+        const success = await deleteVaultItemById(request.params.id);
+        return reply.send({ ok: success });
+      } catch (err: any) {
+        return reply.status(500).send({ ok: false, error: err?.message });
+      }
+    },
+  );
+
+  // ─── 6. GET /api/vault/:id/totp ────────────────────────────────
+  fastify.get<{ Params: VaultParams }>(
+    "/api/vault/:id/totp",
+    async (request, reply) => {
+      try {
+        const user = (request as any).user;
+        const isGuest = user?.role === "guest" || user?.id === DEMO_USER_ID;
+        const item = await getVaultItemById(request.params.id, isGuest);
+        if (!item || !item.totpSecret) {
+          return reply.status(404).send({
+            ok: false,
+            error: "Bu öğede 2FA anahtarı tanımlı değil",
+          });
+        }
+
+        const totp = generateTotp(item.totpSecret);
+        return reply.send({ ok: true, data: totp });
+      } catch (err: any) {
+        return reply.status(500).send({ ok: false, error: err?.message });
+      }
+    },
+  );
 };

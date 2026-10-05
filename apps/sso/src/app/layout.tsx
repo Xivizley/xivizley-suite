@@ -14,7 +14,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "XIVIZLEY Hub — Merkezi Kimlik & Homelab Bulut Portalı",
-  description: "XIVIZLEY Native Suite Merkezi Kimlik Doğrulama ve Homelab Bulut Servisi",
+  description:
+    "XIVIZLEY Native Suite Merkezi Kimlik Doğrulama ve Homelab Bulut Servisi",
   manifest: "/manifest.json",
   robots: {
     index: false,
