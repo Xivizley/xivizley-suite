@@ -22,12 +22,15 @@ import {
   Zap,
   CheckCircle2,
   X,
+  Bell,
 } from 'lucide-react';
 import type { PulseMonitor } from '@/server/services/pulseService';
 import { NextcloudHeader } from '@xivizley/aurora-ui';
 import { PulseSentinelCard } from '@/components/PulseSentinelCard';
 import { SentinelDoctorCard } from '@/components/SentinelDoctorCard';
 import { ClusterSwitcherModal } from '@/components/ClusterSwitcherModal';
+import { NetworkTopologyMap } from '@/components/NetworkTopologyMap';
+import { DiscordWebhookModal } from '@/components/DiscordWebhookModal';
 
 export default function PulseDashboard() {
   const [monitors, setMonitors] = useState<PulseMonitor[]>([]);
@@ -35,6 +38,10 @@ export default function PulseDashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [checkingId, setCheckingId] = useState<string | null>(null);
+  const [isDiscordModalOpen, setIsDiscordModalOpen] = useState(false);
+  const [quickTestSending, setQuickTestSending] = useState(false);
+  const [quickTestResult, setQuickTestResult] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'topology' | 'sentinel' | 'services' | 'all'>('topology');
 
   // Form State
   const [formData, setFormData] = useState({
@@ -141,6 +148,29 @@ export default function PulseDashboard() {
         )
       : 0;
 
+  const handleQuickDiscordTest = async () => {
+    setQuickTestSending(true);
+    setQuickTestResult(null);
+    try {
+      const res = await fetch('/api/notifications/test-discord', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        setQuickTestResult('Discord test alarmı başarıyla iletildi!');
+      } else {
+        setIsDiscordModalOpen(true);
+      }
+    } catch {
+      setIsDiscordModalOpen(true);
+    } finally {
+      setQuickTestSending(false);
+      setTimeout(() => setQuickTestResult(null), 4000);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#181e24] text-slate-100 flex flex-col font-sans">
       {/* ─── Signature Nextcloud Header Bar ─────────────────── */}
@@ -159,6 +189,15 @@ export default function PulseDashboard() {
               <span>Durum Sayfası</span>
               <ExternalLink className="h-3 w-3 opacity-70" />
             </a>
+
+            <button
+              onClick={() => setIsDiscordModalOpen(true)}
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#5865F2]/20 hover:bg-[#5865F2]/30 text-xs font-semibold text-slate-100 border border-[#5865F2]/40 transition-colors"
+              title="Discord Alarmı Ayarla"
+            >
+              <Bell className="h-3.5 w-3.5 text-[#5865F2]" />
+              <span>Discord Alarmı</span>
+            </button>
 
             <button
               onClick={() => {
@@ -263,14 +302,91 @@ export default function PulseDashboard() {
           </div>
         </div>
 
-        {/* ─── VDS Sistem Bekçisi & Telegram Kalkanı ─────────────── */}
-        <PulseSentinelCard />
+        {/* ─── OpsCenter v1.1 Kontrol Çubuğu & Sekmeler ────────────── */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-[#222933] border border-[#2d3748] shadow-sm">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+            <button
+              onClick={() => setActiveTab('topology')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                activeTab === 'topology'
+                  ? 'bg-[#0082c9] text-white shadow-sm'
+                  : 'bg-[#181e24] text-slate-400 hover:text-white border border-[#2d3748]'
+              }`}
+            >
+              <span>Ağ ve Konteyner Topolojisi</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('sentinel')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                activeTab === 'sentinel'
+                  ? 'bg-[#0082c9] text-white shadow-sm'
+                  : 'bg-[#181e24] text-slate-400 hover:text-white border border-[#2d3748]'
+              }`}
+            >
+              <span>VDS Bekçisi & Teşhis</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('services')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                activeTab === 'services'
+                  ? 'bg-[#0082c9] text-white shadow-sm'
+                  : 'bg-[#181e24] text-slate-400 hover:text-white border border-[#2d3748]'
+              }`}
+            >
+              <span>İzlenen Servisler ({monitors.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                activeTab === 'all'
+                  ? 'bg-[#0082c9] text-white shadow-sm'
+                  : 'bg-[#181e24] text-slate-400 hover:text-white border border-[#2d3748]'
+              }`}
+            >
+              <span>Tümü</span>
+            </button>
+          </div>
 
-        {/* ─── AI Sistem Doktoru & Otonom Hata Teşhisi ─────────────── */}
-        <SentinelDoctorCard />
+          <div className="flex items-center gap-2 shrink-0">
+            {quickTestResult && (
+              <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/20">
+                {quickTestResult}
+              </span>
+            )}
+            <button
+              onClick={handleQuickDiscordTest}
+              disabled={quickTestSending}
+              className="px-3 py-1.5 rounded-lg bg-[#5865F2]/20 hover:bg-[#5865F2]/30 text-xs font-semibold text-slate-200 border border-[#5865F2]/40 flex items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#5865F2]" />
+              <span>{quickTestSending ? 'Gönderiliyor...' : 'Test Gönder'}</span>
+            </button>
+            <button
+              onClick={() => setIsDiscordModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-[#5865F2] hover:bg-[#4752c4] text-xs font-semibold text-white flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+            >
+              <Bell className="w-3.5 h-3.5" />
+              <span>🔔 Discord Alarmı Ayarla</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ─── Canlı Ağ ve Konteyner Topoloji Haritası ─────────────── */}
+        {(activeTab === 'topology' || activeTab === 'all') && (
+          <NetworkTopologyMap />
+        )}
+
+        {/* ─── VDS Sistem Bekçisi & Telegram Kalkanı ─────────────── */}
+        {(activeTab === 'sentinel' || activeTab === 'all') && (
+          <>
+            <PulseSentinelCard />
+            <SentinelDoctorCard />
+          </>
+        )}
 
         {/* ─── Monitor Cards Section ───────────────────────────── */}
-        <div className="space-y-3">
+        {(activeTab === 'services' || activeTab === 'all') && (
+          <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-slate-300 flex items-center gap-2">
               <Radio className="h-4 w-4 text-[#0082c9]" />
@@ -417,6 +533,7 @@ export default function PulseDashboard() {
             </div>
           )}
         </div>
+        )}
       </main>
 
       {/* ─── Add Monitor Modal ─────────────────────────────────── */}
@@ -554,6 +671,10 @@ export default function PulseDashboard() {
         </div>
       )}
       <ClusterSwitcherModal />
+      <DiscordWebhookModal
+        isOpen={isDiscordModalOpen}
+        onClose={() => setIsDiscordModalOpen(false)}
+      />
     </div>
   );
 }

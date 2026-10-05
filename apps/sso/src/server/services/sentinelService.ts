@@ -6,6 +6,7 @@
 import os from "node:os";
 import fs from "node:fs";
 import Docker from "dockerode";
+import { dispatchOpsDiscordAlert, clearDiscordAlertCooldown } from "./notificationService.js";
 
 export interface SentinelThresholds {
   cpuPercent: number; // default 85
@@ -312,6 +313,14 @@ export async function runSentinelCheck(): Promise<void> {
         `_Sistem kaynakları aşırı zorlanıyor. Süreçleri inceleyiniz._`;
 
       await sendTelegramNotification(msg);
+      await dispatchOpsDiscordAlert({
+        key,
+        title: "🔥 YÜKSEK CPU KULLANIMI UYARISI",
+        description: `Sunucu CPU yükü %${status.host.cpu.usagePercent} seviyesine ulaştı.`,
+        severity: "warning",
+        metric: `CPU Yükü: %${status.host.cpu.usagePercent} (Eşik: %${thresholds.cpuPercent})`,
+        value: `%${status.host.cpu.usagePercent}`,
+      });
       markAlertSent(key, `CPU kullanımı %${status.host.cpu.usagePercent} değerine ulaştı.`, "critical");
     }
   }
@@ -331,6 +340,14 @@ export async function runSentinelCheck(): Promise<void> {
         `_OOM Killer riski! Boşta bellek kritik seviyede._`;
 
       await sendTelegramNotification(msg);
+      await dispatchOpsDiscordAlert({
+        key,
+        title: "⚠️ KRİTİK RAM TÜKETİMİ UYARISI",
+        description: `Sunucu RAM doluluğu %${status.host.ram.usagePercent} seviyesine çıktı (${usedGb} GB / ${totalGb} GB).`,
+        severity: "warning",
+        metric: `RAM Doluluğu: %${status.host.ram.usagePercent} (Eşik: %${thresholds.ramPercent})`,
+        value: `${usedGb}GB / ${totalGb}GB`,
+      });
       markAlertSent(key, `RAM kullanımı %${status.host.ram.usagePercent} değerine ulaştı.`, "critical");
     }
   }
@@ -350,6 +367,14 @@ export async function runSentinelCheck(): Promise<void> {
         `_NVMe disk alanı tükenmek üzere. Eski log ve yedekleri temizleyiniz._`;
 
       await sendTelegramNotification(msg);
+      await dispatchOpsDiscordAlert({
+        key,
+        title: "💾 NVMe DİSK DOLMAK ÜZERE",
+        description: `NVMe disk alanı tükenmek üzere (%${status.host.disk.usagePercent} - ${usedGb} GB / ${totalGb} GB).`,
+        severity: "warning",
+        metric: `NVMe Disk: %${status.host.disk.usagePercent} (Eşik: %${thresholds.diskPercent})`,
+        value: `${usedGb}GB / ${totalGb}GB`,
+      });
       markAlertSent(key, `NVMe disk doluluğu %${status.host.disk.usagePercent} seviyesine çıktı.`, "warning");
     }
   }
@@ -372,6 +397,15 @@ export async function runSentinelCheck(): Promise<void> {
           `_Konteyner beklenmedik şekilde durdu. Yeniden başlatılıyor olabilir._`;
 
         await sendTelegramNotification(msg);
+        clearDiscordAlertCooldown(`container_${c.name}_recovered`);
+        await dispatchOpsDiscordAlert({
+          key,
+          title: `🚨 KONTEYNER ÇÖKTÜ: ${c.name}`,
+          description: `Konteyner beklenmedik şekilde durdu (${c.status}). Yeniden başlatılıyor olabilir.`,
+          severity: "critical",
+          metric: `Konteyner Durumu: ${c.status.toUpperCase()}`,
+          value: c.status,
+        });
         markAlertSent(key, `${c.name} konteyneri durdu (${c.status}).`, "critical");
       } else if (previous !== "running" && isNowRunning) {
         // Container recovered! Green notification
@@ -385,6 +419,15 @@ export async function runSentinelCheck(): Promise<void> {
           `_Konteyner başarıyla ayağa kalktı ve servise devam ediyor._`;
 
         await sendTelegramNotification(msg);
+        clearDiscordAlertCooldown(`container_${c.name}_down`);
+        await dispatchOpsDiscordAlert({
+          key,
+          title: `🟢 KONTEYNER TEKRAR AKTİF: ${c.name}`,
+          description: `Konteyner başarıyla ayağa kalktı ve servise devam ediyor.`,
+          severity: "recovery",
+          metric: `Konteyner Durumu: RUNNING`,
+          value: "running",
+        });
         markAlertSent(key, `${c.name} konteyneri yeniden çalışıyor.`, "recovery");
         // Clear down cooldown
         alertCooldowns.delete(`container_${c.name}_down`);

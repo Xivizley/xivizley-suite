@@ -21,6 +21,8 @@ import { terminalRoutes } from "./terminal-routes.js";
 import { doctorRoutes } from "./doctor-routes.js";
 import { clusterRoutes } from "./cluster-routes.js";
 import { statusRoutes } from "./status-routes.js";
+import { sslRoutes } from "./ssl-routes.js";
+import { notificationRoutes } from "./notification-routes.js";
 import { startSentinelDaemon } from "./services/sentinelService.js";
 import { verifyAccessToken, hashToken, generateAccessToken } from "./tokens.js";
 import { startLogTailer } from "./engine/logTailer.js";
@@ -112,6 +114,15 @@ function isPublicRoute(method: string, urlPath: string): boolean {
   if (
     (method === "GET" && urlPath.startsWith("/api/cluster/nodes")) ||
     (method === "GET" && urlPath.startsWith("/api/doctor/diagnostics"))
+  ) {
+    return true;
+  }
+
+  // 9. OpsCenter SSL Radar ve Bildirim Rotaları
+  if (
+    (method === "GET" && urlPath.startsWith("/api/ssl/radar")) ||
+    (method === "GET" && urlPath.startsWith("/api/notifications/config")) ||
+    (method === "POST" && urlPath === "/api/notifications/test-discord")
   ) {
     return true;
   }
@@ -270,7 +281,10 @@ async function bootstrap() {
           normalizedPath === "/api/auth/demo" ||
           normalizedPath === "/api/auth/logout" ||
           normalizedPath === "/api/auth/login" ||
-          normalizedPath === "/api/auth/refresh"
+          normalizedPath === "/api/auth/refresh" ||
+          normalizedPath === "/api/notifications/test-discord" ||
+          normalizedPath === "/api/notifications/config" ||
+          normalizedPath === "/api/sentinel/test-telegram"
         ) {
           return;
         }
@@ -311,6 +325,8 @@ async function bootstrap() {
   await fastify.register(doctorRoutes);
   await fastify.register(clusterRoutes);
   await fastify.register(statusRoutes);
+  await fastify.register(sslRoutes);
+  await fastify.register(notificationRoutes);
 
   // Shield Log Tailer ve VDS Sentinel Bekçisini başlat (arka planda)
   try {
