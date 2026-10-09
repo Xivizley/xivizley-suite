@@ -66,9 +66,7 @@ export interface SentinelStatus {
   }>;
 }
 
-const DEFAULT_BOT_TOKEN =
-  process.env.TELEGRAM_BOT_TOKEN ||
-  "***REMOVED***";
+const DEFAULT_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 let activeChatId: string | null = process.env.TELEGRAM_CHAT_ID || null;
 
 const thresholds: SentinelThresholds = {

@@ -9,7 +9,7 @@ set -euo pipefail
 BACKUP_DIR="/root/backups"
 DATE=$(date +"%Y-%m-%d_%H-%M-%S")
 LOG_FILE="/var/log/xivizley-backup.log"
-TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-***REMOVED***}"
+TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN:-}"
 TELEGRAM_CHAT_ID="${TELEGRAM_CHAT_ID:-}"
 
 mkdir -p "$BACKUP_DIR"

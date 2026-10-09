@@ -3,9 +3,7 @@
 // Real-time security incident alerts via @xivizley_destek_bot
 // ============================================================
 
-const DEFAULT_BOT_TOKEN =
-  process.env.TELEGRAM_BOT_TOKEN ||
-  "***REMOVED***";
+const DEFAULT_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const DEFAULT_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 export interface ThreatAlertPayload {

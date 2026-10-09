@@ -12,9 +12,7 @@ export interface AlertPayload {
   errorMessage?: string;
 }
 
-const DEFAULT_BOT_TOKEN =
-  process.env.TELEGRAM_BOT_TOKEN ||
-  "***REMOVED***";
+const DEFAULT_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";
 const DEFAULT_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
 /**
