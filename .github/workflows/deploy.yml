@@ -31,8 +31,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile=false
 
-      - name: Typecheck (hub)
-        run: pnpm --filter @xivizley/sso typecheck
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck (all packages)
+        run: pnpm -r typecheck
 
       - name: Build hub (Next.js)
         run: pnpm --filter @xivizley/sso build

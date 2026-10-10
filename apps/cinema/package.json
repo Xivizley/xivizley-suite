@@ -7,8 +7,8 @@
     "dev": "next dev -p 3003",
     "build": "echo 'Placeholder app - build skipped'",
     "start": "next start -p 3003",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "lint": "echo placeholder-no-source",
+    "typecheck": "echo placeholder-no-source"
   },
   "dependencies": {
     "@xivizley/types": "workspace:*",

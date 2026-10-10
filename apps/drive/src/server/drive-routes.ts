@@ -5,9 +5,15 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { pipeline } from "node:stream/promises";
 import { eq, and, isNull, desc, inArray } from "drizzle-orm";
-import archiver from "archiver";
+import * as archiverModule from "archiver";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
 import { getDb, files, folders, shares } from "@xivizley/db";
+
+// archiver ships a CommonJS callable; @types/archiver exposes named classes only.
+const archiver = archiverModule as unknown as (
+  format: string,
+  options?: Record<string, unknown>,
+) => archiverModule.Archiver;
 
 const UPLOAD_DIR =
   process.env["DRIVE_STORAGE_PATH"] ||

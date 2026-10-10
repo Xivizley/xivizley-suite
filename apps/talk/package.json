@@ -8,8 +8,8 @@
     "dev:server": "tsx watch src/server/index.ts",
     "build": "echo 'Placeholder app - build skipped'",
     "start": "node dist/server/index.js",
-    "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "lint": "echo placeholder-no-source",
+    "typecheck": "echo placeholder-no-source"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.2",

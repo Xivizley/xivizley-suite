@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Button, Input, Modal, NextcloudHeader } from "@xivizley/aurora-ui";
+import { Button, Input, Modal, NextcloudHeader, Spinner } from "@xivizley/aurora-ui";
 
 interface DriveFolder {
   id: string;
@@ -1443,7 +1443,7 @@ export default function DrivePage() {
         onClose={() => setShareModalFile(null)}
         title={`Bağlantı ile Paylaş — ${shareModalFile?.name}`}
         size="md"
-        actions={
+        footer={
           <Button
             variant="secondary"
             size="sm"

@@ -6,8 +6,8 @@ export interface AlertPayload {
   monitorName: string;
   target: string;
   status: "up" | "down";
-  latencyMs?: number;
-  errorMessage?: string;
+  latencyMs?: number | undefined;
+  errorMessage?: string | undefined;
 }
 
 const DEFAULT_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "";

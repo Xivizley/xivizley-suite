@@ -15,8 +15,8 @@ export interface PulseMonitor {
   target: string;
   intervalSeconds: number;
   status: "up" | "down" | "pending";
-  lastCheckAt?: string;
-  lastLatencyMs?: number;
+  lastCheckAt?: string | undefined;
+  lastLatencyMs?: number | undefined;
   uptimePercentage: number;
   recentHeartbeats: Array<{
     id: string;

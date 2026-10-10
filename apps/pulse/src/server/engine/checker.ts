@@ -8,8 +8,8 @@ import net from "node:net";
 export interface CheckResult {
   status: "up" | "down";
   latencyMs: number;
-  statusCode?: number;
-  error?: string;
+  statusCode?: number | undefined;
+  error?: string | undefined;
 }
 
 /**

@@ -11,9 +11,11 @@ import { resolveGeoIp } from "./geoIpResolver";
 import { banIp, recordSecurityEvent } from "../services/shieldService";
 import { sendShieldTelegramAlert } from "../notifications/telegramAlerter";
 
-const LOG_FILE_PATHS = [
-  process.env["CADDY_LOG_PATH"] || "/var/log/caddy/access.log",
-  path.resolve(process.cwd(), ".storage/caddy-access.log"),
+const FALLBACK_LOG_PATH = "/var/log/caddy/access.log";
+const LOCAL_LOG_PATH = path.resolve(process.cwd(), ".storage/caddy-access.log");
+const LOG_FILE_PATHS: string[] = [
+  process.env["CADDY_LOG_PATH"] || FALLBACK_LOG_PATH,
+  LOCAL_LOG_PATH,
 ];
 
 let isTailerRunning = false;
@@ -88,6 +90,8 @@ export async function processLogLine(line: string) {
       // Olayı kaydet
       await recordSecurityEvent({
         sourceIp: ip,
+        countryCode: geo.countryCode,
+        countryName: geo.countryName,
         targetService: host,
         targetPort: 443,
         requestMethod: method,
@@ -108,14 +112,16 @@ export async function processLogLine(line: string) {
         );
 
         // Telegram bildirimi gönder
-        await sendShieldTelegramAlert(
+        await sendShieldTelegramAlert({
           ip,
-          geo.countryName,
-          geo.countryCode,
+          countryName: geo.countryName,
+          flag: geo.countryCode,
           threatType,
-          `${method} ${uri}`,
-          "IP Otomatik 24 Saat Karantinaya Alındı",
-        ).catch(() => {});
+          severity,
+          targetService: host,
+          reason: `${method} ${uri}`,
+          isBanned: true,
+        }).catch(() => {});
       }
     }
   } catch (err) {
@@ -130,21 +136,22 @@ export function startLogTailer(): boolean {
   if (isTailerRunning) return true;
 
   // Mevcut log dosyasını bul
-  let targetPath = LOG_FILE_PATHS.find((p) => fs.existsSync(p));
+  let targetPath: string | undefined = LOG_FILE_PATHS.find((p) => fs.existsSync(p));
 
   if (!targetPath) {
     // Yoksa test/örnek dizinini oluştur
-    const defaultPath = LOG_FILE_PATHS[0];
+    const defaultPath = LOG_FILE_PATHS[0] ?? FALLBACK_LOG_PATH;
     const dir = path.dirname(defaultPath);
     try {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(defaultPath, "", "utf-8");
       targetPath = defaultPath;
     } catch {
-      targetPath = LOG_FILE_PATHS[1];
-      const localDir = path.dirname(targetPath);
+      const localPath = LOG_FILE_PATHS[1] ?? LOCAL_LOG_PATH;
+      const localDir = path.dirname(localPath);
       if (!fs.existsSync(localDir)) fs.mkdirSync(localDir, { recursive: true });
-      fs.writeFileSync(targetPath, "", "utf-8");
+      fs.writeFileSync(localPath, "", "utf-8");
+      targetPath = localPath;
     }
   }
 
