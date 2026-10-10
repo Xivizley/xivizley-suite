@@ -53,6 +53,7 @@ jobs:
           port: ${{ secrets.VDS_PORT }}
           username: ${{ secrets.VDS_USER }}
           key: ${{ secrets.VDS_SSH_KEY }}
+          command_timeout: 30m
           script_stop: true
           script: |
             set -e
