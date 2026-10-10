@@ -8,8 +8,8 @@ RUN apk add --no-cache python3 make g++
 # Monorepo dosyalarını kopyala
 COPY . .
 
-# Bağımlılıkları yükle
-RUN pnpm install --frozen-lockfile=false
+# Yalnızca hub (sso) ve workspace bağımlılıklarını yükle — tüm monorepo yerine
+RUN pnpm install --frozen-lockfile=false --filter @xivizley/sso...
 
 WORKDIR /app/apps/sso
 RUN pnpm build
