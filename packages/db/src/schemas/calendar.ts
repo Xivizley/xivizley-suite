@@ -1,0 +1,37 @@
+// ============================================================
+// XIVIZLEY Calendar Schema — packages/db/src/schemas/calendar.ts
+// Drizzle ORM PostgreSQL 16 schema for Calendar Events
+// ============================================================
+
+import {
+  pgSchema,
+  uuid,
+  varchar,
+  text,
+  boolean,
+  timestamp,
+} from "drizzle-orm/pg-core";
+
+export const calendar = pgSchema("calendar");
+
+// ─── calendar.events (Takvim Etkinlikleri) ────────────────────
+export const calendarEvents = calendar.table("events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: text("user_id")
+    .notNull()
+    .default("00000000-0000-0000-0000-000000000001"),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  location: varchar("location", { length: 255 }),
+  startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+  endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+  allDay: boolean("all_day").notNull().default(false),
+  color: varchar("color", { length: 32 }).default("#0082c9"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});

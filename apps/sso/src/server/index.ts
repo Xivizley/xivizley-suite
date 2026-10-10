@@ -9,6 +9,7 @@ import { ResourceGovernor } from "@xivizley/resource-gov";
 import { authRoutes } from "./auth-routes.js";
 import { driveRoutes } from "./drive-routes.js";
 import { notesRoutes } from "./notes-routes.js";
+import { calendarRoutes } from "./calendar-routes.js";
 import { photosRoutes } from "./photos-routes.js";
 import { gamePanelRoutes } from "./game-routes.js";
 import { passRoutes } from "./pass-routes.js";
@@ -341,6 +342,7 @@ async function bootstrap() {
   await fastify.register(authRoutes);
   await fastify.register(driveRoutes);
   await fastify.register(notesRoutes);
+  await fastify.register(calendarRoutes);
   await fastify.register(photosRoutes);
   await fastify.register(gamePanelRoutes, { governor });
   await fastify.register(gameBackupRoutes);
