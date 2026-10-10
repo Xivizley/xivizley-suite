@@ -263,6 +263,22 @@ async function bootstrap() {
   });
 
   // Middleware eklentileri
+  // ─── CalDAV OPTIONS (CORS preflight'tan önce yakala) ───
+  fastify.addHook("onRequest", async (request, reply) => {
+    if (request.method !== "OPTIONS") return;
+    const url = (request.url || "/").split("?")[0] || "/";
+    if (url === "/dav" || url.startsWith("/dav/") || url === "/.well-known/caldav") {
+      reply
+        .header("DAV", "1, 2, 3, calendar-access")
+        .header(
+          "Allow",
+          "OPTIONS, GET, HEAD, PUT, DELETE, PROPFIND, PROPPATCH, REPORT, MKCALENDAR",
+        )
+        .header("MS-Author-Via", "DAV");
+      return reply.status(200).send();
+    }
+  });
+
   await fastify.register(cors, {
     origin: true,
     credentials: true,
