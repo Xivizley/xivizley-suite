@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ============================================================================
-# XIVIZLEY Suite v0.2 — Endüstriyel Açık Kaynak Kurulum Motoru
+# XIVIZLEY Suite v1.0 — Endüstriyel Açık Kaynak Kurulum Motoru
 # Mimar: Alperen Celal (14, Bursa)
 # https://xivizley.com.tr | https://github.com/Xivizley/xivizley-suite
 # ============================================================================
@@ -23,7 +23,7 @@ cat << "EOF"
   ██╔╝ ██╗██║ ╚████╔╝ ██║███████╗███████╗███████╗   ██║   
   ╚═╝  ╚═╝╚═╝  ╚═══╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   
 EOF
-echo -e "  >> XIVIZLEY Suite v0.2.0-beta [Endüstriyel Bulut & 115 Uygulama]${NC}"
+echo -e "  >> XIVIZLEY Suite v1.0.0 [Endüstriyel Bulut & 115 Uygulama]${NC}"
 echo -e "  >> Mimar: Alperen Celal (14, Bursa)\n"
 
 # 1. Root veya Sudo Kontrolü
@@ -87,7 +87,7 @@ else
   rm -f "${TMP_KEY}"
 
   cat > "${ENV_FILE}" <<EOF
-# XIVIZLEY Suite v0.2 Configuration
+# XIVIZLEY Suite v1.0 Configuration
 DOMAIN=${USER_DOMAIN}
 ACME_EMAIL=${USER_EMAIL}
 COOKIE_DOMAIN=

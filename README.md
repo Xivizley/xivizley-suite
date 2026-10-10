@@ -1,4 +1,4 @@
-# XIVIZLEY Suite v0.2
+# XIVIZLEY Suite v1.0
 
 ```
 ██╗  ██╗██╗██╗   ██╗██╗███████╗██╗     ███████╗██╗   ██╗
@@ -7,10 +7,10 @@
  ██╔██╗ ██║╚██╗ ██╔╝██║ ███╔╝  ██║     ██╔══╝    ╚██╔╝
 ██╔╝ ██╗██║ ╚████╔╝ ██║███████╗███████╗███████╗   ██║
 ╚═╝  ╚═╝╚═╝  ╚═══╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝
-Industrial Homelab & Self-Hosted Cloud Operating Suite • v0.2.0
+Industrial Homelab & Self-Hosted Cloud Operating Suite • v1.0.0
 ```
 
-[![Version](https://img.shields.io/badge/version-v0.2.0--beta-0082c9.svg?style=flat-square)](https://github.com/Xivizley/xivizley-suite)
+[![Version](https://img.shields.io/badge/version-v1.0.0-0082c9.svg?style=flat-square)](https://github.com/Xivizley/xivizley-suite)
 [![Docker](https://img.shields.io/badge/docker-engine_native-2496ed.svg?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
 [![Apps](https://img.shields.io/badge/catalog-115+_docker_apps-10b981.svg?style=flat-square)](https://suite.xivizley.com.tr/store)
 [![Design](https://img.shields.io/badge/standards-DIN_40719_Spec-8b5cf6.svg?style=flat-square)](https://xivizley.com.tr)
@@ -40,7 +40,7 @@ npx xivizley suite
 
 ---
 
-## 🌟 Öne Çıkan Özellikler (v0.2)
+## 🌟 Öne Çıkan Özellikler (v1.0)
 
 ### 🏬 1. 115+ Küratörlü Docker Uygulama Mağazası (`/store`)
 
