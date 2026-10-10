@@ -1,0 +1,62 @@
+name: CI/CD — XIVIZLEY Suite
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: suite-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Build & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Typecheck (hub)
+        run: pnpm --filter @xivizley/sso typecheck
+
+      - name: Build hub (Next.js)
+        run: pnpm --filter @xivizley/sso build
+
+  deploy:
+    name: Deploy to VDS
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: SSH deploy (git pull + rebuild hub)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VDS_HOST }}
+          port: ${{ secrets.VDS_PORT }}
+          username: ${{ secrets.VDS_USER }}
+          key: ${{ secrets.VDS_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd /opt/xivizley-suite
+            git fetch origin --quiet
+            git reset --hard origin/main
+            cd deploy
+            docker compose up -d --build --force-recreate hub
+            docker image prune -f >/dev/null 2>&1 || true
+            echo "Deploy OK: $(git -C /opt/xivizley-suite rev-parse --short HEAD)"
