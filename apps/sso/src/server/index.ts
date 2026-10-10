@@ -10,6 +10,7 @@ import { authRoutes } from "./auth-routes.js";
 import { driveRoutes } from "./drive-routes.js";
 import { notesRoutes } from "./notes-routes.js";
 import { calendarRoutes } from "./calendar-routes.js";
+import { caldavRoutes } from "./caldav-routes.js";
 import { photosRoutes } from "./photos-routes.js";
 import { gamePanelRoutes } from "./game-routes.js";
 import { passRoutes } from "./pass-routes.js";
@@ -132,6 +133,11 @@ function isPublicRoute(method: string, urlPath: string): boolean {
 
   // 10. Takvim abonelik feed'i (token korumalı, girişsiz erişilebilir)
   if (method === "GET" && urlPath.startsWith("/api/calendar/feed.ics")) {
+    return true;
+  }
+
+  // 11. CalDAV (Basic Auth kendi içinde; hub JWT'sinden muaf)
+  if (urlPath === "/dav" || urlPath.startsWith("/dav/") || urlPath === "/.well-known/caldav") {
     return true;
   }
 
@@ -349,6 +355,7 @@ async function bootstrap() {
   await fastify.register(driveRoutes);
   await fastify.register(notesRoutes);
   await fastify.register(calendarRoutes);
+  await fastify.register(caldavRoutes);
   await fastify.register(photosRoutes);
   await fastify.register(gamePanelRoutes, { governor });
   await fastify.register(gameBackupRoutes);

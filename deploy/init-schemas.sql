@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS drive.shares (
 CREATE TABLE IF NOT EXISTS calendar.events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id TEXT NOT NULL DEFAULT '00000000-0000-0000-0000-000000000001',
+    uid VARCHAR(64),
     title VARCHAR(255) NOT NULL,
     description TEXT,
     location VARCHAR(255),

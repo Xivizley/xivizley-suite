@@ -21,6 +21,7 @@ export const calendarEvents = calendar.table("events", {
   userId: text("user_id")
     .notNull()
     .default("00000000-0000-0000-0000-000000000001"),
+  uid: varchar("uid", { length: 64 }),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
   location: varchar("location", { length: 255 }),
