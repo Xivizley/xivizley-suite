@@ -177,7 +177,22 @@ export const caldavRoutes: FastifyPluginAsync = async (fastify) => {
     if (rest === "" || rest === "/") {
       responses.push(resp("/dav/", collectionType + commonProps));
       if (depth !== "0") {
-        responses.push(resp(principal, collectionType + commonProps));
+        responses.push(
+          resp(
+            principal,
+            collectionType +
+              commonProps +
+              `<C:calendar-home-set><D:href>${esc(home)}</D:href></C:calendar-home-set>`,
+          ),
+        );
+        responses.push(
+          resp(
+            home,
+            collectionType +
+              `<C:calendar-home-set><D:href>${esc(home)}</D:href></C:calendar-home-set>`,
+          ),
+        );
+        responses.push(resp(calHref, calendarProps));
       }
     } else if (rest === `principals/${e}`) {
       responses.push(
