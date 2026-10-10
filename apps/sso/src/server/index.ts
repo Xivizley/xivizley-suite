@@ -130,6 +130,11 @@ function isPublicRoute(method: string, urlPath: string): boolean {
     return true;
   }
 
+  // 10. Takvim abonelik feed'i (token korumalı, girişsiz erişilebilir)
+  if (method === "GET" && urlPath.startsWith("/api/calendar/feed.ics")) {
+    return true;
+  }
+
   return false;
 }
 

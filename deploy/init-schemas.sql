@@ -112,3 +112,16 @@ CREATE TABLE IF NOT EXISTS calendar.events (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS calendar.settings (
+    user_id TEXT PRIMARY KEY DEFAULT '00000000-0000-0000-0000-000000000001',
+    cal_token VARCHAR(64) NOT NULL,
+    from_email VARCHAR(255),
+    smtp_host VARCHAR(255),
+    smtp_port INTEGER,
+    smtp_user VARCHAR(255),
+    smtp_pass_enc TEXT,
+    mail_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

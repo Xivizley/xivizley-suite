@@ -43,12 +43,44 @@ export interface SendMailInput {
   icsFilename?: string;
 }
 
-export async function sendMail(input: SendMailInput): Promise<boolean> {
-  const t = getTransporter();
-  if (!t) return false;
+export interface SmtpConfig {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  from?: string;
+}
 
-  const fromAddress =
-    process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || "no-reply@localhost";
+function buildTransport(cfg: {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+}): nodemailer.Transporter {
+  return nodemailer.createTransport({
+    host: cfg.host,
+    port: cfg.port,
+    secure: cfg.port === 465,
+    auth: { user: cfg.user, pass: cfg.pass },
+  });
+}
+
+export async function sendMail(
+  input: SendMailInput,
+  config?: SmtpConfig,
+): Promise<boolean> {
+  let t: nodemailer.Transporter | null;
+  let fromAddress: string;
+
+  if (config) {
+    t = buildTransport(config);
+    fromAddress = config.from || config.user;
+  } else {
+    t = getTransporter();
+    if (!t) return false;
+    fromAddress =
+      process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || "no-reply@localhost";
+  }
 
   try {
     await t.sendMail({

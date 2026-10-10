@@ -12,6 +12,7 @@ import {
   X,
   Clock,
   MapPin,
+  RefreshCw,
 } from "lucide-react";
 
 interface CalEvent {
@@ -80,6 +81,18 @@ export default function CalendarPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [inviting, setInviting] = useState(false);
   const [inviteMsg, setInviteMsg] = useState<string | null>(null);
+  const [syncOpen, setSyncOpen] = useState(false);
+  const [settings, setSettings] = useState<any>(null);
+  const [sBusy, setSBusy] = useState(false);
+  const [sMsg, setSMsg] = useState<string | null>(null);
+  const [sForm, setSForm] = useState({
+    fromEmail: "",
+    smtpHost: "",
+    smtpPort: "465",
+    smtpUser: "",
+    smtpPass: "",
+    mailEnabled: false,
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchEvents = async () => {
@@ -218,6 +231,110 @@ export default function CalendarPage() {
     }
   };
 
+  const feedUrl =
+    settings && typeof window !== "undefined"
+      ? `${window.location.origin}/api/calendar/feed.ics?token=${settings.calToken}`
+      : "";
+
+  const openSync = async () => {
+    setSyncOpen(true);
+    setSMsg(null);
+    try {
+      const res = await fetch("/api/calendar/settings");
+      const json = await res.json();
+      if (json.ok) {
+        setSettings(json.data);
+        setSForm({
+          fromEmail: json.data.fromEmail || "",
+          smtpHost: json.data.smtpHost || "",
+          smtpPort: String(json.data.smtpPort || 465),
+          smtpUser: json.data.smtpUser || "",
+          smtpPass: "",
+          mailEnabled: !!json.data.mailEnabled,
+        });
+      }
+    } catch (e) {
+      console.error("Ayarlar yüklenemedi:", e);
+    }
+  };
+
+  const saveSettings = async () => {
+    setSBusy(true);
+    setSMsg(null);
+    try {
+      const res = await fetch("/api/calendar/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fromEmail: sForm.fromEmail,
+          smtpHost: sForm.smtpHost,
+          smtpPort: sForm.smtpPort ? Number(sForm.smtpPort) : null,
+          smtpUser: sForm.smtpUser,
+          smtpPass: sForm.smtpPass || undefined,
+          mailEnabled: sForm.mailEnabled,
+        }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setSettings(json.data);
+        setSForm((f) => ({ ...f, smtpPass: "" }));
+        setSMsg("Kaydedildi ✅");
+      } else {
+        setSMsg(json.message || "Kaydedilemedi.");
+      }
+    } catch {
+      setSMsg("Kaydedilemedi.");
+    } finally {
+      setSBusy(false);
+    }
+  };
+
+  const testMail = async () => {
+    setSBusy(true);
+    setSMsg(null);
+    try {
+      const res = await fetch("/api/calendar/settings/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: sForm.fromEmail || sForm.smtpUser }),
+      });
+      const json = await res.json();
+      setSMsg(json.message || (json.ok ? "Gönderildi." : "Gönderilemedi."));
+    } catch {
+      setSMsg("Gönderilemedi.");
+    } finally {
+      setSBusy(false);
+    }
+  };
+
+  const regenerateToken = async () => {
+    setSBusy(true);
+    try {
+      const res = await fetch("/api/calendar/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ regenerate: true }),
+      });
+      const json = await res.json();
+      if (json.ok) {
+        setSettings(json.data);
+        setSMsg("Abonelik bağlantısı yenilendi.");
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setSBusy(false);
+    }
+  };
+
+  const copyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      /* ignore */
+    }
+  };
+
   const exportIcs = async () => {
     try {
       const res = await fetch("/api/calendar/export.ics");
@@ -289,6 +406,12 @@ export default function CalendarPage() {
                 e.target.value = "";
               }}
             />
+            <button
+              onClick={openSync}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Senkron &amp; Mail
+            </button>
             <button
               onClick={() => fileInputRef.current?.click()}
               className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition"
@@ -375,6 +498,142 @@ export default function CalendarPage() {
           <p className="text-center text-xs text-slate-500 mt-4">Yükleniyor…</p>
         )}
       </main>
+
+      {/* Sync & Mail modal */}
+      {syncOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => setSyncOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#1e252c] p-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-bold">Senkronizasyon &amp; Mail</h2>
+              <button
+                onClick={() => setSyncOpen(false)}
+                className="p-1 rounded hover:bg-white/10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Calendar subscription feed */}
+            <div className="rounded-lg border border-white/10 bg-black/20 p-3 mb-4">
+              <p className="text-xs font-semibold text-white mb-1">
+                📡 Takvim aboneliği (ICS)
+              </p>
+              <p className="text-[11px] text-slate-400 mb-2">
+                Bu adresi Thunderbird / Google / Apple Takvim&apos;e &quot;ağ
+                üzerinden takvim&quot; olarak ekle → otomatik senkronize olur.
+              </p>
+              <div className="flex items-center gap-2">
+                <input
+                  readOnly
+                  value={feedUrl}
+                  className="flex-1 rounded-md border border-white/10 bg-black/30 px-3 py-2 text-[11px] font-mono"
+                />
+                <button
+                  onClick={() => copyText(feedUrl)}
+                  className="shrink-0 px-3 py-2 text-xs font-semibold rounded-md border border-[#0082c9]/50 text-[#66c2e8] hover:bg-[#0082c9]/10 transition"
+                >
+                  Kopyala
+                </button>
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-[10px] text-slate-500">
+                  Thunderbird: Takvimler → Yeni Takvim → Ağ Üzerinden → URL
+                </span>
+                <button
+                  onClick={regenerateToken}
+                  className="text-[10px] text-[#66c2e8] hover:underline"
+                >
+                  Bağlantıyı Yenile
+                </button>
+              </div>
+            </div>
+
+            {/* Per-user mail */}
+            <div className="rounded-lg border border-white/10 bg-black/20 p-3">
+              <p className="text-xs font-semibold text-white mb-2">
+                ✉️ Kendi mailin (hatırlatma/davet gönderimi)
+              </p>
+              <div className="space-y-2">
+                <input
+                  placeholder="Gönderen e-posta (ornek@mail.com)"
+                  value={sForm.fromEmail}
+                  onChange={(e) => setSForm({ ...sForm, fromEmail: e.target.value })}
+                  className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-[#0082c9]"
+                />
+                <div className="flex gap-2">
+                  <input
+                    placeholder="SMTP host (smtp.gmail.com)"
+                    value={sForm.smtpHost}
+                    onChange={(e) => setSForm({ ...sForm, smtpHost: e.target.value })}
+                    className="flex-1 rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-[#0082c9]"
+                  />
+                  <input
+                    placeholder="Port"
+                    value={sForm.smtpPort}
+                    onChange={(e) => setSForm({ ...sForm, smtpPort: e.target.value })}
+                    className="w-20 rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-[#0082c9]"
+                  />
+                </div>
+                <input
+                  placeholder="SMTP kullanıcı"
+                  value={sForm.smtpUser}
+                  onChange={(e) => setSForm({ ...sForm, smtpUser: e.target.value })}
+                  className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-[#0082c9]"
+                />
+                <input
+                  type="password"
+                  placeholder={
+                    settings?.hasPassword
+                      ? "Şifre (kayıtlı — değiştirmek için yaz)"
+                      : "SMTP şifresi / uygulama şifresi"
+                  }
+                  value={sForm.smtpPass}
+                  onChange={(e) => setSForm({ ...sForm, smtpPass: e.target.value })}
+                  className="w-full rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm outline-none focus:border-[#0082c9]"
+                />
+                <label className="flex items-center gap-2 text-xs text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={sForm.mailEnabled}
+                    onChange={(e) =>
+                      setSForm({ ...sForm, mailEnabled: e.target.checked })
+                    }
+                  />
+                  Bu maili kullan (etkin)
+                </label>
+              </div>
+              <div className="flex items-center gap-2 mt-3">
+                <button
+                  onClick={saveSettings}
+                  disabled={sBusy}
+                  className="px-4 py-2 text-xs font-semibold rounded-md bg-[#0082c9] hover:bg-[#0071b0] text-white transition disabled:opacity-50"
+                >
+                  Kaydet
+                </button>
+                <button
+                  onClick={testMail}
+                  disabled={sBusy}
+                  className="px-4 py-2 text-xs font-medium rounded-md border border-white/10 hover:bg-white/10 transition disabled:opacity-50"
+                >
+                  Test Maili
+                </button>
+              </div>
+              {sMsg && <p className="text-[11px] text-slate-300 mt-2">{sMsg}</p>}
+              <p className="text-[10px] text-slate-500 mt-2">
+                Gmail için: iki adımlı doğrulama aç → &quot;uygulama şifresi&quot;
+                oluştur → host <span className="font-mono">smtp.gmail.com</span>,
+                port <span className="font-mono">465</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Editor modal */}
       {form && (

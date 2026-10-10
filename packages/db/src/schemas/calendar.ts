@@ -39,3 +39,24 @@ export const calendarEvents = calendar.table("events", {
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
+
+// ─── calendar.settings (Kullanıcı başına abonelik token'ı + SMTP) ───
+export const calendarSettings = calendar.table("settings", {
+  userId: text("user_id")
+    .primaryKey()
+    .default("00000000-0000-0000-0000-000000000001"),
+  calToken: varchar("cal_token", { length: 64 }).notNull(),
+  fromEmail: varchar("from_email", { length: 255 }),
+  smtpHost: varchar("smtp_host", { length: 255 }),
+  smtpPort: integer("smtp_port"),
+  smtpUser: varchar("smtp_user", { length: 255 }),
+  smtpPassEnc: text("smtp_pass_enc"),
+  mailEnabled: boolean("mail_enabled").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});

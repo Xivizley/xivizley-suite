@@ -4,6 +4,15 @@ import { getDb, calendarEvents } from "@xivizley/db";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
 import { eventsToIcs, parseIcs } from "../lib/calendar-ics.js";
 import { sendMail, isMailConfigured } from "./services/mailer.js";
+import {
+  getOrCreateSettings,
+  getUserIdByToken,
+  updateSettings,
+  regenerateToken,
+  toPublic,
+  getUserSmtpConfig,
+  type SettingsUpdate,
+} from "./services/calendarSettings.js";
 
 const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000001";
 const DEMO_USER_ID = "d0000000-0000-0000-0000-000000000001";
@@ -308,6 +317,107 @@ export const calendarRoutes: FastifyPluginAsync = async (fastify) => {
           .send({ ok: false, message: "Davet gönderilemedi (SMTP hatası)." });
       }
       return reply.send({ ok: true, message: `Davet gönderildi: ${email}` });
+    },
+  );
+
+  // 8. GET /api/calendar/feed.ics?token=... — abonelik feed'i (public, Thunderbird/Google/Apple)
+  fastify.get<{ Querystring: { token?: string } }>(
+    "/api/calendar/feed.ics",
+    async (request, reply) => {
+      const token = request.query.token;
+      if (!token) {
+        return reply.status(401).send("Abonelik token'ı gerekli.");
+      }
+      const userId = await getUserIdByToken(token);
+      if (!userId) {
+        return reply.status(403).send("Geçersiz abonelik token'ı.");
+      }
+
+      let rows: any[] = [];
+      try {
+        const db = getDb();
+        rows = await db
+          .select()
+          .from(calendarEvents)
+          .where(eq(calendarEvents.userId, userId))
+          .orderBy(asc(calendarEvents.startsAt));
+      } catch {
+        // ignore
+      }
+
+      const ics = eventsToIcs(
+        rows.map((r) => ({
+          id: r.id,
+          title: r.title,
+          description: r.description,
+          location: r.location,
+          startsAt: r.startsAt,
+          endsAt: r.endsAt,
+          allDay: r.allDay,
+        })),
+        "XIVIZLEY Takvim",
+      );
+
+      reply
+        .header("Content-Type", "text/calendar; charset=utf-8")
+        .header("Cache-Control", "no-store, max-age=0");
+      return reply.send(ics);
+    },
+  );
+
+  // 9. GET /api/calendar/settings — kullanıcı ayarları (token + SMTP)
+  fastify.get("/api/calendar/settings", async (request, reply) => {
+    const userId = resolveUserId(request);
+    const row = await getOrCreateSettings(userId);
+    return reply.send({ ok: true, data: toPublic(row) });
+  });
+
+  // 10. PUT /api/calendar/settings — güncelle (token yenileme dahil)
+  fastify.put<{ Body: SettingsUpdate & { regenerate?: boolean } }>(
+    "/api/calendar/settings",
+    async (request, reply) => {
+      const userId = resolveUserId(request);
+      const body = request.body || {};
+      if ((body as any).regenerate) {
+        await regenerateToken(userId);
+      }
+      const row = await updateSettings(userId, body);
+      return reply.send({ ok: true, data: toPublic(row) });
+    },
+  );
+
+  // 11. POST /api/calendar/settings/test — test maili
+  fastify.post<{ Body: { to?: string } }>(
+    "/api/calendar/settings/test",
+    async (request, reply) => {
+      const userId = resolveUserId(request);
+      const row = await getOrCreateSettings(userId);
+      const cfg = getUserSmtpConfig(row) ?? undefined;
+      const to = (request.body || {}).to || row.fromEmail || row.smtpUser || undefined;
+
+      if (!to) {
+        return reply
+          .status(400)
+          .send({ ok: false, message: "Alıcı e-posta adresi gerekli." });
+      }
+      if (!cfg && !isMailConfigured()) {
+        return reply
+          .status(503)
+          .send({ ok: false, message: "Mail (SMTP) yapılandırılmamış." });
+      }
+
+      const ok = await sendMail(
+        {
+          to,
+          subject: "XIVIZLEY Takvim — Mail Testi",
+          text: "Mail yapılandırmanız çalışıyor ✅\n\nXIVIZLEY Takvim",
+        },
+        cfg,
+      );
+      return reply.send({
+        ok,
+        message: ok ? `Test maili gönderildi: ${to}` : "Gönderilemedi (SMTP hatası).",
+      });
     },
   );
 };
