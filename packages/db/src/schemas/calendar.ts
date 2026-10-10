@@ -9,6 +9,7 @@ import {
   varchar,
   text,
   boolean,
+  integer,
   timestamp,
 } from "drizzle-orm/pg-core";
 
@@ -27,6 +28,9 @@ export const calendarEvents = calendar.table("events", {
   endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
   allDay: boolean("all_day").notNull().default(false),
   color: varchar("color", { length: 32 }).default("#0082c9"),
+  reminderMinutes: integer("reminder_minutes"),
+  notifyEmail: varchar("notify_email", { length: 255 }),
+  reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

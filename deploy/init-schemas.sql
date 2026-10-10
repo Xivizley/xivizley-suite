@@ -106,6 +106,9 @@ CREATE TABLE IF NOT EXISTS calendar.events (
     ends_at TIMESTAMPTZ NOT NULL,
     all_day BOOLEAN NOT NULL DEFAULT FALSE,
     color VARCHAR(32) DEFAULT '#0082c9',
+    reminder_minutes INTEGER,
+    notify_email VARCHAR(255),
+    reminder_sent_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

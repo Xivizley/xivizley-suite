@@ -25,6 +25,7 @@ import { statusRoutes } from "./status-routes.js";
 import { sslRoutes } from "./ssl-routes.js";
 import { notificationRoutes } from "./notification-routes.js";
 import { startSentinelDaemon } from "./services/sentinelService.js";
+import { startCalendarReminderDaemon } from "./services/calendarReminder.js";
 import { verifyAccessToken, hashToken, generateAccessToken } from "./tokens.js";
 import { startLogTailer } from "./engine/logTailer.js";
 
@@ -369,6 +370,12 @@ async function bootstrap() {
     startSentinelDaemon(60);
   } catch (err) {
     console.warn("Sentinel daemon başlatılamadı:", err);
+  }
+
+  try {
+    startCalendarReminderDaemon(300);
+  } catch (err) {
+    console.warn("Takvim hatırlatma daemon'u başlatılamadı:", err);
   }
 
   // Next.js SSR ve App Router sayfaları için catch-all yönlendirme

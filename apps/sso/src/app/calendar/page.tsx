@@ -23,6 +23,8 @@ interface CalEvent {
   endsAt: string;
   allDay: boolean;
   color?: string | null;
+  reminderMinutes?: number | null;
+  notifyEmail?: string | null;
 }
 
 const WEEKDAYS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
@@ -49,6 +51,8 @@ interface FormState {
   location: string;
   description: string;
   color: string;
+  reminderMinutes: number | null;
+  notifyEmail: string;
 }
 
 const emptyForm = (date: Date): FormState => ({
@@ -60,6 +64,8 @@ const emptyForm = (date: Date): FormState => ({
   location: "",
   description: "",
   color: COLORS[0] ?? "#0082c9",
+  reminderMinutes: null,
+  notifyEmail: "",
 });
 
 export default function CalendarPage() {
@@ -72,6 +78,8 @@ export default function CalendarPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [form, setForm] = useState<FormState | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [inviting, setInviting] = useState(false);
+  const [inviteMsg, setInviteMsg] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const fetchEvents = async () => {
@@ -131,7 +139,10 @@ export default function CalendarPage() {
       location: ev.location || "",
       description: ev.description || "",
       color: ev.color || COLORS[0] || "#0082c9",
+      reminderMinutes: ev.reminderMinutes ?? null,
+      notifyEmail: ev.notifyEmail || "",
     });
+    setInviteMsg(null);
   };
 
   const saveEvent = async () => {
@@ -153,6 +164,8 @@ export default function CalendarPage() {
         endsAt,
         allDay: form.allDay,
         color: form.color,
+        reminderMinutes: form.reminderMinutes,
+        notifyEmail: form.notifyEmail || null,
       };
 
       const res = await fetch(
@@ -183,6 +196,25 @@ export default function CalendarPage() {
       }
     } catch (e) {
       console.error("Silinemedi:", e);
+    }
+  };
+
+  const sendInvite = async () => {
+    if (!form?.id || !form.notifyEmail) return;
+    setInviting(true);
+    setInviteMsg(null);
+    try {
+      const res = await fetch(`/api/calendar/events/${form.id}/invite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.notifyEmail }),
+      });
+      const json = await res.json().catch(() => ({}));
+      setInviteMsg(json?.message || (json?.ok ? "Davet gönderildi." : "Gönderilemedi."));
+    } catch {
+      setInviteMsg("Gönderilemedi.");
+    } finally {
+      setInviting(false);
     }
   };
 
@@ -429,6 +461,58 @@ export default function CalendarPage() {
                 rows={2}
                 className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-[#0082c9] resize-none"
               />
+
+              <div className="flex items-center gap-2">
+                <label className="text-[10px] uppercase text-slate-400 shrink-0">
+                  Hatırlatma
+                </label>
+                <select
+                  value={form.reminderMinutes ?? ""}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      reminderMinutes: e.target.value === "" ? null : Number(e.target.value),
+                    })
+                  }
+                  className="flex-1 rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm outline-none focus:border-[#0082c9]"
+                >
+                  <option value="">Kapalı</option>
+                  <option value="10">10 dakika önce</option>
+                  <option value="30">30 dakika önce</option>
+                  <option value="60">1 saat önce</option>
+                  <option value="180">3 saat önce</option>
+                  <option value="1440">1 gün önce</option>
+                  <option value="2880">2 gün önce</option>
+                </select>
+              </div>
+
+              <div className="rounded-lg border border-white/10 bg-black/20 p-2.5">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="email"
+                    value={form.notifyEmail}
+                    onChange={(e) => setForm({ ...form, notifyEmail: e.target.value })}
+                    placeholder="Hatırlatma/davet e-postası"
+                    className="flex-1 rounded-md bg-black/20 px-3 py-2 text-sm outline-none focus:border-[#0082c9] border border-white/10"
+                  />
+                  {form.id && (
+                    <button
+                      type="button"
+                      onClick={sendInvite}
+                      disabled={inviting || !form.notifyEmail}
+                      className="shrink-0 px-3 py-2 text-xs font-semibold rounded-md border border-[#0082c9]/50 text-[#66c2e8] hover:bg-[#0082c9]/10 transition disabled:opacity-50"
+                    >
+                      {inviting ? "…" : "Davet Gönder"}
+                    </button>
+                  )}
+                </div>
+                {inviteMsg && (
+                  <p className="text-[11px] text-slate-300 mt-1.5">{inviteMsg}</p>
+                )}
+                <p className="text-[10px] text-slate-500 mt-1">
+                  Hatırlatma için e-posta + kaydet. Davet, etkinlik kaydedildikten sonra gönderilir.
+                </p>
+              </div>
 
               <div className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-slate-500" />

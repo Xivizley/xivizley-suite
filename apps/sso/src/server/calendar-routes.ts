@@ -3,6 +3,7 @@ import { eq, and, gte, lte, asc } from "drizzle-orm";
 import { getDb, calendarEvents } from "@xivizley/db";
 import { withXivizleyAuth } from "@xivizley/xivizley-id";
 import { eventsToIcs, parseIcs } from "../lib/calendar-ics.js";
+import { sendMail, isMailConfigured } from "./services/mailer.js";
 
 const DEFAULT_USER_ID = "00000000-0000-0000-0000-000000000001";
 const DEMO_USER_ID = "d0000000-0000-0000-0000-000000000001";
@@ -91,6 +92,8 @@ export const calendarRoutes: FastifyPluginAsync = async (fastify) => {
       endsAt?: string;
       allDay?: boolean;
       color?: string;
+      reminderMinutes?: number | null;
+      notifyEmail?: string | null;
     };
   }>("/api/calendar/events", async (request, reply) => {
     const userId = resolveUserId(request);
@@ -115,6 +118,9 @@ export const calendarRoutes: FastifyPluginAsync = async (fastify) => {
         endsAt,
         allDay: Boolean(body.allDay),
         color: body.color || "#0082c9",
+        reminderMinutes:
+          body.reminderMinutes != null ? Number(body.reminderMinutes) : null,
+        notifyEmail: body.notifyEmail || null,
       })
       .returning();
 
@@ -140,6 +146,13 @@ export const calendarRoutes: FastifyPluginAsync = async (fastify) => {
         ...(b.endsAt !== undefined ? { endsAt: new Date(b.endsAt) } : {}),
         ...(b.allDay !== undefined ? { allDay: Boolean(b.allDay) } : {}),
         ...(b.color !== undefined ? { color: b.color } : {}),
+        ...(b.reminderMinutes !== undefined
+          ? { reminderMinutes: b.reminderMinutes != null ? Number(b.reminderMinutes) : null }
+          : {}),
+        ...(b.notifyEmail !== undefined ? { notifyEmail: b.notifyEmail || null } : {}),
+        ...(b.reminderMinutes !== undefined || b.notifyEmail !== undefined
+          ? { reminderSentAt: null }
+          : {}),
         updatedAt: new Date(),
       })
       .where(and(eq(calendarEvents.id, id), eq(calendarEvents.userId, userId)))
@@ -231,6 +244,70 @@ export const calendarRoutes: FastifyPluginAsync = async (fastify) => {
         .returning();
 
       return reply.send({ ok: true, count: inserted.length, data: inserted });
+    },
+  );
+
+  // 7. POST /api/calendar/events/:id/invite — .ics daveti e-posta ile gönder
+  fastify.post<{ Params: { id: string }; Body: { email?: string } }>(
+    "/api/calendar/events/:id/invite",
+    async (request, reply) => {
+      const userId = resolveUserId(request);
+      const { id } = request.params;
+      const email = (request.body || {}).email;
+      if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        return reply
+          .status(400)
+          .send({ ok: false, message: "Geçerli bir e-posta adresi gerekli." });
+      }
+
+      if (!isMailConfigured()) {
+        return reply.status(503).send({
+          ok: false,
+          message: "E-posta (SMTP) yapılandırılmamış. Sunucu .env'ine SMTP bilgilerini ekleyin.",
+        });
+      }
+
+      const [ev] = await db
+        .select()
+        .from(calendarEvents)
+        .where(and(eq(calendarEvents.id, id), eq(calendarEvents.userId, userId)))
+        .limit(1);
+
+      if (!ev) {
+        return reply
+          .status(404)
+          .send({ ok: false, message: "Etkinlik bulunamadı." });
+      }
+
+      const ok = await sendMail({
+        to: email,
+        subject: `📅 Davet: ${ev.title}`,
+        text: `XIVIZLEY Takvim daveti: ${ev.title}\nZaman: ${new Date(
+          ev.startsAt,
+        ).toLocaleString("tr-TR", { timeZone: "Europe/Istanbul" })}${
+          ev.location ? `\nKonum: ${ev.location}` : ""
+        }\n\nTakvime eklemek için ekteki .ics dosyasını açın.`,
+        html: `<div style="font-family:sans-serif">
+          <h2 style="color:#0082c9">📅 Takvim Daveti</h2>
+          <p><strong>${ev.title}</strong></p>
+          <p>🗓️ ${new Date(ev.startsAt).toLocaleString("tr-TR", {
+            timeZone: "Europe/Istanbul",
+          })}${ev.location ? `<br/>📍 ${ev.location}` : ""}</p>
+          ${ev.description ? `<p style="color:#555">${ev.description}</p>` : ""}
+          <p style="font-size:12px;color:#888">Ekteki .ics dosyasıyla takviminize ekleyebilirsiniz.</p>
+        </div>`,
+        ics: eventsToIcs([
+          { ...ev, startsAt: ev.startsAt, endsAt: ev.endsAt },
+        ]),
+        icsFilename: "xivizley-davet.ics",
+      });
+
+      if (!ok) {
+        return reply
+          .status(500)
+          .send({ ok: false, message: "Davet gönderilemedi (SMTP hatası)." });
+      }
+      return reply.send({ ok: true, message: `Davet gönderildi: ${email}` });
     },
   );
 };
