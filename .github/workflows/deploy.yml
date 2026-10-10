@@ -41,7 +41,7 @@ jobs:
     name: Deploy to VDS
     needs: ci
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: SSH deploy (git pull + rebuild hub)
         uses: appleboy/ssh-action@v1.2.0
