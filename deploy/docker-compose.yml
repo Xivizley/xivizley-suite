@@ -58,6 +58,11 @@ services:
       VAULT_MASTER_KEY: ${VAULT_MASTER_KEY:-xivizley_vault_zero_knowledge_super_secret_2026}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
       CADDY_LOG_PATH: /var/log/caddy/access.log
       FIVEM_CONTAINER_NAME: ${FIVEM_CONTAINER_NAME:-fivem-server}
       DRIVE_STORAGE_PATH: /data/storage
