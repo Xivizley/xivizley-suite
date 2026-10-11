@@ -84,53 +84,9 @@ jobs:
           script: |
             set -e
             cd /opt/xivizley-suite
-
-            # 1. Mevcut imaj ID'sini rollback için etiketle
-            PREV_IMAGE_ID=$(docker inspect --format='{{.Image}}' xivizley-hub 2>/dev/null || echo "")
-            if [ -n "$PREV_IMAGE_ID" ]; then
-              docker tag "$PREV_IMAGE_ID" xivizley-hub-prev:rollback
-              echo "Mevcut imaj yedeklendi: xivizley-hub-prev:rollback ($PREV_IMAGE_ID)"
-            fi
-
-            # 2. Kod ve compose dosyalarını güncelle
             TARGET_BRANCH="${{ github.ref_name }}"
             git fetch origin --quiet
             git checkout "$TARGET_BRANCH"
             git reset --hard "origin/$TARGET_BRANCH"
-            cd deploy
-
-            # 3. Hazır GHCR imajını çek ve ayağa kaldır (fallback destekli)
-            echo "Pulling GHCR pre-built image..."
-            if ! docker compose pull hub; then
-              echo "⚠️ GHCR pull başarısız oldu, yerel build devrede..."
-              docker compose up -d --build --wait hub
-            else
-              docker compose up -d --wait hub
-            fi
-
-            # 4. Uçtan Uca Sağlık Doğrulaması (Caddy TLS arkasından)
-            echo "Testing end-to-end health at https://suite.xivizley.com.tr/api/health..."
-            HEALTHY=0
-            for i in $(seq 1 15); do
-              if curl -sf https://suite.xivizley.com.tr/api/health >/dev/null 2>&1; then
-                HEALTHY=1
-                echo "🟢 Canlı servis uçtan uca sağlıklı (deneme $i)!"
-                break
-              fi
-              sleep 2
-            done
-
-            # 5. Sağlık testi başarısızsa Rollback
-            if [ "$HEALTHY" -ne 1 ]; then
-              echo "🚨 SAĞLIK KONTROLÜ BAŞARISIZ! Acil Rollback yapılıyor..."
-              if docker image inspect xivizley-hub-prev:rollback >/dev/null 2>&1; then
-                echo "Önceki yedeklenen imaja dönülüyor: xivizley-hub-prev:rollback"
-                HUB_IMAGE=xivizley-hub-prev:rollback docker compose up -d --force-recreate hub
-                echo "⚠️ Rollback başarılı. Canlı servis korundu."
-              fi
-              exit 1
-            fi
-
-            # 6. Başarılı olduysa dangling temizliği yap
-            docker image prune -f >/dev/null 2>&1 || true
-            echo "Deploy OK: $(git -C /opt/xivizley-suite rev-parse --short HEAD)"
+            chmod +x scripts/deploy-vds.sh
+            bash scripts/deploy-vds.sh
