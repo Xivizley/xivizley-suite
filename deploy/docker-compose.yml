@@ -41,11 +41,18 @@ services:
 
   # ─── XIVIZLEY Nextcloud Unified Hub (Tek Çatı Ekosistem) ────
   hub:
+    image: ${HUB_IMAGE:-ghcr.io/xivizley/xivizley-suite-hub:latest}
     build:
       context: ../
       dockerfile: apps/sso/Dockerfile
     container_name: xivizley-hub
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
     environment:
       DATABASE_URL: postgresql://xivizley:${POSTGRES_PASSWORD:-xivizley_dev}@postgres:5432/xivizley_suite
       PORT: "3000"

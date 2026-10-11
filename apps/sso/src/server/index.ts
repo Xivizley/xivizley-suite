@@ -40,6 +40,8 @@ function isPublicRoute(method: string, urlPath: string): boolean {
     urlPath.startsWith("/_next") ||
     urlPath.startsWith("/login") ||
     urlPath.startsWith("/api/auth") ||
+    urlPath === "/api/health" ||
+    urlPath === "/health" ||
     urlPath === "/favicon.ico" ||
     urlPath === "/icon.svg" ||
     urlPath === "/manifest.json" ||
@@ -364,6 +366,23 @@ async function bootstrap() {
     reply.header("Content-Type", "text/plain; charset=utf-8");
     reply.header("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
     return "User-agent: *\nAllow: /\n";
+  });
+
+  // ─── Health Check Rotaları (GHCR Pipeline & Uptime Monitoring) ───
+  fastify.get("/api/health", async (_req, reply) => {
+    return reply.status(200).send({
+      status: "ok",
+      service: "xivizley-hub",
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  fastify.get("/health", async (_req, reply) => {
+    return reply.status(200).send({
+      status: "ok",
+      service: "xivizley-hub",
+      timestamp: new Date().toISOString(),
+    });
   });
 
   // Fastify API Rotaları (Tüm Suite Modülleri)
